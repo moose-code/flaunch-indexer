@@ -1,0 +1,778 @@
+specVersion: 1.2.0
+features:
+  - nonFatalErrors
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: AnyPositionManager
+    network: base
+    source:
+      address: "0x2ad43d0618b1d8a0cc75cf716cf0bf64070725dc"
+      abi: AnyPositionManager
+      startBlock: 30398390
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - PoolSwap
+      abis:
+        - name: AnyPositionManager
+          file: ./abis/AnyPositionManager.json
+        - name: CollectionToken
+          file: ./abis/CollectionToken.json
+        - name: ERC721
+          file: ./abis/ERC721.json
+        - name: Memecoin
+          file: ./abis/Memecoin.json
+      eventHandlers:
+        - event: FeeCalculatorUpdated(address)
+          handler: handleFeeCalculatorUpdated
+        - event: FeeDistributionUpdated((uint24,uint24,uint24,bool))
+          handler: handleFeeDistributionUpdated
+        - event: PoolSwap(indexed bytes32,int256,int256,int256,int256,int256,int256,int256,int256,int256,int256,int256,int256)
+          handler: handlePoolSwap
+        - event: PoolCreated(indexed bytes32,address,address,uint256,bool,(address,address,uint24,bytes,bytes))
+          handler: handlePoolCreated
+          receipt: true
+          calls:
+            CollectionToken.getName2: CollectionToken[event.params._memecoin].name()
+            CollectionToken.getSymbol2: CollectionToken[event.params._memecoin].symbol()
+        - event: PoolFeeDistributionUpdated(indexed bytes32,(uint24,uint24,uint24,bool))
+          handler: handlePoolFeeDistributionUpdated
+        - event: PoolFeesDistributed(indexed bytes32,uint256,uint256,uint256,uint256,uint256)
+          handler: handlePoolFeesDistributed
+        - event: PoolFeesReceived(indexed bytes32,uint256,uint256)
+          handler: handlePoolFeesReceived
+        - event: PoolFeesSwapped(indexed bytes32,bool,uint256,uint256)
+          handler: handlePoolFeesSwapped
+        - event: PoolStateUpdated(indexed bytes32,uint160,int24,uint24,uint24,uint128)
+          handler: handlePoolStateUpdated
+        - event: ReferrerFeePaid(indexed bytes32,address,address,uint256)
+          handler: handleReferrerFeePaid
+        - event: ReferralEscrowUpdated(address)
+          handler: handleReferralEscrowUpdated
+      file: ./src/any-position-manager.ts
+  - kind: ethereum
+    name: PositionManager1
+    network: base
+    source:
+      address: "0x51Bba15255406Cfe7099a42183302640ba7dAFDC"
+      abi: PositionManager
+      startBlock: 25684156
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - PoolSwap
+      abis:
+        - name: PositionManager
+          file: ./abis/PositionManager.json
+        - name: CollectionToken
+          file: ./abis/CollectionToken.json
+        - name: ERC721
+          file: ./abis/ERC721.json
+        - name: Memecoin
+          file: ./abis/Memecoin.json
+      eventHandlers:
+        - event: Deposit(indexed bytes32,address,address,uint256)
+          topic0: "0xc95ddcaddf83340b68d0d44c01b1703f5d28d0611a3fd87e69d79ba7e2ac21d3"
+          handler: handleDeposit
+        - event: FeeCalculatorUpdated(address)
+          handler: handleFeeCalculatorUpdated
+        - event: FeeDistributionUpdated((uint24,uint24,uint24,bool))
+          handler: handleFeeDistributionUpdated
+        - event: PoolSwap(indexed bytes32,int256,int256,int256,int256,int256,int256,int256,int256,int256,int256,int256,int256)
+          handler: handlePoolSwap
+        - event: PoolPremine(indexed bytes32,int256)
+          handler: handlePoolPremine
+        - event: PoolScheduled(indexed bytes32,uint256)
+          handler: handlePoolScheduled
+        - event: PoolCreated(indexed bytes32,address,address,uint256,bool,uint256,(string,string,string,uint256,uint256,address,uint24,uint256,bytes,bytes))
+          handler: handlePoolCreated
+          receipt: true
+          calls:
+            CollectionToken.getName2: CollectionToken[event.params._memecoin].name()
+            CollectionToken.getSymbol2: CollectionToken[event.params._memecoin].symbol()
+        - event: PoolFeeDistributionUpdated(indexed bytes32,(uint24,uint24,uint24,bool))
+          handler: handlePoolFeeDistributionUpdated
+        - event: PoolFeesDistributed(indexed bytes32,uint256,uint256,uint256,uint256,uint256)
+          handler: handlePoolFeesDistributed
+        - event: PoolFeesReceived(indexed bytes32,uint256,uint256)
+          handler: handlePoolFeesReceived
+        - event: PoolFeesSwapped(indexed bytes32,bool,uint256,uint256)
+          handler: handlePoolFeesSwapped
+        - event: PoolStateUpdated(indexed bytes32,uint160,int24,uint24,uint24,uint128)
+          handler: handlePoolStateUpdated
+        - event: ReferrerFeePaid(indexed bytes32,address,address,uint256)
+          handler: handleReferrerFeePaid
+        - event: Withdrawal(address,address,address,uint256)
+          handler: handleWithdrawal
+        - event: FairLaunchFeeCalculatorUpdated(address)
+          handler: handleFairLaunchFeeCalculatorUpdated
+        - event: ReferralEscrowUpdated(address)
+          handler: handleReferralEscrowUpdated
+      file: ./src/position-manager1.ts
+  - kind: ethereum
+    name: PositionManager2
+    network: base
+    source:
+      address: "0xf785bb58059fab6fb19bdda2cb9078d9e546efdc" # v1.1
+      abi: PositionManager
+      startBlock: 29630813 # v1.1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - PoolSwap
+      abis:
+        - name: PositionManager
+          file: ./abis/PositionManager2.json
+        - name: CollectionToken
+          file: ./abis/CollectionToken.json
+        - name: ERC721
+          file: ./abis/ERC721.json
+        - name: Memecoin
+          file: ./abis/Memecoin.json
+      eventHandlers:
+        - event: FeeCalculatorUpdated(address)
+          handler: handleFeeCalculatorUpdated
+        - event: FeeDistributionUpdated((uint24,uint24,uint24,bool))
+          handler: handleFeeDistributionUpdated
+        - event: PoolSwap(indexed bytes32,int256,int256,int256,int256,int256,int256,int256,int256,int256,int256,int256,int256)
+          handler: handlePoolSwap
+        - event: PoolPremine(indexed bytes32,int256)
+          handler: handlePoolPremine
+        - event: PoolScheduled(indexed bytes32,uint256)
+          handler: handlePoolScheduled
+        - event: PoolCreated(indexed bytes32,address,address,uint256,bool,uint256,(string,string,string,uint256,uint256,uint256,address,uint24,uint256,bytes,bytes))
+          handler: handlePoolCreated
+          receipt: true
+          calls:
+            CollectionToken.getName2: CollectionToken[event.params._memecoin].name()
+            CollectionToken.getSymbol2: CollectionToken[event.params._memecoin].symbol()
+        - event: PoolFeeDistributionUpdated(indexed bytes32,(uint24,uint24,uint24,bool))
+          handler: handlePoolFeeDistributionUpdated
+        - event: PoolFeesDistributed(indexed bytes32,uint256,uint256,uint256,uint256,uint256)
+          handler: handlePoolFeesDistributed
+        - event: PoolFeesReceived(indexed bytes32,uint256,uint256)
+          handler: handlePoolFeesReceived
+        - event: PoolFeesSwapped(indexed bytes32,bool,uint256,uint256)
+          handler: handlePoolFeesSwapped
+        - event: PoolStateUpdated(indexed bytes32,uint160,int24,uint24,uint24,uint128)
+          handler: handlePoolStateUpdated
+        - event: ReferrerFeePaid(indexed bytes32,address,address,uint256)
+          handler: handleReferrerFeePaid
+        - event: FairLaunchFeeCalculatorUpdated(address)
+          handler: handleFairLaunchFeeCalculatorUpdated
+        - event: ReferralEscrowUpdated(address)
+          handler: handleReferralEscrowUpdated
+      file: ./src/position-manager2.ts
+  - kind: ethereum
+    name: PositionManager3
+    network: base
+    source:
+      address: "0xb903b0ab7bcee8f5e4d8c9b10a71aac7135d6fdc" # v1.1.1
+      abi: PositionManager
+      startBlock: 30398390 # v1.1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - PoolSwap
+      abis:
+        - name: PositionManager
+          file: ./abis/PositionManager2.json
+        - name: CollectionToken
+          file: ./abis/CollectionToken.json
+        - name: ERC721
+          file: ./abis/ERC721.json
+        - name: Memecoin
+          file: ./abis/Memecoin.json
+      eventHandlers:
+        - event: FeeCalculatorUpdated(address)
+          handler: handleFeeCalculatorUpdated
+        - event: FeeDistributionUpdated((uint24,uint24,uint24,bool))
+          handler: handleFeeDistributionUpdated
+        - event: PoolSwap(indexed bytes32,int256,int256,int256,int256,int256,int256,int256,int256,int256,int256,int256,int256)
+          handler: handlePoolSwap
+        - event: PoolPremine(indexed bytes32,int256)
+          handler: handlePoolPremine
+        - event: PoolScheduled(indexed bytes32,uint256)
+          handler: handlePoolScheduled
+        - event: PoolCreated(indexed bytes32,address,address,uint256,bool,uint256,(string,string,string,uint256,uint256,uint256,address,uint24,uint256,bytes,bytes))
+          handler: handlePoolCreated
+          receipt: true
+          calls:
+            CollectionToken.getName2: CollectionToken[event.params._memecoin].name()
+            CollectionToken.getSymbol2: CollectionToken[event.params._memecoin].symbol()
+        - event: PoolFeeDistributionUpdated(indexed bytes32,(uint24,uint24,uint24,bool))
+          handler: handlePoolFeeDistributionUpdated
+        - event: PoolFeesDistributed(indexed bytes32,uint256,uint256,uint256,uint256,uint256)
+          handler: handlePoolFeesDistributed
+        - event: PoolFeesReceived(indexed bytes32,uint256,uint256)
+          handler: handlePoolFeesReceived
+        - event: PoolFeesSwapped(indexed bytes32,bool,uint256,uint256)
+          handler: handlePoolFeesSwapped
+        - event: PoolStateUpdated(indexed bytes32,uint160,int24,uint24,uint24,uint128)
+          handler: handlePoolStateUpdated
+        - event: ReferrerFeePaid(indexed bytes32,address,address,uint256)
+          handler: handleReferrerFeePaid
+        - event: FairLaunchFeeCalculatorUpdated(address)
+          handler: handleFairLaunchFeeCalculatorUpdated
+        - event: ReferralEscrowUpdated(address)
+          handler: handleReferralEscrowUpdated
+      file: ./src/position-manager2.ts
+  - kind: ethereum
+    name: PoolManager
+    network: base
+    source:
+      address: "0x498581fF718922c3f8e6A244956aF099B2652b2b"
+      abi: PoolManager
+      startBlock: 25684155 # Always set this one block behind all the startblocks
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: PoolManager
+          file: ./abis/PoolManager.json
+        - name: PositionManager
+          file: ./abis/PositionManager.json
+      eventHandlers:
+        - event: Swap(indexed bytes32,indexed address,int128,int128,uint160,uint128,int24,uint24)
+          handler: handleSwap
+      blockHandlers:
+        - handler: initialise
+          filter:
+            kind: once
+      file: ./src/pool-manager.ts
+  - kind: ethereum
+    name: ActionManager1
+    network: base
+    source:
+      address: "0xeC2a53F572cFD952aAA3a8359Ac54B31d0A186a4"
+      abi: ActionManager
+      startBlock: 25684156
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: ActionManager
+          file: ./abis/ActionManager.json
+      eventHandlers:
+        - event: ActionApproved(indexed address)
+          handler: handleActionApproved
+        - event: ActionUnapproved(indexed address)
+          handler: handleActionUnapproved
+      file: ./src/action-manager1.ts
+  - kind: ethereum
+    name: ActionManager2
+    network: base
+    source:
+      address: "0xFB5c20c4E60c9c64648DD3692437E3E313Add4A4"
+      abi: ActionManager
+      startBlock: 29312318
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: ActionManager
+          file: ./abis/ActionManager.json
+      eventHandlers:
+        - event: ActionApproved(indexed address)
+          handler: handleActionApproved
+        - event: ActionUnapproved(indexed address)
+          handler: handleActionUnapproved
+      file: ./src/action-manager2.ts
+  - kind: ethereum
+    name: BidWall1
+    network: base
+    source:
+      addresses:
+        - "0x66681f10BA90496241A25e33380004f30Dfd8aa8" # PositionManager -> BidWall
+      abi: BidWall
+      startBlock: 25684156
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - BidWallClosed
+        - BidWallInitialized
+        - BidWallRepositioned
+        - BidWallRewardsTransferred
+      abis:
+        - name: BidWall
+          file: ./abis/BidWall.json
+      eventHandlers:
+        - event: BidWallClosed(indexed bytes32,address,uint256)
+          handler: handleBidWallClosed
+        # - event: BidWallInitialized(indexed bytes32,uint256,int24,int24)
+        #   handler: handleBidWallInitialized
+        - event: BidWallRepositioned(indexed bytes32,uint256,int24,int24)
+          handler: handleBidWallRepositioned
+        - event: BidWallRewardsTransferred(indexed bytes32,address,uint256)
+          handler: handleBidWallRewardsTransferred
+        - event: BidWallDeposit(indexed bytes32,uint256,uint256)
+          handler: handleBidWallDeposit
+        - event: BidWallDisabledStateUpdated(indexed bytes32,bool)
+          handler: handleBidWallDisabledStateUpdated
+      file: ./src/bid-wall1.ts
+  - kind: ethereum
+    name: BidWall2
+    network: base
+    source:
+      address: "0x7f22353d1634223a802D1c1Ea5308Ddf5DD0ef9c" # v1.1 PositionManager & AnyPositionManager
+      abi: BidWall
+      startBlock: 29317399
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - BidWallClosed
+        - BidWallInitialized
+        - BidWallRepositioned
+        - BidWallRewardsTransferred
+      abis:
+        - name: BidWall
+          file: ./abis/BidWall.json
+      eventHandlers:
+        - event: BidWallClosed(indexed bytes32,address,uint256)
+          handler: handleBidWallClosed
+        # - event: BidWallInitialized(indexed bytes32,uint256,int24,int24)
+        #   handler: handleBidWallInitialized
+        - event: BidWallRepositioned(indexed bytes32,uint256,int24,int24)
+          handler: handleBidWallRepositioned
+        - event: BidWallRewardsTransferred(indexed bytes32,address,uint256)
+          handler: handleBidWallRewardsTransferred
+        - event: BidWallDeposit(indexed bytes32,uint256,uint256)
+          handler: handleBidWallDeposit
+        - event: BidWallDisabledStateUpdated(indexed bytes32,bool)
+          handler: handleBidWallDisabledStateUpdated
+      file: ./src/bid-wall2.ts
+  - kind: ethereum
+    name: FeeEscrow
+    network: base
+    source:
+      address: "0x72e6f7948b1B1A343B477F39aAbd2E35E6D27dde"
+      abi: FeeEscrow
+      startBlock: 24277136
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - FeeEscrow
+      abis:
+        - name: FeeEscrow
+          file: ./abis/FeeEscrow.json
+      eventHandlers:
+        - event: Deposit(indexed bytes32,address,address,uint256)
+          handler: handleDeposit
+        - event: Withdrawal(address,address,address,uint256)
+          handler: handleWithdrawal
+      file: ./src/fee-escrow.ts
+  - kind: ethereum
+    name: FeeExemptions
+    network: base
+    source:
+      address: "0xfdCE459071c74b732B2dEC579Afb38Ea552C4e06"
+      abi: FeeExemptions
+      startBlock: 25684156
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - FeeExemption
+      abis:
+        - name: FeeExemptions
+          file: ./abis/FeeExemptions.json
+      eventHandlers:
+        - event: BeneficiaryFeeRemoved(address)
+          handler: handleBeneficiaryFeeRemoved
+        - event: BeneficiaryFeeSet(address,uint24)
+          handler: handleBeneficiaryFeeSet
+      file: ./src/fee-exemptions.ts
+  - kind: ethereum
+    name: FlaunchFeeExemption
+    network: base
+    source:
+      address: "0x4bdd067eaabd8d0fe1ccbe3c885c20ca19cc5d69"
+      abi: FlaunchFeeExemption
+      startBlock: 28097365
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - FlaunchFeeExemption
+      abis:
+        - name: FlaunchFeeExemption
+          file: ./abis/FlaunchFeeExemption.json
+      eventHandlers:
+        - event: FeeExemptionUpdated(indexed address,bool)
+          handler: handleFeeExemptionUpdated
+      file: ./src/flaunch-fee-exemptions.ts
+  - kind: ethereum
+    name: FairLaunch1
+    network: base
+    source:
+      address: "0xCc7A4A00072ccbeEEbd999edc812C0ce498Fb63B"
+      abi: FairLaunch
+      startBlock: 25684156
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Pool
+        - FairLaunch
+      abis:
+        - name: FairLaunch
+          file: ./abis/FairLaunch.json
+      eventHandlers:
+        - event: FairLaunchEnded(indexed bytes32,uint256,uint256,uint256)
+          handler: handleFairLaunchEnded
+        - event: FairLaunchCreated(indexed bytes32,uint256,uint256,uint256)
+          handler: handleFairLaunchCreated
+      file: ./src/fair-launch.ts
+  - kind: ethereum
+    name: FairLaunch2
+    network: base
+    source:
+      address: "0x4dc442403e8c758425b93c59dc737da522f32640" # v1.1 PositionManager & AnyPositionManager
+      abi: FairLaunch
+      startBlock: 29630812
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Pool
+        - FairLaunch
+      abis:
+        - name: FairLaunch
+          file: ./abis/FairLaunch.json
+      eventHandlers:
+        - event: FairLaunchEnded(indexed bytes32,uint256,uint256,uint256)
+          handler: handleFairLaunchEnded
+        - event: FairLaunchCreated(indexed bytes32,uint256,uint256,uint256)
+          handler: handleFairLaunchCreated
+      file: ./src/fair-launch2.ts
+  - kind: ethereum
+    name: FlaunchNFT1
+    network: base
+    source:
+      address: "0x6A53F8b799bE11a2A3264eF0bfF183dCB12d9571"
+      abi: ERC721
+      startBlock: 25684156
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: ERC721
+          file: ./abis/ERC721.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/flaunch-nft1.ts
+  - kind: ethereum
+    name: FlaunchNFT2 # Flaunch v1.1
+    network: base
+    source:
+      address: "0xb4512bf57d50fbcb64a3adf8b17a79b2a204c18c" # Flaunch v1.1
+      abi: ERC721
+      startBlock: 29630812
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: ERC721
+          file: ./abis/ERC721.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/flaunch-nft2.ts
+  - kind: ethereum
+    name: FlaunchNFT3 # Flaunch v1.1.1
+    network: base
+    source:
+      address: "0x0cf6bdf0a85a9d6763361037985b76c8893553af" # Flaunch v1.1.1
+      abi: ERC721
+      startBlock: 30398390
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: ERC721
+          file: ./abis/ERC721.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/flaunch-nft2.ts
+  - kind: ethereum
+    name: AnyFlaunchNFT
+    network: base
+    source:
+      address: "0xf175a370eb26ea26c42caaecd10ee723ed844c50" # AnyFlaunch
+      abi: ERC721
+      startBlock: 30398390
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: ERC721
+          file: ./abis/ERC721.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/flaunch-nft-any.ts
+  - kind: ethereum
+    name: FlayBurner
+    network: base
+    source:
+      address: "0x94e1Ea82515c79159349bB38919B083E7D888Ce9"
+      abi: FlayBurner
+      startBlock: 29317398
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - FlayBurner
+      abis:
+        - name: FlayBurner
+          file: ./abis/FlayBurner.json
+      eventHandlers:
+        - event: BurnerUpdated(address)
+          handler: handleBurnerUpdated
+      file: ./src/flay-burner.ts
+  - kind: ethereum
+    name: BuyBackAndBurnFlay
+    network: base
+    source:
+      address: "0x558a4d2f46765047596cef406e27fe8cb0725192"
+      abi: BuyBackAndBurnFlay
+      startBlock: 29630813
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - FlayBurner
+      abis:
+        - name: BuyBackAndBurnFlay
+          file: ./abis/BuyBackAndBurnFlay.json
+      eventHandlers:
+        - event: BurnBabyBurn(uint256)
+          handler: handleBurnBabyBurn
+        - event: EthBalanceUpdated(uint256)
+          handler: handleEthBalanceUpdated
+      file: ./src/buy-back-and-burn-flay.ts
+  - kind: ethereum
+    name: TreasuryManagerFactory
+    network: base
+    source:
+      address: "0x48af8b28DDC5e5A86c4906212fc35Fa808CA8763"
+      abi: TreasuryManagerFactory
+      startBlock: 29312318
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: TreasuryManagerFactory
+          file: ./abis/TreasuryManagerFactory.json
+      eventHandlers:
+        - event: ManagerImplementationUnapproved(indexed address)
+          handler: handleManagerUnapproved
+        - event: ManagerDeployed(indexed address,indexed address)
+          handler: handleManagerDeployed
+        - event: ManagerImplementationApproved(indexed address)
+          handler: handleManagerApproved
+      file: ./src/treasury-manager-factory.ts
+templates:
+  - kind: ethereum
+    name: Action
+    network: base
+    source:
+      abi: TreasuryAction
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: TreasuryAction
+          file: ./abis/TreasuryAction.json
+      eventHandlers:
+        - event: ActionExecuted((address,address,uint24,int24,address),int256,int256)
+          handler: handleActionExecuted
+      file: ./src/action.ts
+  - kind: ethereum
+    name: CollectionTokenTemplate
+    network: base
+    source:
+      abi: CollectionToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: CollectionToken
+          file: ./abis/CollectionToken.json
+      eventHandlers:
+        - event: MetadataUpdated(string,string)
+          handler: handleMetadataUpdated
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/collection-token.ts
+  - kind: ethereum
+    name: ReferralEscrow
+    network: base
+    source:
+      abi: ReferralEscrow
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - User
+      abis:
+        - name: ReferralEscrow
+          file: ./abis/ReferralEscrow.json
+      eventHandlers:
+        - event: TokensAssigned(indexed bytes32,indexed address,indexed address,uint256)
+          handler: handleTokensAssigned
+        - event: TokensClaimed(indexed address,address,indexed address,uint256)
+          handler: handleTokensClaimed
+        - event: TokensSwapped(indexed address,indexed address,uint256,uint256)
+          handler: handleTokensSwapped
+      file: ./src/referral-escrow.ts
+  - name: CollectionMetadata
+    kind: file/ipfs
+    mapping:
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/metadata.ts
+      handler: handleMetadata
+      entities:
+        - CollectionMetadata
+      abis:
+        - name: ERC721
+          file: ./abis/ERC721.json
+  - kind: ethereum
+    name: RevenueManager
+    network: base
+    source:
+      abi: RevenueManager
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - TreasuryReclaimed
+      abis:
+        - name: RevenueManager
+          file: ./abis/RevenueManager.json
+      eventHandlers:
+        - event: CreatorUpdated(indexed address,indexed uint256,address)
+          handler: handleCreatorUpdated
+        - event: ManagerInitialized(address,(address,uint256))
+          handler: handleManagerInitialized
+        - event: ProtocolRecipientUpdated(address)
+          handler: handleProtocolRecipientUpdated
+        - event: TreasuryEscrowed(indexed address,indexed uint256,address,address)
+          handler: handleTreasuryEscrowed
+        - event: TreasuryReclaimed(indexed address,indexed uint256,address,address)
+          handler: handleTreasuryReclaimed
+        - event: RevenueClaimed(indexed address,indexed uint256,address,uint256)
+          handler: handleRevenueClaimed
+        - event: ProtocolRevenueClaimed(address,uint256)
+          handler: handleProtocolRevenueClaimed
+      file: ./src/revenue-manager.ts
+  - kind: ethereum
+    name: AddressFeeSplitManager
+    network: base
+    source:
+      abi: AddressFeeSplitManager
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - TreasuryReclaimed
+      abis:
+        - name: AddressFeeSplitManager
+          file: ./abis/AddressFeeSplitManager.json
+      eventHandlers:
+        - event: CreatorUpdated(indexed address,indexed uint256,address)
+          handler: handleCreatorUpdated
+        - event: ManagerInitialized(address,(uint256,(address,uint256)[]))
+          handler: handleManagerInitialized
+        - event: TreasuryEscrowed(indexed address,indexed uint256,address,address)
+          handler: handleTreasuryEscrowed
+        - event: TreasuryReclaimed(indexed address,indexed uint256,address,address)
+          handler: handleTreasuryReclaimed
+        - event: RecipientAdded(indexed address,uint256)
+          handler: handleRecipientAdded
+        - event: RevenueClaimed(indexed address,uint256)
+          handler: handleRevenueClaimed
+        - event: RecipientShareTransferred(indexed address,indexed address,uint256)
+          handler: handleRecipientShareTransferred
+      file: ./src/address-fee-split-manager.ts
+  - kind: ethereum
+    name: MemecoinTreasury
+    network: base
+    source:
+      abi: MemecoinTreasury
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - MemecoinTreasury
+        - MemecoinTreasuryActivity
+      abis:
+        - name: MemecoinTreasury
+          file: ./abis/MemecoinTreasury.json
+      eventHandlers:
+        - event: ActionExecuted(indexed address,(address,address,uint24,int24,address),bytes)
+          handler: handleActionExecuted
+      file: ./src/memecoin-treasury.ts

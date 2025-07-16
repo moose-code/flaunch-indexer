@@ -1,0 +1,764 @@
+# AnyPositionManager Events
+type AnyPositionManager_FeeCalculatorUpdated {
+  id: ID!
+  _feeCalculator: String!
+}
+
+type AnyPositionManager_FeeDistributionUpdated {
+  id: ID!
+  _feeDistribution_0: BigInt!
+  _feeDistribution_1: BigInt!
+  _feeDistribution_2: BigInt!
+  _feeDistribution_3: Boolean!
+}
+
+type AnyPositionManager_PoolSwap {
+  id: ID!
+  poolId: String!
+  flAmount0: BigInt!
+  flAmount1: BigInt!
+  flFee0: BigInt!
+  flFee1: BigInt!
+  ispAmount0: BigInt!
+  ispAmount1: BigInt!
+  ispFee0: BigInt!
+  ispFee1: BigInt!
+  uniAmount0: BigInt!
+  uniAmount1: BigInt!
+  uniFee0: BigInt!
+  uniFee1: BigInt!
+}
+
+type AnyPositionManager_PoolCreated {
+  id: ID!
+  _poolId: String!
+  _memecoin: String!
+  _memecoinTreasury: String!
+  _tokenId: BigInt!
+  _currencyFlipped: Boolean!
+  _params_0: String!
+  _params_1: String!
+  _params_2: BigInt!
+  _params_3: String!
+  _params_4: String!
+}
+
+type AnyPositionManager_PoolFeeDistributionUpdated {
+  id: ID!
+  _poolId: String!
+  _feeDistribution_0: BigInt!
+  _feeDistribution_1: BigInt!
+  _feeDistribution_2: BigInt!
+  _feeDistribution_3: Boolean!
+}
+
+type AnyPositionManager_PoolFeesDistributed {
+  id: ID!
+  _poolId: String!
+  _donateAmount: BigInt!
+  _creatorAmount: BigInt!
+  _bidWallAmount: BigInt!
+  _governanceAmount: BigInt!
+  _protocolAmount: BigInt!
+}
+
+type AnyPositionManager_PoolFeesReceived {
+  id: ID!
+  _poolId: String!
+  _amount0: BigInt!
+  _amount1: BigInt!
+}
+
+type AnyPositionManager_PoolFeesSwapped {
+  id: ID!
+  _poolId: String!
+  zeroForOne: Boolean!
+  _amount0: BigInt!
+  _amount1: BigInt!
+}
+
+type AnyPositionManager_PoolStateUpdated {
+  id: ID!
+  _poolId: String!
+  _sqrtPriceX96: BigInt!
+  _tick: BigInt!
+  _protocolFee: BigInt!
+  _swapFee: BigInt!
+  _liquidity: BigInt!
+}
+
+type AnyPositionManager_ReferrerFeePaid {
+  id: ID!
+  _poolId: String!
+  _recipient: String!
+  _token: String!
+  _amount: BigInt!
+}
+
+type AnyPositionManager_ReferralEscrowUpdated {
+  id: ID!
+  _referralEscrow: String!
+}
+
+# PositionManager1 Events
+type PositionManager1_CreatorFeeAllocationUpdated {
+  id: ID!
+  _poolId: String!
+  _allocation: BigInt!
+}
+
+type PositionManager1_Deposit {
+  id: ID!
+  _poolId: String!
+  _payee: String!
+  _token: String!
+  _amount: BigInt!
+}
+
+type PositionManager1_FairLaunchFeeCalculatorUpdated {
+  id: ID!
+  _feeCalculator: String!
+}
+
+type PositionManager1_FeeCalculatorUpdated {
+  id: ID!
+  _feeCalculator: String!
+}
+
+type PositionManager1_FeeDistributionUpdated {
+  id: ID!
+  _feeDistribution_0: BigInt!
+  _feeDistribution_1: BigInt!
+  _feeDistribution_2: BigInt!
+  _feeDistribution_3: Boolean!
+}
+
+type PositionManager1_InitialPriceUpdated {
+  id: ID!
+  _initialPrice: String!
+}
+
+type PositionManager1_OwnershipHandoverCanceled {
+  id: ID!
+  pendingOwner: String!
+}
+
+type PositionManager1_OwnershipHandoverRequested {
+  id: ID!
+  pendingOwner: String!
+}
+
+type PositionManager1_OwnershipTransferred {
+  id: ID!
+  oldOwner: String!
+  newOwner: String!
+}
+
+type PositionManager1_PoolCreated {
+  id: ID!
+  _poolId: String!
+  _memecoin: String!
+  _memecoinTreasury: String!
+  _tokenId: BigInt!
+  _currencyFlipped: Boolean!
+  _flaunchFee: BigInt!
+  _params_0: String!
+  _params_1: String!
+  _params_2: String!
+  _params_3: BigInt!
+  _params_4: BigInt!
+  _params_5: String!
+  _params_6: BigInt!
+  _params_7: BigInt!
+  _params_8: String!
+  _params_9: String!
+}
+
+type PositionManager1_PoolFeeDistributionUpdated {
+  id: ID!
+  _poolId: String!
+  _feeDistribution_0: BigInt!
+  _feeDistribution_1: BigInt!
+  _feeDistribution_2: BigInt!
+  _feeDistribution_3: Boolean!
+}
+
+type PositionManager1_PoolFeesDistributed {
+  id: ID!
+  _poolId: String!
+  _donateAmount: BigInt!
+  _creatorAmount: BigInt!
+  _bidWallAmount: BigInt!
+  _governanceAmount: BigInt!
+  _protocolAmount: BigInt!
+}
+
+type PositionManager1_PoolFeesReceived {
+  id: ID!
+  _poolId: String!
+  _amount0: BigInt!
+  _amount1: BigInt!
+}
+
+type PositionManager1_PoolFeesSwapped {
+  id: ID!
+  _poolId: String!
+  zeroForOne: Boolean!
+  _amount0: BigInt!
+  _amount1: BigInt!
+}
+
+type PositionManager1_PoolPremine {
+  id: ID!
+  _poolId: String!
+  _premineAmount: BigInt!
+}
+
+type PositionManager1_PoolScheduled {
+  id: ID!
+  _poolId: String!
+  _flaunchesAt: BigInt!
+}
+
+type PositionManager1_PoolStateUpdated {
+  id: ID!
+  _poolId: String!
+  _sqrtPriceX96: BigInt!
+  _tick: BigInt!
+  _protocolFee: BigInt!
+  _swapFee: BigInt!
+  _liquidity: BigInt!
+}
+
+type PositionManager1_PoolSwap {
+  id: ID!
+  poolId: String!
+  flAmount0: BigInt!
+  flAmount1: BigInt!
+  flFee0: BigInt!
+  flFee1: BigInt!
+  ispAmount0: BigInt!
+  ispAmount1: BigInt!
+  ispFee0: BigInt!
+  ispFee1: BigInt!
+  uniAmount0: BigInt!
+  uniAmount1: BigInt!
+  uniFee0: BigInt!
+  uniFee1: BigInt!
+}
+
+type PositionManager1_ReferralEscrowUpdated {
+  id: ID!
+  _referralEscrow: String!
+}
+
+type PositionManager1_ReferrerFeePaid {
+  id: ID!
+  _poolId: String!
+  _recipient: String!
+  _token: String!
+  _amount: BigInt!
+}
+
+type PositionManager1_Withdrawal {
+  id: ID!
+  _sender: String!
+  _recipient: String!
+  _token: String!
+  _amount: BigInt!
+}
+
+# PositionManager2 Events
+type PositionManager2_FeeCalculatorUpdated {
+  id: ID!
+  _feeCalculator: String!
+}
+
+type PositionManager2_FeeDistributionUpdated {
+  id: ID!
+  _feeDistribution_0: BigInt!
+  _feeDistribution_1: BigInt!
+  _feeDistribution_2: BigInt!
+  _feeDistribution_3: Boolean!
+}
+
+type PositionManager2_PoolSwap {
+  id: ID!
+  poolId: String!
+  flAmount0: BigInt!
+  flAmount1: BigInt!
+  flFee0: BigInt!
+  flFee1: BigInt!
+  ispAmount0: BigInt!
+  ispAmount1: BigInt!
+  ispFee0: BigInt!
+  ispFee1: BigInt!
+  uniAmount0: BigInt!
+  uniAmount1: BigInt!
+  uniFee0: BigInt!
+  uniFee1: BigInt!
+}
+
+type PositionManager2_PoolPremine {
+  id: ID!
+  _poolId: String!
+  _premineAmount: BigInt!
+}
+
+type PositionManager2_PoolScheduled {
+  id: ID!
+  _poolId: String!
+  _flaunchesAt: BigInt!
+}
+
+type PositionManager2_PoolCreated {
+  id: ID!
+  _poolId: String!
+  _memecoin: String!
+  _memecoinTreasury: String!
+  _tokenId: BigInt!
+  _currencyFlipped: Boolean!
+  _flaunchFee: BigInt!
+  _params_0: String!
+  _params_1: String!
+  _params_2: String!
+  _params_3: BigInt!
+  _params_4: BigInt!
+  _params_5: BigInt!
+  _params_6: String!
+  _params_7: BigInt!
+  _params_8: BigInt!
+  _params_9: String!
+  _params_10: String!
+}
+
+type PositionManager2_PoolFeeDistributionUpdated {
+  id: ID!
+  _poolId: String!
+  _feeDistribution_0: BigInt!
+  _feeDistribution_1: BigInt!
+  _feeDistribution_2: BigInt!
+  _feeDistribution_3: Boolean!
+}
+
+type PositionManager2_PoolFeesDistributed {
+  id: ID!
+  _poolId: String!
+  _donateAmount: BigInt!
+  _creatorAmount: BigInt!
+  _bidWallAmount: BigInt!
+  _governanceAmount: BigInt!
+  _protocolAmount: BigInt!
+}
+
+type PositionManager2_PoolFeesReceived {
+  id: ID!
+  _poolId: String!
+  _amount0: BigInt!
+  _amount1: BigInt!
+}
+
+type PositionManager2_PoolFeesSwapped {
+  id: ID!
+  _poolId: String!
+  zeroForOne: Boolean!
+  _amount0: BigInt!
+  _amount1: BigInt!
+}
+
+type PositionManager2_PoolStateUpdated {
+  id: ID!
+  _poolId: String!
+  _sqrtPriceX96: BigInt!
+  _tick: BigInt!
+  _protocolFee: BigInt!
+  _swapFee: BigInt!
+  _liquidity: BigInt!
+}
+
+type PositionManager2_ReferrerFeePaid {
+  id: ID!
+  _poolId: String!
+  _recipient: String!
+  _token: String!
+  _amount: BigInt!
+}
+
+type PositionManager2_FairLaunchFeeCalculatorUpdated {
+  id: ID!
+  _feeCalculator: String!
+}
+
+type PositionManager2_ReferralEscrowUpdated {
+  id: ID!
+  _referralEscrow: String!
+}
+
+# PositionManager3 Events
+type PositionManager3_FeeCalculatorUpdated {
+  id: ID!
+  _feeCalculator: String!
+}
+
+type PositionManager3_FeeDistributionUpdated {
+  id: ID!
+  _feeDistribution_0: BigInt!
+  _feeDistribution_1: BigInt!
+  _feeDistribution_2: BigInt!
+  _feeDistribution_3: Boolean!
+}
+
+type PositionManager3_PoolSwap {
+  id: ID!
+  poolId: String!
+  flAmount0: BigInt!
+  flAmount1: BigInt!
+  flFee0: BigInt!
+  flFee1: BigInt!
+  ispAmount0: BigInt!
+  ispAmount1: BigInt!
+  ispFee0: BigInt!
+  ispFee1: BigInt!
+  uniAmount0: BigInt!
+  uniAmount1: BigInt!
+  uniFee0: BigInt!
+  uniFee1: BigInt!
+}
+
+type PositionManager3_PoolPremine {
+  id: ID!
+  _poolId: String!
+  _premineAmount: BigInt!
+}
+
+type PositionManager3_PoolScheduled {
+  id: ID!
+  _poolId: String!
+  _flaunchesAt: BigInt!
+}
+
+type PositionManager3_PoolCreated {
+  id: ID!
+  _poolId: String!
+  _memecoin: String!
+  _memecoinTreasury: String!
+  _tokenId: BigInt!
+  _currencyFlipped: Boolean!
+  _flaunchFee: BigInt!
+  _params_0: String!
+  _params_1: String!
+  _params_2: String!
+  _params_3: BigInt!
+  _params_4: BigInt!
+  _params_5: BigInt!
+  _params_6: String!
+  _params_7: BigInt!
+  _params_8: BigInt!
+  _params_9: String!
+  _params_10: String!
+}
+
+type PositionManager3_PoolFeeDistributionUpdated {
+  id: ID!
+  _poolId: String!
+  _feeDistribution_0: BigInt!
+  _feeDistribution_1: BigInt!
+  _feeDistribution_2: BigInt!
+  _feeDistribution_3: Boolean!
+}
+
+type PositionManager3_PoolFeesDistributed {
+  id: ID!
+  _poolId: String!
+  _donateAmount: BigInt!
+  _creatorAmount: BigInt!
+  _bidWallAmount: BigInt!
+  _governanceAmount: BigInt!
+  _protocolAmount: BigInt!
+}
+
+type PositionManager3_PoolFeesReceived {
+  id: ID!
+  _poolId: String!
+  _amount0: BigInt!
+  _amount1: BigInt!
+}
+
+type PositionManager3_PoolFeesSwapped {
+  id: ID!
+  _poolId: String!
+  zeroForOne: Boolean!
+  _amount0: BigInt!
+  _amount1: BigInt!
+}
+
+type PositionManager3_PoolStateUpdated {
+  id: ID!
+  _poolId: String!
+  _sqrtPriceX96: BigInt!
+  _tick: BigInt!
+  _protocolFee: BigInt!
+  _swapFee: BigInt!
+  _liquidity: BigInt!
+}
+
+type PositionManager3_ReferrerFeePaid {
+  id: ID!
+  _poolId: String!
+  _recipient: String!
+  _token: String!
+  _amount: BigInt!
+}
+
+type PositionManager3_FairLaunchFeeCalculatorUpdated {
+  id: ID!
+  _feeCalculator: String!
+}
+
+type PositionManager3_ReferralEscrowUpdated {
+  id: ID!
+  _referralEscrow: String!
+}
+
+# PoolManager Events
+type PoolManager_Swap {
+  id: ID!
+  poolId: String!
+  sender: String!
+  amount0: BigInt!
+  amount1: BigInt!
+  sqrtPriceX96: BigInt!
+  liquidity: BigInt!
+  tick: BigInt!
+  fee: BigInt!
+}
+
+# ActionManager1 Events
+type ActionManager1_ActionApproved {
+  id: ID!
+  actionAddress: String!
+}
+
+type ActionManager1_ActionUnapproved {
+  id: ID!
+  actionAddress: String!
+}
+
+# ActionManager2 Events
+type ActionManager2_ActionApproved {
+  id: ID!
+  actionAddress: String!
+}
+
+type ActionManager2_ActionUnapproved {
+  id: ID!
+  actionAddress: String!
+}
+
+# BidWall1 Events
+type BidWall1_BidWallClosed {
+  id: ID!
+  poolId: String!
+  recipient: String!
+  amount: BigInt!
+}
+
+type BidWall1_BidWallRepositioned {
+  id: ID!
+  poolId: String!
+  liquidity: BigInt!
+  tickLower: BigInt!
+  tickUpper: BigInt!
+}
+
+type BidWall1_BidWallRewardsTransferred {
+  id: ID!
+  poolId: String!
+  recipient: String!
+  amount: BigInt!
+}
+
+type BidWall1_BidWallDeposit {
+  id: ID!
+  poolId: String!
+  amount0: BigInt!
+  amount1: BigInt!
+}
+
+type BidWall1_BidWallDisabledStateUpdated {
+  id: ID!
+  poolId: String!
+  disabled: Boolean!
+}
+
+# BidWall2 Events
+type BidWall2_BidWallClosed {
+  id: ID!
+  poolId: String!
+  recipient: String!
+  amount: BigInt!
+}
+
+type BidWall2_BidWallRepositioned {
+  id: ID!
+  poolId: String!
+  liquidity: BigInt!
+  tickLower: BigInt!
+  tickUpper: BigInt!
+}
+
+type BidWall2_BidWallRewardsTransferred {
+  id: ID!
+  poolId: String!
+  recipient: String!
+  amount: BigInt!
+}
+
+type BidWall2_BidWallDeposit {
+  id: ID!
+  poolId: String!
+  amount0: BigInt!
+  amount1: BigInt!
+}
+
+type BidWall2_BidWallDisabledStateUpdated {
+  id: ID!
+  poolId: String!
+  disabled: Boolean!
+}
+
+# FeeEscrow Events
+type FeeEscrow_Deposit {
+  id: ID!
+  poolId: String!
+  sender: String!
+  token: String!
+  amount: BigInt!
+}
+
+type FeeEscrow_Withdrawal {
+  id: ID!
+  sender: String!
+  recipient: String!
+  token: String!
+  amount: BigInt!
+}
+
+# FeeExemptions Events
+type FeeExemptions_BeneficiaryFeeRemoved {
+  id: ID!
+  beneficiary: String!
+}
+
+type FeeExemptions_BeneficiaryFeeSet {
+  id: ID!
+  beneficiary: String!
+  fee: BigInt!
+}
+
+# FlaunchFeeExemption Events
+type FlaunchFeeExemption_FeeExemptionUpdated {
+  id: ID!
+  user: String!
+  exempt: Boolean!
+}
+
+# FairLaunch1 Events
+type FairLaunch1_FairLaunchEnded {
+  id: ID!
+  poolId: String!
+  totalRaised: BigInt!
+  liquidityAdded: BigInt!
+  refundAmount: BigInt!
+}
+
+type FairLaunch1_FairLaunchCreated {
+  id: ID!
+  poolId: String!
+  targetAmount: BigInt!
+  maxAmount: BigInt!
+  deadline: BigInt!
+}
+
+# FairLaunch2 Events
+type FairLaunch2_FairLaunchEnded {
+  id: ID!
+  poolId: String!
+  totalRaised: BigInt!
+  liquidityAdded: BigInt!
+  refundAmount: BigInt!
+}
+
+type FairLaunch2_FairLaunchCreated {
+  id: ID!
+  poolId: String!
+  targetAmount: BigInt!
+  maxAmount: BigInt!
+  deadline: BigInt!
+}
+
+# FlaunchNFT1 Events
+type FlaunchNFT1_Transfer {
+  id: ID!
+  from: String!
+  to: String!
+  tokenId: BigInt!
+}
+
+# FlaunchNFT2 Events
+type FlaunchNFT2_Transfer {
+  id: ID!
+  from: String!
+  to: String!
+  tokenId: BigInt!
+}
+
+# FlaunchNFT3 Events
+type FlaunchNFT3_Transfer {
+  id: ID!
+  from: String!
+  to: String!
+  tokenId: BigInt!
+}
+
+# AnyFlaunchNFT Events
+type AnyFlaunchNFT_Transfer {
+  id: ID!
+  from: String!
+  to: String!
+  tokenId: BigInt!
+}
+
+# FlayBurner Events
+type FlayBurner_BurnerUpdated {
+  id: ID!
+  burner: String!
+}
+
+# BuyBackAndBurnFlay Events
+type BuyBackAndBurnFlay_BurnBabyBurn {
+  id: ID!
+  amount: BigInt!
+}
+
+type BuyBackAndBurnFlay_EthBalanceUpdated {
+  id: ID!
+  balance: BigInt!
+}
+
+# TreasuryManagerFactory Events
+type TreasuryManagerFactory_ManagerImplementationUnapproved {
+  id: ID!
+  implementation: String!
+}
+
+type TreasuryManagerFactory_ManagerDeployed {
+  id: ID!
+  manager: String!
+  implementation: String!
+}
+
+type TreasuryManagerFactory_ManagerImplementationApproved {
+  id: ID!
+  implementation: String!
+}

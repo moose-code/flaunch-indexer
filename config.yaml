@@ -1,0 +1,206 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: envio-indexer
+networks:
+  - id: 8453
+    start_block: 0
+    contracts:
+      - name: AnyPositionManager
+        address:
+          - 0x2ad43d0618b1d8a0cc75cf716cf0bf64070725dc
+        handler: src/EventHandlers.ts
+        events:
+          - event: FeeCalculatorUpdated(address _feeCalculator)
+          - event: FeeDistributionUpdated((uint24,uint24,uint24,bool) _feeDistribution)
+          - event: PoolSwap(bytes32 indexed poolId, int256 flAmount0, int256 flAmount1, int256 flFee0, int256 flFee1, int256 ispAmount0, int256 ispAmount1, int256 ispFee0, int256 ispFee1, int256 uniAmount0, int256 uniAmount1, int256 uniFee0, int256 uniFee1)
+          - event: PoolCreated(bytes32 indexed _poolId, address _memecoin, address _memecoinTreasury, uint256 _tokenId, bool _currencyFlipped, (address,address,uint24,bytes,bytes) _params)
+          - event: PoolFeeDistributionUpdated(bytes32 indexed _poolId, (uint24,uint24,uint24,bool) _feeDistribution)
+          - event: PoolFeesDistributed(bytes32 indexed _poolId, uint256 _donateAmount, uint256 _creatorAmount, uint256 _bidWallAmount, uint256 _governanceAmount, uint256 _protocolAmount)
+          - event: PoolFeesReceived(bytes32 indexed _poolId, uint256 _amount0, uint256 _amount1)
+          - event: PoolFeesSwapped(bytes32 indexed _poolId, bool zeroForOne, uint256 _amount0, uint256 _amount1)
+          - event: PoolStateUpdated(bytes32 indexed _poolId, uint160 _sqrtPriceX96, int24 _tick, uint24 _protocolFee, uint24 _swapFee, uint128 _liquidity)
+          - event: ReferrerFeePaid(bytes32 indexed _poolId, address _recipient, address _token, uint256 _amount)
+          - event: ReferralEscrowUpdated(address _referralEscrow)
+      - name: PositionManager1
+        address:
+          - 0x51Bba15255406Cfe7099a42183302640ba7dAFDC
+        handler: src/EventHandlers.ts
+        events:
+          - event: CreatorFeeAllocationUpdated(bytes32 indexed _poolId, uint24 _allocation)
+          - event: Deposit(bytes32 indexed _poolId, address _payee, address _token, uint256 _amount)
+          - event: FairLaunchFeeCalculatorUpdated(address _feeCalculator)
+          - event: FeeCalculatorUpdated(address _feeCalculator)
+          - event: FeeDistributionUpdated((uint24,uint24,uint24,bool) _feeDistribution)
+          - event: InitialPriceUpdated(address _initialPrice)
+          - event: OwnershipHandoverCanceled(address indexed pendingOwner)
+          - event: OwnershipHandoverRequested(address indexed pendingOwner)
+          - event: OwnershipTransferred(address indexed oldOwner, address indexed newOwner)
+          - event: PoolCreated(bytes32 indexed _poolId, address _memecoin, address _memecoinTreasury, uint256 _tokenId, bool _currencyFlipped, uint256 _flaunchFee, (string,string,string,uint256,uint256,address,uint24,uint256,bytes,bytes) _params)
+          - event: PoolFeeDistributionUpdated(bytes32 indexed _poolId, (uint24,uint24,uint24,bool) _feeDistribution)
+          - event: PoolFeesDistributed(bytes32 indexed _poolId, uint256 _donateAmount, uint256 _creatorAmount, uint256 _bidWallAmount, uint256 _governanceAmount, uint256 _protocolAmount)
+          - event: PoolFeesReceived(bytes32 indexed _poolId, uint256 _amount0, uint256 _amount1)
+          - event: PoolFeesSwapped(bytes32 indexed _poolId, bool zeroForOne, uint256 _amount0, uint256 _amount1)
+          - event: PoolPremine(bytes32 indexed _poolId, int256 _premineAmount)
+          - event: PoolScheduled(bytes32 indexed _poolId, uint256 _flaunchesAt)
+          - event: PoolStateUpdated(bytes32 indexed _poolId, uint160 _sqrtPriceX96, int24 _tick, uint24 _protocolFee, uint24 _swapFee, uint128 _liquidity)
+          - event: PoolSwap(bytes32 indexed poolId, int256 flAmount0, int256 flAmount1, int256 flFee0, int256 flFee1, int256 ispAmount0, int256 ispAmount1, int256 ispFee0, int256 ispFee1, int256 uniAmount0, int256 uniAmount1, int256 uniFee0, int256 uniFee1)
+          - event: ReferralEscrowUpdated(address _referralEscrow)
+          - event: ReferrerFeePaid(bytes32 indexed _poolId, address _recipient, address _token, uint256 _amount)
+          - event: Withdrawal(address _sender, address _recipient, address _token, uint256 _amount)
+      - name: PositionManager2
+        address:
+          - 0xf785bb58059fab6fb19bdda2cb9078d9e546efdc
+        handler: src/EventHandlers.ts
+        events:
+          - event: FeeCalculatorUpdated(address _feeCalculator)
+          - event: FeeDistributionUpdated((uint24,uint24,uint24,bool) _feeDistribution)
+          - event: PoolSwap(bytes32 indexed poolId, int256 flAmount0, int256 flAmount1, int256 flFee0, int256 flFee1, int256 ispAmount0, int256 ispAmount1, int256 ispFee0, int256 ispFee1, int256 uniAmount0, int256 uniAmount1, int256 uniFee0, int256 uniFee1)
+          - event: PoolPremine(bytes32 indexed _poolId, int256 _premineAmount)
+          - event: PoolScheduled(bytes32 indexed _poolId, uint256 _flaunchesAt)
+          - event: PoolCreated(bytes32 indexed _poolId, address _memecoin, address _memecoinTreasury, uint256 _tokenId, bool _currencyFlipped, uint256 _flaunchFee, (string,string,string,uint256,uint256,uint256,address,uint24,uint256,bytes,bytes) _params)
+          - event: PoolFeeDistributionUpdated(bytes32 indexed _poolId, (uint24,uint24,uint24,bool) _feeDistribution)
+          - event: PoolFeesDistributed(bytes32 indexed _poolId, uint256 _donateAmount, uint256 _creatorAmount, uint256 _bidWallAmount, uint256 _governanceAmount, uint256 _protocolAmount)
+          - event: PoolFeesReceived(bytes32 indexed _poolId, uint256 _amount0, uint256 _amount1)
+          - event: PoolFeesSwapped(bytes32 indexed _poolId, bool zeroForOne, uint256 _amount0, uint256 _amount1)
+          - event: PoolStateUpdated(bytes32 indexed _poolId, uint160 _sqrtPriceX96, int24 _tick, uint24 _protocolFee, uint24 _swapFee, uint128 _liquidity)
+          - event: ReferrerFeePaid(bytes32 indexed _poolId, address _recipient, address _token, uint256 _amount)
+          - event: FairLaunchFeeCalculatorUpdated(address _feeCalculator)
+          - event: ReferralEscrowUpdated(address _referralEscrow)
+      - name: PositionManager3
+        address:
+          - 0xb903b0ab7bcee8f5e4d8c9b10a71aac7135d6fdc
+        handler: src/EventHandlers.ts
+        events:
+          - event: FeeCalculatorUpdated(address _feeCalculator)
+          - event: FeeDistributionUpdated((uint24,uint24,uint24,bool) _feeDistribution)
+          - event: PoolSwap(bytes32 indexed poolId, int256 flAmount0, int256 flAmount1, int256 flFee0, int256 flFee1, int256 ispAmount0, int256 ispAmount1, int256 ispFee0, int256 ispFee1, int256 uniAmount0, int256 uniAmount1, int256 uniFee0, int256 uniFee1)
+          - event: PoolPremine(bytes32 indexed _poolId, int256 _premineAmount)
+          - event: PoolScheduled(bytes32 indexed _poolId, uint256 _flaunchesAt)
+          - event: PoolCreated(bytes32 indexed _poolId, address _memecoin, address _memecoinTreasury, uint256 _tokenId, bool _currencyFlipped, uint256 _flaunchFee, (string,string,string,uint256,uint256,uint256,address,uint24,uint256,bytes,bytes) _params)
+          - event: PoolFeeDistributionUpdated(bytes32 indexed _poolId, (uint24,uint24,uint24,bool) _feeDistribution)
+          - event: PoolFeesDistributed(bytes32 indexed _poolId, uint256 _donateAmount, uint256 _creatorAmount, uint256 _bidWallAmount, uint256 _governanceAmount, uint256 _protocolAmount)
+          - event: PoolFeesReceived(bytes32 indexed _poolId, uint256 _amount0, uint256 _amount1)
+          - event: PoolFeesSwapped(bytes32 indexed _poolId, bool zeroForOne, uint256 _amount0, uint256 _amount1)
+          - event: PoolStateUpdated(bytes32 indexed _poolId, uint160 _sqrtPriceX96, int24 _tick, uint24 _protocolFee, uint24 _swapFee, uint128 _liquidity)
+          - event: ReferrerFeePaid(bytes32 indexed _poolId, address _recipient, address _token, uint256 _amount)
+          - event: FairLaunchFeeCalculatorUpdated(address _feeCalculator)
+          - event: ReferralEscrowUpdated(address _referralEscrow)
+      - name: PoolManager
+        address:
+          - 0x498581fF718922c3f8e6A244956aF099B2652b2b
+        handler: src/EventHandlers.ts
+        events:
+          - event: Swap(bytes32 indexed poolId, address indexed sender, int128 amount0, int128 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick, uint24 fee)
+      - name: ActionManager1
+        address:
+          - 0xeC2a53F572cFD952aAA3a8359Ac54B31d0A186a4
+        handler: src/EventHandlers.ts
+        events:
+          - event: ActionApproved(address indexed action)
+          - event: ActionUnapproved(address indexed action)
+      - name: ActionManager2
+        address:
+          - 0xFB5c20c4E60c9c64648DD3692437E3E313Add4A4
+        handler: src/EventHandlers.ts
+        events:
+          - event: ActionApproved(address indexed action)
+          - event: ActionUnapproved(address indexed action)
+      - name: BidWall1
+        address:
+          - 0x66681f10BA90496241A25e33380004f30Dfd8aa8
+        handler: src/EventHandlers.ts
+        events:
+          - event: BidWallClosed(bytes32 indexed poolId, address recipient, uint256 amount)
+          - event: BidWallRepositioned(bytes32 indexed poolId, uint256 liquidity, int24 tickLower, int24 tickUpper)
+          - event: BidWallRewardsTransferred(bytes32 indexed poolId, address recipient, uint256 amount)
+          - event: BidWallDeposit(bytes32 indexed poolId, uint256 amount0, uint256 amount1)
+          - event: BidWallDisabledStateUpdated(bytes32 indexed poolId, bool disabled)
+      - name: BidWall2
+        address:
+          - 0x7f22353d1634223a802D1c1Ea5308Ddf5DD0ef9c
+        handler: src/EventHandlers.ts
+        events:
+          - event: BidWallClosed(bytes32 indexed poolId, address recipient, uint256 amount)
+          - event: BidWallRepositioned(bytes32 indexed poolId, uint256 liquidity, int24 tickLower, int24 tickUpper)
+          - event: BidWallRewardsTransferred(bytes32 indexed poolId, address recipient, uint256 amount)
+          - event: BidWallDeposit(bytes32 indexed poolId, uint256 amount0, uint256 amount1)
+          - event: BidWallDisabledStateUpdated(bytes32 indexed poolId, bool disabled)
+      - name: FeeEscrow
+        address:
+          - 0x72e6f7948b1B1A343B477F39aAbd2E35E6D27dde
+        handler: src/EventHandlers.ts
+        events:
+          - event: Deposit(bytes32 indexed poolId, address sender, address token, uint256 amount)
+          - event: Withdrawal(address sender, address recipient, address token, uint256 amount)
+      - name: FeeExemptions
+        address:
+          - 0xfdCE459071c74b732B2dEC579Afb38Ea552C4e06
+        handler: src/EventHandlers.ts
+        events:
+          - event: BeneficiaryFeeRemoved(address beneficiary)
+          - event: BeneficiaryFeeSet(address beneficiary, uint24 fee)
+      - name: FlaunchFeeExemption
+        address:
+          - 0x4bdd067eaabd8d0fe1ccbe3c885c20ca19cc5d69
+        handler: src/EventHandlers.ts
+        events:
+          - event: FeeExemptionUpdated(address indexed user, bool exempt)
+      - name: FairLaunch1
+        address:
+          - 0xCc7A4A00072ccbeEEbd999edc812C0ce498Fb63B
+        handler: src/EventHandlers.ts
+        events:
+          - event: FairLaunchEnded(bytes32 indexed poolId, uint256 totalRaised, uint256 liquidityAdded, uint256 refundAmount)
+          - event: FairLaunchCreated(bytes32 indexed poolId, uint256 targetAmount, uint256 maxAmount, uint256 deadline)
+      - name: FairLaunch2
+        address:
+          - 0x4dc442403e8c758425b93c59dc737da522f32640
+        handler: src/EventHandlers.ts
+        events:
+          - event: FairLaunchEnded(bytes32 indexed poolId, uint256 totalRaised, uint256 liquidityAdded, uint256 refundAmount)
+          - event: FairLaunchCreated(bytes32 indexed poolId, uint256 targetAmount, uint256 maxAmount, uint256 deadline)
+      - name: FlaunchNFT1
+        address:
+          - 0x6A53F8b799bE11a2A3264eF0bfF183dCB12d9571
+        handler: src/EventHandlers.ts
+        events:
+          - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+      - name: FlaunchNFT2
+        address:
+          - 0xb4512bf57d50fbcb64a3adf8b17a79b2a204c18c
+        handler: src/EventHandlers.ts
+        events:
+          - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+      - name: FlaunchNFT3
+        address:
+          - 0x0cf6bdf0a85a9d6763361037985b76c8893553af
+        handler: src/EventHandlers.ts
+        events:
+          - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+      - name: AnyFlaunchNFT
+        address:
+          - 0xf175a370eb26ea26c42caaecd10ee723ed844c50
+        handler: src/EventHandlers.ts
+        events:
+          - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+      - name: FlayBurner
+        address:
+          - 0x94e1Ea82515c79159349bB38919B083E7D888Ce9
+        handler: src/EventHandlers.ts
+        events:
+          - event: BurnerUpdated(address burner)
+      - name: BuyBackAndBurnFlay
+        address:
+          - 0x558a4d2f46765047596cef406e27fe8cb0725192
+        handler: src/EventHandlers.ts
+        events:
+          - event: BurnBabyBurn(uint256 amount)
+          - event: EthBalanceUpdated(uint256 balance)
+      - name: TreasuryManagerFactory
+        address:
+          - 0x48af8b28DDC5e5A86c4906212fc35Fa808CA8763
+        handler: src/EventHandlers.ts
+        events:
+          - event: ManagerImplementationUnapproved(address indexed implementation)
+          - event: ManagerDeployed(address indexed manager, address indexed implementation)
+          - event: ManagerImplementationApproved(address indexed implementation)
+unordered_multichain_mode: true
