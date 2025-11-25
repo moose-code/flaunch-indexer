@@ -1,1234 +1,1124 @@
-/*
- * Please refer to https://docs.envio.dev for a thorough guide on all Envio indexer features
+/**
+ * Flaunch Protocol Event Handlers
+ * Migrated from TheGraph subgraph to Envio HyperIndex
  */
+
 import {
-  // AnyPositionManager
   AnyPositionManager,
-  AnyPositionManager_FeeCalculatorUpdated,
-  AnyPositionManager_FeeDistributionUpdated,
-  AnyPositionManager_PoolSwap,
-  AnyPositionManager_PoolCreated,
-  AnyPositionManager_PoolFeeDistributionUpdated,
-  AnyPositionManager_PoolFeesDistributed,
-  AnyPositionManager_PoolFeesReceived,
-  AnyPositionManager_PoolFeesSwapped,
-  AnyPositionManager_PoolStateUpdated,
-  AnyPositionManager_ReferrerFeePaid,
-  AnyPositionManager_ReferralEscrowUpdated,
-
-  // PositionManager1
   PositionManager1,
-  PositionManager1_CreatorFeeAllocationUpdated,
-  PositionManager1_Deposit,
-  PositionManager1_FairLaunchFeeCalculatorUpdated,
-  PositionManager1_FeeCalculatorUpdated,
-  PositionManager1_FeeDistributionUpdated,
-  PositionManager1_InitialPriceUpdated,
-  PositionManager1_OwnershipHandoverCanceled,
-  PositionManager1_OwnershipHandoverRequested,
-  PositionManager1_OwnershipTransferred,
-  PositionManager1_PoolCreated,
-  PositionManager1_PoolFeeDistributionUpdated,
-  PositionManager1_PoolFeesDistributed,
-  PositionManager1_PoolFeesReceived,
-  PositionManager1_PoolFeesSwapped,
-  PositionManager1_PoolPremine,
-  PositionManager1_PoolScheduled,
-  PositionManager1_PoolStateUpdated,
-  PositionManager1_PoolSwap,
-  PositionManager1_ReferralEscrowUpdated,
-  PositionManager1_ReferrerFeePaid,
-  PositionManager1_Withdrawal,
-
-  // PositionManager2
   PositionManager2,
-  PositionManager2_FeeCalculatorUpdated,
-  PositionManager2_FeeDistributionUpdated,
-  PositionManager2_PoolSwap,
-  PositionManager2_PoolPremine,
-  PositionManager2_PoolScheduled,
-  PositionManager2_PoolCreated,
-  PositionManager2_PoolFeeDistributionUpdated,
-  PositionManager2_PoolFeesDistributed,
-  PositionManager2_PoolFeesReceived,
-  PositionManager2_PoolFeesSwapped,
-  PositionManager2_PoolStateUpdated,
-  PositionManager2_ReferrerFeePaid,
-  PositionManager2_FairLaunchFeeCalculatorUpdated,
-  PositionManager2_ReferralEscrowUpdated,
-
-  // PositionManager3
   PositionManager3,
-  PositionManager3_FeeCalculatorUpdated,
-  PositionManager3_FeeDistributionUpdated,
-  PositionManager3_PoolSwap,
-  PositionManager3_PoolPremine,
-  PositionManager3_PoolScheduled,
-  PositionManager3_PoolCreated,
-  PositionManager3_PoolFeeDistributionUpdated,
-  PositionManager3_PoolFeesDistributed,
-  PositionManager3_PoolFeesReceived,
-  PositionManager3_PoolFeesSwapped,
-  PositionManager3_PoolStateUpdated,
-  PositionManager3_ReferrerFeePaid,
-  PositionManager3_FairLaunchFeeCalculatorUpdated,
-  PositionManager3_ReferralEscrowUpdated,
-
-  // PoolManager
   PoolManager,
-  PoolManager_Swap,
-
-  // ActionManager1
   ActionManager1,
-  ActionManager1_ActionApproved,
-  ActionManager1_ActionUnapproved,
-
-  // ActionManager2
   ActionManager2,
-  ActionManager2_ActionApproved,
-  ActionManager2_ActionUnapproved,
-
-  // BidWall1
   BidWall1,
-  BidWall1_BidWallClosed,
-  BidWall1_BidWallRepositioned,
-  BidWall1_BidWallRewardsTransferred,
-  BidWall1_BidWallDeposit,
-  BidWall1_BidWallDisabledStateUpdated,
-
-  // BidWall2
   BidWall2,
-  BidWall2_BidWallClosed,
-  BidWall2_BidWallRepositioned,
-  BidWall2_BidWallRewardsTransferred,
-  BidWall2_BidWallDeposit,
-  BidWall2_BidWallDisabledStateUpdated,
-
-  // FeeEscrow
   FeeEscrow,
-  FeeEscrow_Deposit,
-  FeeEscrow_Withdrawal,
-
-  // FeeExemptions
   FeeExemptions,
-  FeeExemptions_BeneficiaryFeeRemoved,
-  FeeExemptions_BeneficiaryFeeSet,
-
-  // FlaunchFeeExemption
   FlaunchFeeExemption,
-  FlaunchFeeExemption_FeeExemptionUpdated,
-
-  // FairLaunch1
   FairLaunch1,
-  FairLaunch1_FairLaunchEnded,
-  FairLaunch1_FairLaunchCreated,
-
-  // FairLaunch2
   FairLaunch2,
-  FairLaunch2_FairLaunchEnded,
-  FairLaunch2_FairLaunchCreated,
-
-  // FlaunchNFT1
   FlaunchNFT1,
-  FlaunchNFT1_Transfer,
-
-  // FlaunchNFT2
   FlaunchNFT2,
-  FlaunchNFT2_Transfer,
-
-  // FlaunchNFT3
   FlaunchNFT3,
-  FlaunchNFT3_Transfer,
-
-  // AnyFlaunchNFT
   AnyFlaunchNFT,
-  AnyFlaunchNFT_Transfer,
-
-  // FlayBurner
   FlayBurner,
-  FlayBurner_BurnerUpdated,
-
-  // BuyBackAndBurnFlay
   BuyBackAndBurnFlay,
-  BuyBackAndBurnFlay_BurnBabyBurn,
-  BuyBackAndBurnFlay_EthBalanceUpdated,
-
-  // TreasuryManagerFactory
   TreasuryManagerFactory,
-  TreasuryManagerFactory_ManagerImplementationUnapproved,
-  TreasuryManagerFactory_ManagerDeployed,
-  TreasuryManagerFactory_ManagerImplementationApproved,
+  CollectionToken,
+  BigDecimal,
 } from "generated";
 
-// AnyPositionManager Handlers
+import { ZERO_BI, ZERO_BD, CONFIG_ID, BUNDLE_ID } from "./utils/constants";
+import { normalizeAddress } from "./utils/helpers";
+import { getBidWallAddressForPositionManager, getFlaunchAddressForPositionManager } from "./addresses/base";
+
+// =============================================================================
+// HELPER FUNCTIONS (inline for now, will move to crud later)
+// =============================================================================
+
+const DEFAULT_FEE_DISTRIBUTION_ID = CONFIG_ID;
+
+// =============================================================================
+// POSITION MANAGER HANDLERS (AnyPositionManager)
+// =============================================================================
+
 AnyPositionManager.FeeCalculatorUpdated.handler(async ({ event, context }) => {
-  const entity: AnyPositionManager_FeeCalculatorUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _feeCalculator: event.params._feeCalculator,
-  };
-  context.AnyPositionManager_FeeCalculatorUpdated.set(entity);
+  const config = await context.Config.get(CONFIG_ID);
+  if (config) {
+    context.Config.set({
+      ...config,
+      feeCalculator: event.params._feeCalculator,
+    });
+  } else {
+    // Create config if doesn't exist
+    context.Config.set({
+      id: CONFIG_ID,
+      locked: false,
+      lockerPaused: false,
+      collectionCount: ZERO_BI,
+      volumeETH: ZERO_BI,
+      volumeUSDC: ZERO_BD,
+      totalUsers: ZERO_BI,
+      totalFeesETH: ZERO_BI,
+      totalFeesUSDC: ZERO_BD,
+      feeCalculator: event.params._feeCalculator,
+      protocolFeeRecipient: "0x0000000000000000000000000000000000000000",
+      feeDistribution_id: DEFAULT_FEE_DISTRIBUTION_ID,
+      latestReferralEscrow: "0x0000000000000000000000000000000000000000",
+      staleTimeWindow: ZERO_BI,
+    });
+  }
 });
 
-AnyPositionManager.FeeDistributionUpdated.handler(
-  async ({ event, context }) => {
-    const entity: AnyPositionManager_FeeDistributionUpdated = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      _feeDistribution_0: event.params._feeDistribution[0],
-      _feeDistribution_1: event.params._feeDistribution[1],
-      _feeDistribution_2: event.params._feeDistribution[2],
-      _feeDistribution_3: event.params._feeDistribution[3],
-    };
-    context.AnyPositionManager_FeeDistributionUpdated.set(entity);
+AnyPositionManager.FeeDistributionUpdated.handler(async ({ event, context }) => {
+  const globalFeeId = CONFIG_ID;
+  const feeDistribution = await context.FeeDistribution.get(globalFeeId);
+  
+  const feeData = event.params._feeDistribution;
+  
+  if (!feeDistribution) {
+    context.FeeDistribution.set({
+      id: globalFeeId,
+      swapFee: Number(feeData[0]),
+      referrer: Number(feeData[1]),
+      protocol: Number(feeData[2]),
+      community: undefined,
+      active: feeData[3],
+      creator: undefined,
+    });
+  } else {
+    context.FeeDistribution.set({
+      ...feeDistribution,
+      swapFee: Number(feeData[0]),
+      referrer: Number(feeData[1]),
+      protocol: Number(feeData[2]),
+      active: feeData[3],
+    });
   }
-);
-
-AnyPositionManager.PoolSwap.handler(async ({ event, context }) => {
-  const entity: AnyPositionManager_PoolSwap = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    flAmount0: event.params.flAmount0,
-    flAmount1: event.params.flAmount1,
-    flFee0: event.params.flFee0,
-    flFee1: event.params.flFee1,
-    ispAmount0: event.params.ispAmount0,
-    ispAmount1: event.params.ispAmount1,
-    ispFee0: event.params.ispFee0,
-    ispFee1: event.params.ispFee1,
-    uniAmount0: event.params.uniAmount0,
-    uniAmount1: event.params.uniAmount1,
-    uniFee0: event.params.uniFee0,
-    uniFee1: event.params.uniFee1,
-  };
-  context.AnyPositionManager_PoolSwap.set(entity);
 });
 
 AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
-  const entity: AnyPositionManager_PoolCreated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _memecoin: event.params._memecoin,
-    _memecoinTreasury: event.params._memecoinTreasury,
-    _tokenId: event.params._tokenId,
-    _currencyFlipped: event.params._currencyFlipped,
-    _params_0: event.params._params[0],
-    _params_1: event.params._params[1],
-    _params_2: event.params._params[2],
-    _params_3: event.params._params[3],
-    _params_4: event.params._params[4],
-  };
-  context.AnyPositionManager_PoolCreated.set(entity);
-});
-
-AnyPositionManager.PoolFeeDistributionUpdated.handler(
-  async ({ event, context }) => {
-    const entity: AnyPositionManager_PoolFeeDistributionUpdated = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      _poolId: event.params._poolId,
-      _feeDistribution_0: event.params._feeDistribution[0],
-      _feeDistribution_1: event.params._feeDistribution[1],
-      _feeDistribution_2: event.params._feeDistribution[2],
-      _feeDistribution_3: event.params._feeDistribution[3],
+  // Pool creation - creates Pool, CollectionToken, Collection, BidWall, FairLaunch, MemecoinTreasury
+  const poolId = event.params._poolId;
+  const memecoin = normalizeAddress(event.params._memecoin);
+  const memecoinTreasury = normalizeAddress(event.params._memecoinTreasury);
+  const tokenId = event.params._tokenId;
+  const flipped = event.params._currencyFlipped;
+  const timestamp = BigInt(event.block.timestamp);
+  const positionManager = normalizeAddress(event.srcAddress);
+  
+  // Extract params from tuple: [creator, ?, uint24, bytes, bytes] for AnyPositionManager
+  const paramsData = event.params._params;
+  const creator = normalizeAddress(paramsData[0]);
+  
+  // Ensure Bundle exists for ETH price
+  let bundle = await context.Bundle.get(BUNDLE_ID);
+  if (!bundle) {
+    bundle = {
+      id: BUNDLE_ID,
+      ethPriceUSDC: BigDecimal("2500"),
     };
-    context.AnyPositionManager_PoolFeeDistributionUpdated.set(entity);
+    context.Bundle.set(bundle);
   }
-);
-
-AnyPositionManager.PoolFeesDistributed.handler(async ({ event, context }) => {
-  const entity: AnyPositionManager_PoolFeesDistributed = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _donateAmount: event.params._donateAmount,
-    _creatorAmount: event.params._creatorAmount,
-    _bidWallAmount: event.params._bidWallAmount,
-    _governanceAmount: event.params._governanceAmount,
-    _protocolAmount: event.params._protocolAmount,
-  };
-  context.AnyPositionManager_PoolFeesDistributed.set(entity);
+  
+  // Ensure Config exists
+  let config = await context.Config.get(CONFIG_ID);
+  if (!config) {
+    config = {
+      id: CONFIG_ID,
+      locked: false,
+      lockerPaused: false,
+      collectionCount: ZERO_BI,
+      volumeETH: ZERO_BI,
+      volumeUSDC: ZERO_BD,
+      totalUsers: ZERO_BI,
+      totalFeesETH: ZERO_BI,
+      totalFeesUSDC: ZERO_BD,
+      feeCalculator: "0x0000000000000000000000000000000000000000",
+      protocolFeeRecipient: "0x0000000000000000000000000000000000000000",
+      feeDistribution_id: CONFIG_ID,
+      latestReferralEscrow: "0x0000000000000000000000000000000000000000",
+      staleTimeWindow: ZERO_BI,
+    };
+    context.Config.set(config);
+  }
+  
+  // Create or get creator User
+  let creatorUser = await context.User.get(creator);
+  if (!creatorUser) {
+    context.User.set({ id: creator });
+  }
+  
+  // Get Flaunch address for this position manager
+  const flaunchAddr = getFlaunchAddressForPositionManager(positionManager) || positionManager;
+  const collectionId = `${flaunchAddr}-${tokenId.toString()}`;
+  
+  // Create Collection
+  context.Collection.set({
+    id: collectionId,
+    tokenID: tokenId,
+    contract: flaunchAddr,
+    creator_id: creator,
+    owner_id: creator,
+    collectionToken_id: memecoin,
+    name: "Unknown", // Will be updated via Effect API
+    symbol: "UNKNOWN",
+    managerUpdatedAt: timestamp,
+    managerType: undefined,
+    revenueManager_id: undefined,
+    stakingManager_id: undefined,
+    buyBackManager_id: undefined,
+    addressFeeSplitManager_id: undefined,
+  });
+  
+  // Create CollectionToken
+  const initialPrice = ZERO_BI;
+  context.CollectionToken.set({
+    id: memecoin,
+    pool_id: poolId,
+    collection_id: collectionId,
+    creator_id: creator,
+    owner_id: creator,
+    name: "Unknown",
+    symbol: "UNKNOWN",
+    decimals: 18,
+    totalSupply: ZERO_BI,
+    volumeETH: ZERO_BI,
+    volumeUSDC: ZERO_BD,
+    totalFeesETH: ZERO_BI,
+    totalFeesUSDC: ZERO_BD,
+    totalCommunityFeesETH: ZERO_BD,
+    totalCreatorFeesETH: ZERO_BD,
+    derivedETH: initialPrice,
+    tokenPrice: initialPrice,
+    marketCapETH: ZERO_BI,
+    marketCapUSDC: ZERO_BD,
+    totalHolders: ZERO_BI,
+    isNative: flipped,
+    createdAt: timestamp,
+    baseURI: "",
+    creationFee: ZERO_BI,
+    fairLaunch_id: poolId,
+    metadata_id: undefined,
+    lastMinuteRecorded: ZERO_BI,
+    lastMinuteArchived: ZERO_BI,
+    lastHourRecorded: ZERO_BI,
+    lastHourArchived: ZERO_BI,
+    lastFifteenMinuteRecorded: ZERO_BI,
+    lastFifteenMinuteArchived: ZERO_BI,
+    lastFourHourRecorded: ZERO_BI,
+    lastFourHourArchived: ZERO_BI,
+  });
+  
+  // Create Pool
+  context.Pool.set({
+    id: poolId,
+    collectionToken_id: memecoin,
+    sqrtPriceX96: ZERO_BI,
+    tickSpacing: 60,
+    tick: 0,
+    fairLaunchedEnded: false,
+    liquidity: ZERO_BI,
+    liveAtTimestamp: timestamp,
+    flipped,
+    startingMarketCap: ZERO_BI,
+    startingMarketCapETH: ZERO_BI,
+    volumeETH: ZERO_BI,
+    volumeUSDC: ZERO_BD,
+    totalFeesETH: ZERO_BI,
+    totalFeesUSDC: ZERO_BD,
+    totalFeesToken: ZERO_BI,
+    totalFeesTokenConverted: ZERO_BI,
+    totalCommunityFeesETH: ZERO_BD,
+    totalCreatorFeesETH: ZERO_BD,
+    ispEthIn: ZERO_BI,
+    ispTokenOut: ZERO_BI,
+    bidWall_id: poolId,
+    poolFees_id: poolId,
+    memecoinTreasury_id: memecoinTreasury,
+    feeAllocation_id: undefined,
+    feeDistribution_id: undefined,
+    positionManager,
+  });
+  
+  // Create BidWall
+  const bidWallAddr = getBidWallAddressForPositionManager(positionManager) || positionManager;
+  context.BidWall.set({
+    id: poolId,
+    pool_id: poolId,
+    collectionToken_id: memecoin,
+    contract: bidWallAddr,
+    initialized: false,
+    amount: ZERO_BI,
+    balance: ZERO_BI,
+    tickLower: ZERO_BI,
+    tickUpper: ZERO_BI,
+    deployedETH: ZERO_BI,
+    closed: false,
+  });
+  
+  // Create FairLaunch
+  context.FairLaunch.set({
+    id: poolId,
+    active: true,
+    collectionToken_id: memecoin,
+    tick: 0,
+    initialSupply: ZERO_BI,
+    soldInitialSupply: ZERO_BI,
+    ethEarned: ZERO_BI,
+    starts_at: timestamp,
+    ends_at: ZERO_BI,
+  });
+  
+  // Create MemecoinTreasury
+  context.MemecoinTreasury.set({
+    id: memecoinTreasury,
+    pool_id: poolId,
+    createdAt: timestamp,
+    totalETH: ZERO_BI,
+    totalToken: ZERO_BI,
+    totalActions: ZERO_BI,
+    lastActionTimestamp: timestamp,
+  });
+  
+  // Create PoolFees
+  context.PoolFees.set({
+    id: poolId,
+    ethAvailable: ZERO_BI,
+    tokenAvailable: ZERO_BI,
+    totalEthIn: ZERO_BI,
+    totalTokenIn: ZERO_BI,
+  });
+  
+  // Create NFTLookup
+  const nftLookupId = `${flaunchAddr}-${tokenId.toString()}`;
+  context.NFTLookup.set({
+    id: nftLookupId,
+    collectionToken_id: memecoin,
+  });
+  
+  // Create PoolCollectionLookup
+  context.PoolCollectionLookup.set({
+    id: memecoin,
+    collectionToken_id: memecoin,
+  });
+  
+  // Increment collection count
+  context.Config.set({
+    ...config,
+    collectionCount: config.collectionCount + 1n,
+  });
 });
 
-AnyPositionManager.PoolFeesReceived.handler(async ({ event, context }) => {
-  const entity: AnyPositionManager_PoolFeesReceived = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _amount0: event.params._amount0,
-    _amount1: event.params._amount1,
-  };
-  context.AnyPositionManager_PoolFeesReceived.set(entity);
+// =============================================================================
+// DYNAMIC CONTRACT REGISTRATION
+// Register CollectionToken contracts when pools are created
+// =============================================================================
+
+AnyPositionManager.PoolCreated.contractRegister(({ event, context }) => {
+  // Register the newly created memecoin token for tracking Transfer events
+  context.addCollectionToken(event.params._memecoin);
 });
 
-AnyPositionManager.PoolFeesSwapped.handler(async ({ event, context }) => {
-  const entity: AnyPositionManager_PoolFeesSwapped = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    zeroForOne: event.params.zeroForOne,
-    _amount0: event.params._amount0,
-    _amount1: event.params._amount1,
-  };
-  context.AnyPositionManager_PoolFeesSwapped.set(entity);
+PositionManager1.PoolCreated.contractRegister(({ event, context }) => {
+  context.addCollectionToken(event.params._memecoin);
+});
+
+PositionManager2.PoolCreated.contractRegister(({ event, context }) => {
+  context.addCollectionToken(event.params._memecoin);
+});
+
+PositionManager3.PoolCreated.contractRegister(({ event, context }) => {
+  context.addCollectionToken(event.params._memecoin);
+});
+
+// =============================================================================
+// COLLECTION TOKEN HANDLERS (Dynamic - ERC20 Transfers)
+// =============================================================================
+
+CollectionToken.Transfer.handler(async ({ event, context }) => {
+  const from = normalizeAddress(event.params.from);
+  const to = normalizeAddress(event.params.to);
+  const value = event.params.value;
+  const tokenAddress = normalizeAddress(event.srcAddress);
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+  
+  // Get the CollectionToken entity
+  const token = await context.CollectionToken.get(tokenAddress);
+  if (!token) return;
+  
+  const isZeroAddress = (addr: string) => addr === "0x0000000000000000000000000000000000000000";
+  
+  // Handle sender's holdings (if not minting)
+  if (!isZeroAddress(from)) {
+    const fromHoldingId = `${from}-${tokenAddress}`;
+    let fromHolding = await context.CollectionTokenHolding.get(fromHoldingId);
+    
+    if (fromHolding) {
+      const newBalance = fromHolding.balance - value;
+      context.CollectionTokenHolding.set({
+        ...fromHolding,
+        balance: newBalance,
+        balanceBefore: fromHolding.balance,
+        lastUpdatedTimestamp: timestamp,
+        updatedTimestamp: timestamp,
+        updatedTx: txHash,
+      });
+      
+      // If balance becomes 0, decrement holder count
+      if (newBalance === 0n && fromHolding.balance > 0n) {
+        context.CollectionToken.set({
+          ...token,
+          totalHolders: token.totalHolders - 1n,
+        });
+      }
+    }
+  }
+  
+  // Handle receiver's holdings (if not burning)
+  if (!isZeroAddress(to)) {
+    const toHoldingId = `${to}-${tokenAddress}`;
+    let toHolding = await context.CollectionTokenHolding.get(toHoldingId);
+    
+    // Get or create user
+    let user = await context.User.get(to);
+    if (!user) {
+      context.User.set({ id: to });
+    }
+    
+    if (toHolding) {
+      const wasZero = toHolding.balance === 0n;
+      const newBalance = toHolding.balance + value;
+      context.CollectionTokenHolding.set({
+        ...toHolding,
+        balance: newBalance,
+        balanceBefore: toHolding.balance,
+        lastUpdatedTimestamp: timestamp,
+        updatedTimestamp: timestamp,
+        updatedTx: txHash,
+      });
+      
+      // If balance goes from 0 to positive, increment holder count
+      if (wasZero && newBalance > 0n) {
+        const currentToken = await context.CollectionToken.get(tokenAddress);
+        if (currentToken) {
+          context.CollectionToken.set({
+            ...currentToken,
+            totalHolders: currentToken.totalHolders + 1n,
+          });
+        }
+      }
+    } else {
+      // Create new holding
+      context.CollectionTokenHolding.set({
+        id: toHoldingId,
+        user_id: to,
+        collectionToken_id: tokenAddress,
+        balance: value,
+        balanceBefore: ZERO_BI,
+        createdTimestamp: timestamp,
+        createdTx: txHash,
+        lastUpdatedTimestamp: timestamp,
+        updatedTimestamp: timestamp,
+        updatedTx: txHash,
+        price: token.derivedETH,
+      });
+      
+      // New holder - increment count
+      const currentToken = await context.CollectionToken.get(tokenAddress);
+      if (currentToken) {
+        context.CollectionToken.set({
+          ...currentToken,
+          totalHolders: currentToken.totalHolders + 1n,
+        });
+      }
+    }
+  }
+});
+
+CollectionToken.MetadataUpdated.handler(async ({ event, context }) => {
+  const tokenAddress = normalizeAddress(event.srcAddress);
+  const baseURI = event.params.baseURI;
+  
+  const token = await context.CollectionToken.get(tokenAddress);
+  if (token) {
+    context.CollectionToken.set({
+      ...token,
+      baseURI,
+    });
+  }
+});
+
+AnyPositionManager.PoolSwap.handler(async ({ event, context }) => {
+  // Note: PoolSwap uses `poolId` (no underscore)
+  const poolId = event.params.poolId;
+  // TODO: Implement swap handler
 });
 
 AnyPositionManager.PoolStateUpdated.handler(async ({ event, context }) => {
-  const entity: AnyPositionManager_PoolStateUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _sqrtPriceX96: event.params._sqrtPriceX96,
-    _tick: event.params._tick,
-    _protocolFee: event.params._protocolFee,
-    _swapFee: event.params._swapFee,
-    _liquidity: event.params._liquidity,
-  };
-  context.AnyPositionManager_PoolStateUpdated.set(entity);
+  const poolId = event.params._poolId;
+  // TODO: Implement price update logic
+});
+
+AnyPositionManager.PoolFeesReceived.handler(async ({ event, context }) => {
+  const poolId = event.params._poolId;
+  // TODO: Implement fee received logic
+});
+
+AnyPositionManager.PoolFeesDistributed.handler(async ({ event, context }) => {
+  const poolId = event.params._poolId;
+  // TODO: Implement fee distribution logic
+});
+
+AnyPositionManager.PoolFeesSwapped.handler(async ({ event, context }) => {
+  const poolId = event.params._poolId;
+  // TODO: Implement fee swap logic
+});
+
+AnyPositionManager.PoolFeeDistributionUpdated.handler(async ({ event, context }) => {
+  const poolId = event.params._poolId;
+  // TODO: Implement pool-specific fee distribution update
 });
 
 AnyPositionManager.ReferrerFeePaid.handler(async ({ event, context }) => {
-  const entity: AnyPositionManager_ReferrerFeePaid = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _recipient: event.params._recipient,
-    _token: event.params._token,
-    _amount: event.params._amount,
-  };
-  context.AnyPositionManager_ReferrerFeePaid.set(entity);
+  const recipient = normalizeAddress(event.params._recipient);
+  // Ensure user exists
+  const user = await context.User.get(recipient);
+  if (!user) {
+    context.User.set({ id: recipient });
+  }
+  // TODO: Implement referrer fee logic
 });
 
 AnyPositionManager.ReferralEscrowUpdated.handler(async ({ event, context }) => {
-  const entity: AnyPositionManager_ReferralEscrowUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _referralEscrow: event.params._referralEscrow,
-  };
-  context.AnyPositionManager_ReferralEscrowUpdated.set(entity);
+  // TODO: Implement referral escrow update
 });
 
-// PositionManager1 Handlers
-PositionManager1.CreatorFeeAllocationUpdated.handler(
-  async ({ event, context }) => {
-    const entity: PositionManager1_CreatorFeeAllocationUpdated = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      _poolId: event.params._poolId,
-      _allocation: event.params._allocation,
-    };
-    context.PositionManager1_CreatorFeeAllocationUpdated.set(entity);
-  }
-);
-
-PositionManager1.Deposit.handler(async ({ event, context }) => {
-  const entity: PositionManager1_Deposit = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _payee: event.params._payee,
-    _token: event.params._token,
-    _amount: event.params._amount,
-  };
-  context.PositionManager1_Deposit.set(entity);
-});
-
-PositionManager1.FairLaunchFeeCalculatorUpdated.handler(
-  async ({ event, context }) => {
-    const entity: PositionManager1_FairLaunchFeeCalculatorUpdated = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      _feeCalculator: event.params._feeCalculator,
-    };
-    context.PositionManager1_FairLaunchFeeCalculatorUpdated.set(entity);
-  }
-);
-
-PositionManager1.FeeCalculatorUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager1_FeeCalculatorUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _feeCalculator: event.params._feeCalculator,
-  };
-  context.PositionManager1_FeeCalculatorUpdated.set(entity);
-});
-
-PositionManager1.FeeDistributionUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager1_FeeDistributionUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _feeDistribution_0: event.params._feeDistribution[0],
-    _feeDistribution_1: event.params._feeDistribution[1],
-    _feeDistribution_2: event.params._feeDistribution[2],
-    _feeDistribution_3: event.params._feeDistribution[3],
-  };
-  context.PositionManager1_FeeDistributionUpdated.set(entity);
-});
-
-PositionManager1.InitialPriceUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager1_InitialPriceUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _initialPrice: event.params._initialPrice,
-  };
-  context.PositionManager1_InitialPriceUpdated.set(entity);
-});
-
-PositionManager1.OwnershipHandoverCanceled.handler(
-  async ({ event, context }) => {
-    const entity: PositionManager1_OwnershipHandoverCanceled = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      pendingOwner: event.params.pendingOwner,
-    };
-    context.PositionManager1_OwnershipHandoverCanceled.set(entity);
-  }
-);
-
-PositionManager1.OwnershipHandoverRequested.handler(
-  async ({ event, context }) => {
-    const entity: PositionManager1_OwnershipHandoverRequested = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      pendingOwner: event.params.pendingOwner,
-    };
-    context.PositionManager1_OwnershipHandoverRequested.set(entity);
-  }
-);
-
-PositionManager1.OwnershipTransferred.handler(async ({ event, context }) => {
-  const entity: PositionManager1_OwnershipTransferred = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    oldOwner: event.params.oldOwner,
-    newOwner: event.params.newOwner,
-  };
-  context.PositionManager1_OwnershipTransferred.set(entity);
-});
+// =============================================================================
+// POSITION MANAGER 1 HANDLERS
+// =============================================================================
 
 PositionManager1.PoolCreated.handler(async ({ event, context }) => {
-  const entity: PositionManager1_PoolCreated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _memecoin: event.params._memecoin,
-    _memecoinTreasury: event.params._memecoinTreasury,
-    _tokenId: event.params._tokenId,
-    _currencyFlipped: event.params._currencyFlipped,
-    _flaunchFee: event.params._flaunchFee,
-    _params_0: event.params._params[0],
-    _params_1: event.params._params[1],
-    _params_2: event.params._params[2],
-    _params_3: event.params._params[3],
-    _params_4: event.params._params[4],
-    _params_5: event.params._params[5],
-    _params_6: event.params._params[6],
-    _params_7: event.params._params[7],
-    _params_8: event.params._params[8],
-    _params_9: event.params._params[9],
-  };
-  context.PositionManager1_PoolCreated.set(entity);
-});
-
-PositionManager1.PoolFeeDistributionUpdated.handler(
-  async ({ event, context }) => {
-    const entity: PositionManager1_PoolFeeDistributionUpdated = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      _poolId: event.params._poolId,
-      _feeDistribution_0: event.params._feeDistribution[0],
-      _feeDistribution_1: event.params._feeDistribution[1],
-      _feeDistribution_2: event.params._feeDistribution[2],
-      _feeDistribution_3: event.params._feeDistribution[3],
-    };
-    context.PositionManager1_PoolFeeDistributionUpdated.set(entity);
-  }
-);
-
-PositionManager1.PoolFeesDistributed.handler(async ({ event, context }) => {
-  const entity: PositionManager1_PoolFeesDistributed = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _donateAmount: event.params._donateAmount,
-    _creatorAmount: event.params._creatorAmount,
-    _bidWallAmount: event.params._bidWallAmount,
-    _governanceAmount: event.params._governanceAmount,
-    _protocolAmount: event.params._protocolAmount,
-  };
-  context.PositionManager1_PoolFeesDistributed.set(entity);
-});
-
-PositionManager1.PoolFeesReceived.handler(async ({ event, context }) => {
-  const entity: PositionManager1_PoolFeesReceived = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _amount0: event.params._amount0,
-    _amount1: event.params._amount1,
-  };
-  context.PositionManager1_PoolFeesReceived.set(entity);
-});
-
-PositionManager1.PoolFeesSwapped.handler(async ({ event, context }) => {
-  const entity: PositionManager1_PoolFeesSwapped = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    zeroForOne: event.params.zeroForOne,
-    _amount0: event.params._amount0,
-    _amount1: event.params._amount1,
-  };
-  context.PositionManager1_PoolFeesSwapped.set(entity);
-});
-
-PositionManager1.PoolPremine.handler(async ({ event, context }) => {
-  const entity: PositionManager1_PoolPremine = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _premineAmount: event.params._premineAmount,
-  };
-  context.PositionManager1_PoolPremine.set(entity);
-});
-
-PositionManager1.PoolScheduled.handler(async ({ event, context }) => {
-  const entity: PositionManager1_PoolScheduled = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _flaunchesAt: event.params._flaunchesAt,
-  };
-  context.PositionManager1_PoolScheduled.set(entity);
-});
-
-PositionManager1.PoolStateUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager1_PoolStateUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _sqrtPriceX96: event.params._sqrtPriceX96,
-    _tick: event.params._tick,
-    _protocolFee: event.params._protocolFee,
-    _swapFee: event.params._swapFee,
-    _liquidity: event.params._liquidity,
-  };
-  context.PositionManager1_PoolStateUpdated.set(entity);
+  // TODO: Same as AnyPositionManager.PoolCreated
 });
 
 PositionManager1.PoolSwap.handler(async ({ event, context }) => {
-  const entity: PositionManager1_PoolSwap = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    flAmount0: event.params.flAmount0,
-    flAmount1: event.params.flAmount1,
-    flFee0: event.params.flFee0,
-    flFee1: event.params.flFee1,
-    ispAmount0: event.params.ispAmount0,
-    ispAmount1: event.params.ispAmount1,
-    ispFee0: event.params.ispFee0,
-    ispFee1: event.params.ispFee1,
-    uniAmount0: event.params.uniAmount0,
-    uniAmount1: event.params.uniAmount1,
-    uniFee0: event.params.uniFee0,
-    uniFee1: event.params.uniFee1,
-  };
-  context.PositionManager1_PoolSwap.set(entity);
+  // Note: uses poolId without underscore
+  const poolId = event.params.poolId;
+  // TODO: Same as AnyPositionManager.PoolSwap
 });
 
-PositionManager1.ReferralEscrowUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager1_ReferralEscrowUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _referralEscrow: event.params._referralEscrow,
-  };
-  context.PositionManager1_ReferralEscrowUpdated.set(entity);
-});
+PositionManager1.PoolStateUpdated.handler(async ({ event, context }) => {});
+PositionManager1.PoolFeesReceived.handler(async ({ event, context }) => {});
+PositionManager1.PoolFeesDistributed.handler(async ({ event, context }) => {});
+PositionManager1.PoolFeesSwapped.handler(async ({ event, context }) => {});
+PositionManager1.PoolFeeDistributionUpdated.handler(async ({ event, context }) => {});
 
 PositionManager1.ReferrerFeePaid.handler(async ({ event, context }) => {
-  const entity: PositionManager1_ReferrerFeePaid = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _recipient: event.params._recipient,
-    _token: event.params._token,
-    _amount: event.params._amount,
-  };
-  context.PositionManager1_ReferrerFeePaid.set(entity);
+  const recipient = normalizeAddress(event.params._recipient);
+  const user = await context.User.get(recipient);
+  if (!user) {
+    context.User.set({ id: recipient });
+  }
+});
+
+PositionManager1.ReferralEscrowUpdated.handler(async ({ event, context }) => {});
+
+PositionManager1.FeeCalculatorUpdated.handler(async ({ event, context }) => {
+  const config = await context.Config.get(CONFIG_ID);
+  if (config) {
+    context.Config.set({
+      ...config,
+      feeCalculator: event.params._feeCalculator,
+    });
+  }
+});
+
+PositionManager1.FeeDistributionUpdated.handler(async ({ event, context }) => {
+  const globalFeeId = CONFIG_ID;
+  const feeDistribution = await context.FeeDistribution.get(globalFeeId);
+  const feeData = event.params._feeDistribution;
+  
+  if (!feeDistribution) {
+    context.FeeDistribution.set({
+      id: globalFeeId,
+      swapFee: Number(feeData[0]),
+      referrer: Number(feeData[1]),
+      protocol: Number(feeData[2]),
+      community: undefined,
+      active: feeData[3],
+      creator: undefined,
+    });
+  } else {
+    context.FeeDistribution.set({
+      ...feeDistribution,
+      swapFee: Number(feeData[0]),
+      referrer: Number(feeData[1]),
+      protocol: Number(feeData[2]),
+      active: feeData[3],
+    });
+  }
+});
+
+PositionManager1.FairLaunchFeeCalculatorUpdated.handler(async ({ event, context }) => {});
+PositionManager1.InitialPriceUpdated.handler(async ({ event, context }) => {});
+PositionManager1.CreatorFeeAllocationUpdated.handler(async ({ event, context }) => {});
+
+PositionManager1.Deposit.handler(async ({ event, context }) => {
+  // Note: PositionManager1 Deposit uses _payee with underscore
+  const payee = normalizeAddress(event.params._payee);
+  const user = await context.User.get(payee);
+  if (!user) {
+    context.User.set({ id: payee });
+  }
 });
 
 PositionManager1.Withdrawal.handler(async ({ event, context }) => {
-  const entity: PositionManager1_Withdrawal = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _sender: event.params._sender,
-    _recipient: event.params._recipient,
-    _token: event.params._token,
-    _amount: event.params._amount,
-  };
-  context.PositionManager1_Withdrawal.set(entity);
-});
-
-// PositionManager2 Handlers
-PositionManager2.FeeCalculatorUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager2_FeeCalculatorUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _feeCalculator: event.params._feeCalculator,
-  };
-  context.PositionManager2_FeeCalculatorUpdated.set(entity);
-});
-
-PositionManager2.FeeDistributionUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager2_FeeDistributionUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _feeDistribution_0: event.params._feeDistribution[0],
-    _feeDistribution_1: event.params._feeDistribution[1],
-    _feeDistribution_2: event.params._feeDistribution[2],
-    _feeDistribution_3: event.params._feeDistribution[3],
-  };
-  context.PositionManager2_FeeDistributionUpdated.set(entity);
-});
-
-PositionManager2.PoolSwap.handler(async ({ event, context }) => {
-  const entity: PositionManager2_PoolSwap = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    flAmount0: event.params.flAmount0,
-    flAmount1: event.params.flAmount1,
-    flFee0: event.params.flFee0,
-    flFee1: event.params.flFee1,
-    ispAmount0: event.params.ispAmount0,
-    ispAmount1: event.params.ispAmount1,
-    ispFee0: event.params.ispFee0,
-    ispFee1: event.params.ispFee1,
-    uniAmount0: event.params.uniAmount0,
-    uniAmount1: event.params.uniAmount1,
-    uniFee0: event.params.uniFee0,
-    uniFee1: event.params.uniFee1,
-  };
-  context.PositionManager2_PoolSwap.set(entity);
-});
-
-PositionManager2.PoolPremine.handler(async ({ event, context }) => {
-  const entity: PositionManager2_PoolPremine = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _premineAmount: event.params._premineAmount,
-  };
-  context.PositionManager2_PoolPremine.set(entity);
-});
-
-PositionManager2.PoolScheduled.handler(async ({ event, context }) => {
-  const entity: PositionManager2_PoolScheduled = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _flaunchesAt: event.params._flaunchesAt,
-  };
-  context.PositionManager2_PoolScheduled.set(entity);
-});
-
-PositionManager2.PoolCreated.handler(async ({ event, context }) => {
-  const entity: PositionManager2_PoolCreated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _memecoin: event.params._memecoin,
-    _memecoinTreasury: event.params._memecoinTreasury,
-    _tokenId: event.params._tokenId,
-    _currencyFlipped: event.params._currencyFlipped,
-    _flaunchFee: event.params._flaunchFee,
-    _params_0: event.params._params[0],
-    _params_1: event.params._params[1],
-    _params_2: event.params._params[2],
-    _params_3: event.params._params[3],
-    _params_4: event.params._params[4],
-    _params_5: event.params._params[5],
-    _params_6: event.params._params[6],
-    _params_7: event.params._params[7],
-    _params_8: event.params._params[8],
-    _params_9: event.params._params[9],
-    _params_10: event.params._params[10],
-  };
-  context.PositionManager2_PoolCreated.set(entity);
-});
-
-PositionManager2.PoolFeeDistributionUpdated.handler(
-  async ({ event, context }) => {
-    const entity: PositionManager2_PoolFeeDistributionUpdated = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      _poolId: event.params._poolId,
-      _feeDistribution_0: event.params._feeDistribution[0],
-      _feeDistribution_1: event.params._feeDistribution[1],
-      _feeDistribution_2: event.params._feeDistribution[2],
-      _feeDistribution_3: event.params._feeDistribution[3],
-    };
-    context.PositionManager2_PoolFeeDistributionUpdated.set(entity);
+  // Note: PositionManager1 Withdrawal uses _sender, _recipient with underscore
+  const sender = normalizeAddress(event.params._sender);
+  const user = await context.User.get(sender);
+  if (!user) {
+    context.User.set({ id: sender });
   }
-);
-
-PositionManager2.PoolFeesDistributed.handler(async ({ event, context }) => {
-  const entity: PositionManager2_PoolFeesDistributed = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _donateAmount: event.params._donateAmount,
-    _creatorAmount: event.params._creatorAmount,
-    _bidWallAmount: event.params._bidWallAmount,
-    _governanceAmount: event.params._governanceAmount,
-    _protocolAmount: event.params._protocolAmount,
-  };
-  context.PositionManager2_PoolFeesDistributed.set(entity);
 });
 
-PositionManager2.PoolFeesReceived.handler(async ({ event, context }) => {
-  const entity: PositionManager2_PoolFeesReceived = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _amount0: event.params._amount0,
-    _amount1: event.params._amount1,
-  };
-  context.PositionManager2_PoolFeesReceived.set(entity);
-});
+PositionManager1.PoolPremine.handler(async ({ event, context }) => {});
+PositionManager1.PoolScheduled.handler(async ({ event, context }) => {});
+PositionManager1.OwnershipTransferred.handler(async ({ event, context }) => {});
+PositionManager1.OwnershipHandoverRequested.handler(async ({ event, context }) => {});
+PositionManager1.OwnershipHandoverCanceled.handler(async ({ event, context }) => {});
 
-PositionManager2.PoolFeesSwapped.handler(async ({ event, context }) => {
-  const entity: PositionManager2_PoolFeesSwapped = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    zeroForOne: event.params.zeroForOne,
-    _amount0: event.params._amount0,
-    _amount1: event.params._amount1,
-  };
-  context.PositionManager2_PoolFeesSwapped.set(entity);
-});
+// =============================================================================
+// POSITION MANAGER 2 HANDLERS
+// =============================================================================
 
-PositionManager2.PoolStateUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager2_PoolStateUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _sqrtPriceX96: event.params._sqrtPriceX96,
-    _tick: event.params._tick,
-    _protocolFee: event.params._protocolFee,
-    _swapFee: event.params._swapFee,
-    _liquidity: event.params._liquidity,
-  };
-  context.PositionManager2_PoolStateUpdated.set(entity);
-});
-
+PositionManager2.PoolCreated.handler(async ({ event, context }) => {});
+PositionManager2.PoolSwap.handler(async ({ event, context }) => {});
+PositionManager2.PoolStateUpdated.handler(async ({ event, context }) => {});
+PositionManager2.PoolFeesReceived.handler(async ({ event, context }) => {});
+PositionManager2.PoolFeesDistributed.handler(async ({ event, context }) => {});
+PositionManager2.PoolFeesSwapped.handler(async ({ event, context }) => {});
+PositionManager2.PoolFeeDistributionUpdated.handler(async ({ event, context }) => {});
 PositionManager2.ReferrerFeePaid.handler(async ({ event, context }) => {
-  const entity: PositionManager2_ReferrerFeePaid = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _recipient: event.params._recipient,
-    _token: event.params._token,
-    _amount: event.params._amount,
-  };
-  context.PositionManager2_ReferrerFeePaid.set(entity);
-});
-
-PositionManager2.FairLaunchFeeCalculatorUpdated.handler(
-  async ({ event, context }) => {
-    const entity: PositionManager2_FairLaunchFeeCalculatorUpdated = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      _feeCalculator: event.params._feeCalculator,
-    };
-    context.PositionManager2_FairLaunchFeeCalculatorUpdated.set(entity);
+  const recipient = normalizeAddress(event.params._recipient);
+  const user = await context.User.get(recipient);
+  if (!user) {
+    context.User.set({ id: recipient });
   }
-);
-
-PositionManager2.ReferralEscrowUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager2_ReferralEscrowUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _referralEscrow: event.params._referralEscrow,
-  };
-  context.PositionManager2_ReferralEscrowUpdated.set(entity);
 });
+PositionManager2.ReferralEscrowUpdated.handler(async ({ event, context }) => {});
+PositionManager2.FeeCalculatorUpdated.handler(async ({ event, context }) => {});
+PositionManager2.FeeDistributionUpdated.handler(async ({ event, context }) => {});
+PositionManager2.FairLaunchFeeCalculatorUpdated.handler(async ({ event, context }) => {});
+PositionManager2.PoolPremine.handler(async ({ event, context }) => {});
+PositionManager2.PoolScheduled.handler(async ({ event, context }) => {});
 
-// PositionManager3 Handlers (same as PositionManager2)
-PositionManager3.FeeCalculatorUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager3_FeeCalculatorUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _feeCalculator: event.params._feeCalculator,
-  };
-  context.PositionManager3_FeeCalculatorUpdated.set(entity);
-});
+// =============================================================================
+// POSITION MANAGER 3 HANDLERS
+// =============================================================================
 
-PositionManager3.FeeDistributionUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager3_FeeDistributionUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _feeDistribution_0: event.params._feeDistribution[0],
-    _feeDistribution_1: event.params._feeDistribution[1],
-    _feeDistribution_2: event.params._feeDistribution[2],
-    _feeDistribution_3: event.params._feeDistribution[3],
-  };
-  context.PositionManager3_FeeDistributionUpdated.set(entity);
-});
-
-PositionManager3.PoolSwap.handler(async ({ event, context }) => {
-  const entity: PositionManager3_PoolSwap = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    flAmount0: event.params.flAmount0,
-    flAmount1: event.params.flAmount1,
-    flFee0: event.params.flFee0,
-    flFee1: event.params.flFee1,
-    ispAmount0: event.params.ispAmount0,
-    ispAmount1: event.params.ispAmount1,
-    ispFee0: event.params.ispFee0,
-    ispFee1: event.params.ispFee1,
-    uniAmount0: event.params.uniAmount0,
-    uniAmount1: event.params.uniAmount1,
-    uniFee0: event.params.uniFee0,
-    uniFee1: event.params.uniFee1,
-  };
-  context.PositionManager3_PoolSwap.set(entity);
-});
-
-PositionManager3.PoolPremine.handler(async ({ event, context }) => {
-  const entity: PositionManager3_PoolPremine = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _premineAmount: event.params._premineAmount,
-  };
-  context.PositionManager3_PoolPremine.set(entity);
-});
-
-PositionManager3.PoolScheduled.handler(async ({ event, context }) => {
-  const entity: PositionManager3_PoolScheduled = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _flaunchesAt: event.params._flaunchesAt,
-  };
-  context.PositionManager3_PoolScheduled.set(entity);
-});
-
-PositionManager3.PoolCreated.handler(async ({ event, context }) => {
-  const entity: PositionManager3_PoolCreated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _memecoin: event.params._memecoin,
-    _memecoinTreasury: event.params._memecoinTreasury,
-    _tokenId: event.params._tokenId,
-    _currencyFlipped: event.params._currencyFlipped,
-    _flaunchFee: event.params._flaunchFee,
-    _params_0: event.params._params[0],
-    _params_1: event.params._params[1],
-    _params_2: event.params._params[2],
-    _params_3: event.params._params[3],
-    _params_4: event.params._params[4],
-    _params_5: event.params._params[5],
-    _params_6: event.params._params[6],
-    _params_7: event.params._params[7],
-    _params_8: event.params._params[8],
-    _params_9: event.params._params[9],
-    _params_10: event.params._params[10],
-  };
-  context.PositionManager3_PoolCreated.set(entity);
-});
-
-PositionManager3.PoolFeeDistributionUpdated.handler(
-  async ({ event, context }) => {
-    const entity: PositionManager3_PoolFeeDistributionUpdated = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      _poolId: event.params._poolId,
-      _feeDistribution_0: event.params._feeDistribution[0],
-      _feeDistribution_1: event.params._feeDistribution[1],
-      _feeDistribution_2: event.params._feeDistribution[2],
-      _feeDistribution_3: event.params._feeDistribution[3],
-    };
-    context.PositionManager3_PoolFeeDistributionUpdated.set(entity);
-  }
-);
-
-PositionManager3.PoolFeesDistributed.handler(async ({ event, context }) => {
-  const entity: PositionManager3_PoolFeesDistributed = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _donateAmount: event.params._donateAmount,
-    _creatorAmount: event.params._creatorAmount,
-    _bidWallAmount: event.params._bidWallAmount,
-    _governanceAmount: event.params._governanceAmount,
-    _protocolAmount: event.params._protocolAmount,
-  };
-  context.PositionManager3_PoolFeesDistributed.set(entity);
-});
-
-PositionManager3.PoolFeesReceived.handler(async ({ event, context }) => {
-  const entity: PositionManager3_PoolFeesReceived = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _amount0: event.params._amount0,
-    _amount1: event.params._amount1,
-  };
-  context.PositionManager3_PoolFeesReceived.set(entity);
-});
-
-PositionManager3.PoolFeesSwapped.handler(async ({ event, context }) => {
-  const entity: PositionManager3_PoolFeesSwapped = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    zeroForOne: event.params.zeroForOne,
-    _amount0: event.params._amount0,
-    _amount1: event.params._amount1,
-  };
-  context.PositionManager3_PoolFeesSwapped.set(entity);
-});
-
-PositionManager3.PoolStateUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager3_PoolStateUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _sqrtPriceX96: event.params._sqrtPriceX96,
-    _tick: event.params._tick,
-    _protocolFee: event.params._protocolFee,
-    _swapFee: event.params._swapFee,
-    _liquidity: event.params._liquidity,
-  };
-  context.PositionManager3_PoolStateUpdated.set(entity);
-});
-
+PositionManager3.PoolCreated.handler(async ({ event, context }) => {});
+PositionManager3.PoolSwap.handler(async ({ event, context }) => {});
+PositionManager3.PoolStateUpdated.handler(async ({ event, context }) => {});
+PositionManager3.PoolFeesReceived.handler(async ({ event, context }) => {});
+PositionManager3.PoolFeesDistributed.handler(async ({ event, context }) => {});
+PositionManager3.PoolFeesSwapped.handler(async ({ event, context }) => {});
+PositionManager3.PoolFeeDistributionUpdated.handler(async ({ event, context }) => {});
 PositionManager3.ReferrerFeePaid.handler(async ({ event, context }) => {
-  const entity: PositionManager3_ReferrerFeePaid = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _poolId: event.params._poolId,
-    _recipient: event.params._recipient,
-    _token: event.params._token,
-    _amount: event.params._amount,
-  };
-  context.PositionManager3_ReferrerFeePaid.set(entity);
-});
-
-PositionManager3.FairLaunchFeeCalculatorUpdated.handler(
-  async ({ event, context }) => {
-    const entity: PositionManager3_FairLaunchFeeCalculatorUpdated = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      _feeCalculator: event.params._feeCalculator,
-    };
-    context.PositionManager3_FairLaunchFeeCalculatorUpdated.set(entity);
+  const recipient = normalizeAddress(event.params._recipient);
+  const user = await context.User.get(recipient);
+  if (!user) {
+    context.User.set({ id: recipient });
   }
-);
-
-PositionManager3.ReferralEscrowUpdated.handler(async ({ event, context }) => {
-  const entity: PositionManager3_ReferralEscrowUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    _referralEscrow: event.params._referralEscrow,
-  };
-  context.PositionManager3_ReferralEscrowUpdated.set(entity);
 });
+PositionManager3.ReferralEscrowUpdated.handler(async ({ event, context }) => {});
+PositionManager3.FeeCalculatorUpdated.handler(async ({ event, context }) => {});
+PositionManager3.FeeDistributionUpdated.handler(async ({ event, context }) => {});
+PositionManager3.FairLaunchFeeCalculatorUpdated.handler(async ({ event, context }) => {});
+PositionManager3.PoolPremine.handler(async ({ event, context }) => {});
+PositionManager3.PoolScheduled.handler(async ({ event, context }) => {});
 
-// PoolManager Handlers
+// =============================================================================
+// POOL MANAGER HANDLERS
+// =============================================================================
+
 PoolManager.Swap.handler(async ({ event, context }) => {
-  const entity: PoolManager_Swap = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    sender: event.params.sender,
-    amount0: event.params.amount0,
-    amount1: event.params.amount1,
-    sqrtPriceX96: event.params.sqrtPriceX96,
-    liquidity: event.params.liquidity,
-    tick: event.params.tick,
-    fee: event.params.fee,
-  };
-  context.PoolManager_Swap.set(entity);
+  // Uniswap V4 Swap event - may be used for ETH/USDC price updates
 });
 
-// ActionManager1 Handlers
+// =============================================================================
+// ACTION MANAGER HANDLERS
+// =============================================================================
+
 ActionManager1.ActionApproved.handler(async ({ event, context }) => {
-  const entity: ActionManager1_ActionApproved = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    actionAddress: event.params.action,
-  };
-  context.ActionManager1_ActionApproved.set(entity);
+  // Note: uses `action` without underscore
+  const actionId = normalizeAddress(event.params.action);
+  
+  const action = await context.MemecoinAction.get(actionId);
+  if (!action) {
+    context.MemecoinAction.set({
+      id: actionId,
+      approved: true,
+      approvedAt: BigInt(event.block.timestamp),
+      unapprovedAt: undefined,
+      totalActions: ZERO_BI,
+      approvedBy: event.srcAddress,
+      unapprovedBy: undefined,
+    });
+  } else {
+    context.MemecoinAction.set({
+      ...action,
+      approved: true,
+      approvedAt: BigInt(event.block.timestamp),
+      approvedBy: event.srcAddress,
+    });
+  }
 });
 
 ActionManager1.ActionUnapproved.handler(async ({ event, context }) => {
-  const entity: ActionManager1_ActionUnapproved = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    actionAddress: event.params.action,
-  };
-  context.ActionManager1_ActionUnapproved.set(entity);
+  const actionId = normalizeAddress(event.params.action);
+  
+  const action = await context.MemecoinAction.get(actionId);
+  if (action) {
+    context.MemecoinAction.set({
+      ...action,
+      approved: false,
+      unapprovedAt: BigInt(event.block.timestamp),
+      unapprovedBy: event.srcAddress,
+    });
+  }
 });
 
-// ActionManager2 Handlers
 ActionManager2.ActionApproved.handler(async ({ event, context }) => {
-  const entity: ActionManager2_ActionApproved = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    actionAddress: event.params.action,
-  };
-  context.ActionManager2_ActionApproved.set(entity);
+  const actionId = normalizeAddress(event.params.action);
+  
+  const action = await context.MemecoinAction.get(actionId);
+  if (!action) {
+    context.MemecoinAction.set({
+      id: actionId,
+      approved: true,
+      approvedAt: BigInt(event.block.timestamp),
+      unapprovedAt: undefined,
+      totalActions: ZERO_BI,
+      approvedBy: event.srcAddress,
+      unapprovedBy: undefined,
+    });
+  } else {
+    context.MemecoinAction.set({
+      ...action,
+      approved: true,
+      approvedAt: BigInt(event.block.timestamp),
+      approvedBy: event.srcAddress,
+    });
+  }
 });
 
 ActionManager2.ActionUnapproved.handler(async ({ event, context }) => {
-  const entity: ActionManager2_ActionUnapproved = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    actionAddress: event.params.action,
-  };
-  context.ActionManager2_ActionUnapproved.set(entity);
+  const actionId = normalizeAddress(event.params.action);
+  
+  const action = await context.MemecoinAction.get(actionId);
+  if (action) {
+    context.MemecoinAction.set({
+      ...action,
+      approved: false,
+      unapprovedAt: BigInt(event.block.timestamp),
+      unapprovedBy: event.srcAddress,
+    });
+  }
 });
 
-// BidWall1 Handlers
+// =============================================================================
+// BID WALL HANDLERS
+// =============================================================================
+
 BidWall1.BidWallClosed.handler(async ({ event, context }) => {
-  const entity: BidWall1_BidWallClosed = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    recipient: event.params.recipient,
-    amount: event.params.amount,
-  };
-  context.BidWall1_BidWallClosed.set(entity);
+  const poolId = event.params.poolId;
+  const recipient = normalizeAddress(event.params.recipient);
+  
+  const user = await context.User.get(recipient);
+  if (!user) {
+    context.User.set({ id: recipient });
+  }
+  
+  const bidWall = await context.BidWall.get(poolId);
+  if (bidWall) {
+    context.BidWall.set({
+      ...bidWall,
+      closed: true,
+      balance: ZERO_BI,
+    });
+  }
 });
 
 BidWall1.BidWallRepositioned.handler(async ({ event, context }) => {
-  const entity: BidWall1_BidWallRepositioned = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    liquidity: event.params.liquidity,
+  const poolId = event.params.poolId;
+  
+  const bidWall = await context.BidWall.get(poolId);
+  if (bidWall) {
+    context.BidWall.set({
+      ...bidWall,
     tickLower: event.params.tickLower,
     tickUpper: event.params.tickUpper,
-  };
-  context.BidWall1_BidWallRepositioned.set(entity);
+      deployedETH: event.params.liquidity, // liquidity in the event
+    });
+  }
+  
+  // Create BidWallRepositioned record
+  const id = `${poolId}-${event.transaction.hash}`;
+  context.BidWallRepositioned.set({
+    id,
+    pool_id: poolId,
+    _eth: event.params.liquidity, // Using liquidity as ETH equivalent
+    _tickLower: Number(event.params.tickLower),
+    _tickUpper: Number(event.params.tickUpper),
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 });
 
 BidWall1.BidWallRewardsTransferred.handler(async ({ event, context }) => {
-  const entity: BidWall1_BidWallRewardsTransferred = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    recipient: event.params.recipient,
-    amount: event.params.amount,
-  };
-  context.BidWall1_BidWallRewardsTransferred.set(entity);
+  const recipient = normalizeAddress(event.params.recipient);
+  const user = await context.User.get(recipient);
+  if (!user) {
+    context.User.set({ id: recipient });
+  }
 });
 
 BidWall1.BidWallDeposit.handler(async ({ event, context }) => {
-  const entity: BidWall1_BidWallDeposit = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    amount0: event.params.amount0,
-    amount1: event.params.amount1,
-  };
-  context.BidWall1_BidWallDeposit.set(entity);
+  const poolId = event.params.poolId;
+  // BidWallDeposit has amount0 and amount1, use amount0 as ETH
+  const ethAmount = event.params.amount0;
+  
+  const bidWall = await context.BidWall.get(poolId);
+  if (bidWall) {
+    context.BidWall.set({
+      ...bidWall,
+      balance: bidWall.balance + ethAmount,
+      amount: bidWall.amount + ethAmount,
+    });
+  }
 });
 
-BidWall1.BidWallDisabledStateUpdated.handler(async ({ event, context }) => {
-  const entity: BidWall1_BidWallDisabledStateUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    disabled: event.params.disabled,
-  };
-  context.BidWall1_BidWallDisabledStateUpdated.set(entity);
-});
+BidWall1.BidWallDisabledStateUpdated.handler(async ({ event, context }) => {});
 
-// BidWall2 Handlers
 BidWall2.BidWallClosed.handler(async ({ event, context }) => {
-  const entity: BidWall2_BidWallClosed = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    recipient: event.params.recipient,
-    amount: event.params.amount,
-  };
-  context.BidWall2_BidWallClosed.set(entity);
+  const poolId = event.params.poolId;
+  const recipient = normalizeAddress(event.params.recipient);
+  
+  const user = await context.User.get(recipient);
+  if (!user) {
+    context.User.set({ id: recipient });
+  }
+  
+  const bidWall = await context.BidWall.get(poolId);
+  if (bidWall) {
+    context.BidWall.set({
+      ...bidWall,
+      closed: true,
+      balance: ZERO_BI,
+    });
+  }
 });
 
 BidWall2.BidWallRepositioned.handler(async ({ event, context }) => {
-  const entity: BidWall2_BidWallRepositioned = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    liquidity: event.params.liquidity,
+  const poolId = event.params.poolId;
+  
+  const bidWall = await context.BidWall.get(poolId);
+  if (bidWall) {
+    context.BidWall.set({
+      ...bidWall,
     tickLower: event.params.tickLower,
     tickUpper: event.params.tickUpper,
-  };
-  context.BidWall2_BidWallRepositioned.set(entity);
+      deployedETH: event.params.liquidity,
+    });
+  }
 });
 
 BidWall2.BidWallRewardsTransferred.handler(async ({ event, context }) => {
-  const entity: BidWall2_BidWallRewardsTransferred = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    recipient: event.params.recipient,
-    amount: event.params.amount,
-  };
-  context.BidWall2_BidWallRewardsTransferred.set(entity);
+  const recipient = normalizeAddress(event.params.recipient);
+  const user = await context.User.get(recipient);
+  if (!user) {
+    context.User.set({ id: recipient });
+  }
 });
 
 BidWall2.BidWallDeposit.handler(async ({ event, context }) => {
-  const entity: BidWall2_BidWallDeposit = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    amount0: event.params.amount0,
-    amount1: event.params.amount1,
-  };
-  context.BidWall2_BidWallDeposit.set(entity);
+  const poolId = event.params.poolId;
+  const ethAmount = event.params.amount0;
+  
+  const bidWall = await context.BidWall.get(poolId);
+  if (bidWall) {
+    context.BidWall.set({
+      ...bidWall,
+      balance: bidWall.balance + ethAmount,
+      amount: bidWall.amount + ethAmount,
+    });
+  }
 });
 
-BidWall2.BidWallDisabledStateUpdated.handler(async ({ event, context }) => {
-  const entity: BidWall2_BidWallDisabledStateUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    disabled: event.params.disabled,
-  };
-  context.BidWall2_BidWallDisabledStateUpdated.set(entity);
-});
+BidWall2.BidWallDisabledStateUpdated.handler(async ({ event, context }) => {});
 
-// FeeEscrow Handlers
+// =============================================================================
+// FEE ESCROW HANDLERS
+// =============================================================================
+
 FeeEscrow.Deposit.handler(async ({ event, context }) => {
-  const entity: FeeEscrow_Deposit = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    sender: event.params.sender,
-    token: event.params.token,
-    amount: event.params.amount,
-  };
-  context.FeeEscrow_Deposit.set(entity);
+  // Note: FeeEscrow uses `sender` without underscore
+  const sender = normalizeAddress(event.params.sender);
+  const user = await context.User.get(sender);
+  if (!user) {
+    context.User.set({ id: sender });
+  }
 });
 
 FeeEscrow.Withdrawal.handler(async ({ event, context }) => {
-  const entity: FeeEscrow_Withdrawal = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    sender: event.params.sender,
-    recipient: event.params.recipient,
-    token: event.params.token,
-    amount: event.params.amount,
-  };
-  context.FeeEscrow_Withdrawal.set(entity);
+  // Note: FeeEscrow uses `sender` without underscore
+  const sender = normalizeAddress(event.params.sender);
+  const user = await context.User.get(sender);
+  if (!user) {
+    context.User.set({ id: sender });
+  }
 });
 
-// FeeExemptions Handlers
-FeeExemptions.BeneficiaryFeeRemoved.handler(async ({ event, context }) => {
-  const entity: FeeExemptions_BeneficiaryFeeRemoved = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    beneficiary: event.params.beneficiary,
-  };
-  context.FeeExemptions_BeneficiaryFeeRemoved.set(entity);
-});
+// =============================================================================
+// FEE EXEMPTIONS HANDLERS
+// =============================================================================
 
 FeeExemptions.BeneficiaryFeeSet.handler(async ({ event, context }) => {
-  const entity: FeeExemptions_BeneficiaryFeeSet = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    beneficiary: event.params.beneficiary,
-    fee: event.params.fee,
-  };
-  context.FeeExemptions_BeneficiaryFeeSet.set(entity);
+  const beneficiary = normalizeAddress(event.params.beneficiary);
+  context.FeeExemption.set({
+    id: beneficiary,
+    flatFee: Number(event.params.fee),
+  });
 });
 
-// FlaunchFeeExemption Handlers
+FeeExemptions.BeneficiaryFeeRemoved.handler(async ({ event, context }) => {
+  const beneficiary = normalizeAddress(event.params.beneficiary);
+  const existing = await context.FeeExemption.get(beneficiary);
+  if (existing) {
+    context.FeeExemption.set({
+      ...existing,
+      flatFee: 0,
+    });
+  }
+});
+
+// =============================================================================
+// FLAUNCH FEE EXEMPTION HANDLERS
+// =============================================================================
+
 FlaunchFeeExemption.FeeExemptionUpdated.handler(async ({ event, context }) => {
-  const entity: FlaunchFeeExemption_FeeExemptionUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    user: event.params.user,
-    exempt: event.params.exempt,
-  };
-  context.FlaunchFeeExemption_FeeExemptionUpdated.set(entity);
+  const beneficiary = normalizeAddress(event.params.user);
+  
+  if (event.params.exempt) {
+    context.FlaunchFeeExemption.set({
+      id: beneficiary,
+      createdAt: BigInt(event.block.timestamp),
+    });
+  }
 });
 
-// FairLaunch1 Handlers
+// =============================================================================
+// FAIR LAUNCH HANDLERS
+// =============================================================================
+
+FairLaunch1.FairLaunchCreated.handler(async ({ event, context }) => {});
+
 FairLaunch1.FairLaunchEnded.handler(async ({ event, context }) => {
-  const entity: FairLaunch1_FairLaunchEnded = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    totalRaised: event.params.totalRaised,
-    liquidityAdded: event.params.liquidityAdded,
-    refundAmount: event.params.refundAmount,
-  };
-  context.FairLaunch1_FairLaunchEnded.set(entity);
+  const poolId = event.params.poolId;
+  
+  const fairLaunch = await context.FairLaunch.get(poolId);
+  if (fairLaunch) {
+    context.FairLaunch.set({
+      ...fairLaunch,
+      active: false,
+      ethEarned: event.params.totalRaised,
+      ends_at: BigInt(event.block.timestamp),
+    });
+  }
+  
+  const pool = await context.Pool.get(poolId);
+  if (pool) {
+    context.Pool.set({
+      ...pool,
+      fairLaunchedEnded: true,
+    });
+  }
 });
 
-FairLaunch1.FairLaunchCreated.handler(async ({ event, context }) => {
-  const entity: FairLaunch1_FairLaunchCreated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    targetAmount: event.params.targetAmount,
-    maxAmount: event.params.maxAmount,
-    deadline: event.params.deadline,
-  };
-  context.FairLaunch1_FairLaunchCreated.set(entity);
-});
+FairLaunch2.FairLaunchCreated.handler(async ({ event, context }) => {});
 
-// FairLaunch2 Handlers
 FairLaunch2.FairLaunchEnded.handler(async ({ event, context }) => {
-  const entity: FairLaunch2_FairLaunchEnded = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    totalRaised: event.params.totalRaised,
-    liquidityAdded: event.params.liquidityAdded,
-    refundAmount: event.params.refundAmount,
-  };
-  context.FairLaunch2_FairLaunchEnded.set(entity);
+  const poolId = event.params.poolId;
+  
+  const fairLaunch = await context.FairLaunch.get(poolId);
+  if (fairLaunch) {
+    context.FairLaunch.set({
+      ...fairLaunch,
+      active: false,
+      ethEarned: event.params.totalRaised,
+      ends_at: BigInt(event.block.timestamp),
+    });
+  }
+  
+  const pool = await context.Pool.get(poolId);
+  if (pool) {
+    context.Pool.set({
+      ...pool,
+      fairLaunchedEnded: true,
+    });
+  }
 });
 
-FairLaunch2.FairLaunchCreated.handler(async ({ event, context }) => {
-  const entity: FairLaunch2_FairLaunchCreated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolId: event.params.poolId,
-    targetAmount: event.params.targetAmount,
-    maxAmount: event.params.maxAmount,
-    deadline: event.params.deadline,
-  };
-  context.FairLaunch2_FairLaunchCreated.set(entity);
-});
+// =============================================================================
+// FLAUNCH NFT TRANSFER HANDLERS
+// =============================================================================
 
-// FlaunchNFT1 Handlers
 FlaunchNFT1.Transfer.handler(async ({ event, context }) => {
-  const entity: FlaunchNFT1_Transfer = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    from: event.params.from,
-    to: event.params.to,
-    tokenId: event.params.tokenId,
-  };
-  context.FlaunchNFT1_Transfer.set(entity);
+  const from = normalizeAddress(event.params.from);
+  const to = normalizeAddress(event.params.to);
+  
+  // Ensure users exist
+  const fromUser = await context.User.get(from);
+  if (!fromUser) {
+    context.User.set({ id: from });
+  }
+  const toUser = await context.User.get(to);
+  if (!toUser) {
+    context.User.set({ id: to });
+  }
+  
+  // TODO: Update Collection owner
+  // TODO: Update CollectionToken owner
 });
 
-// FlaunchNFT2 Handlers
 FlaunchNFT2.Transfer.handler(async ({ event, context }) => {
-  const entity: FlaunchNFT2_Transfer = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    from: event.params.from,
-    to: event.params.to,
-    tokenId: event.params.tokenId,
-  };
-  context.FlaunchNFT2_Transfer.set(entity);
+  const from = normalizeAddress(event.params.from);
+  const to = normalizeAddress(event.params.to);
+  
+  const fromUser = await context.User.get(from);
+  if (!fromUser) {
+    context.User.set({ id: from });
+  }
+  const toUser = await context.User.get(to);
+  if (!toUser) {
+    context.User.set({ id: to });
+  }
 });
 
-// FlaunchNFT3 Handlers
 FlaunchNFT3.Transfer.handler(async ({ event, context }) => {
-  const entity: FlaunchNFT3_Transfer = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    from: event.params.from,
-    to: event.params.to,
-    tokenId: event.params.tokenId,
-  };
-  context.FlaunchNFT3_Transfer.set(entity);
+  const from = normalizeAddress(event.params.from);
+  const to = normalizeAddress(event.params.to);
+  
+  const fromUser = await context.User.get(from);
+  if (!fromUser) {
+    context.User.set({ id: from });
+  }
+  const toUser = await context.User.get(to);
+  if (!toUser) {
+    context.User.set({ id: to });
+  }
 });
 
-// AnyFlaunchNFT Handlers
 AnyFlaunchNFT.Transfer.handler(async ({ event, context }) => {
-  const entity: AnyFlaunchNFT_Transfer = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    from: event.params.from,
-    to: event.params.to,
-    tokenId: event.params.tokenId,
-  };
-  context.AnyFlaunchNFT_Transfer.set(entity);
+  const from = normalizeAddress(event.params.from);
+  const to = normalizeAddress(event.params.to);
+  
+  const fromUser = await context.User.get(from);
+  if (!fromUser) {
+    context.User.set({ id: from });
+  }
+  const toUser = await context.User.get(to);
+  if (!toUser) {
+    context.User.set({ id: to });
+  }
 });
 
-// FlayBurner Handlers
+// =============================================================================
+// FLAY BURNER HANDLERS
+// =============================================================================
+
 FlayBurner.BurnerUpdated.handler(async ({ event, context }) => {
-  const entity: FlayBurner_BurnerUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    burner: event.params.burner,
-  };
-  context.FlayBurner_BurnerUpdated.set(entity);
+  const burnerAddress = normalizeAddress(event.params.burner);
+  const timestamp = BigInt(event.block.timestamp);
+  const BURNER_ID = "flay-burner";
+  
+  const burner = await context.FlayBurner.get(BURNER_ID);
+  if (!burner) {
+    context.FlayBurner.set({
+      id: BURNER_ID,
+      address: burnerAddress,
+      pendingETH: ZERO_BI,
+      totalBurned: ZERO_BI,
+      createdAt: timestamp,
+    });
+  } else {
+    context.FlayBurner.set({
+      ...burner,
+      address: burnerAddress,
+    });
+  }
 });
 
-// BuyBackAndBurnFlay Handlers
+// =============================================================================
+// BUY BACK AND BURN HANDLERS
+// =============================================================================
+
 BuyBackAndBurnFlay.BurnBabyBurn.handler(async ({ event, context }) => {
-  const entity: BuyBackAndBurnFlay_BurnBabyBurn = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    amount: event.params.amount,
-  };
-  context.BuyBackAndBurnFlay_BurnBabyBurn.set(entity);
+  const BURNER_ID = "flay-burner";
+  const burner = await context.FlayBurner.get(BURNER_ID);
+  if (burner) {
+    context.FlayBurner.set({
+      ...burner,
+      totalBurned: burner.totalBurned + event.params.amount,
+      pendingETH: ZERO_BI,
+    });
+  }
 });
 
 BuyBackAndBurnFlay.EthBalanceUpdated.handler(async ({ event, context }) => {
-  const entity: BuyBackAndBurnFlay_EthBalanceUpdated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    balance: event.params.balance,
-  };
-  context.BuyBackAndBurnFlay_EthBalanceUpdated.set(entity);
+  const BURNER_ID = "flay-burner";
+  const burner = await context.FlayBurner.get(BURNER_ID);
+  if (burner) {
+    context.FlayBurner.set({
+      ...burner,
+      pendingETH: event.params.balance,
+    });
+  }
 });
 
-// TreasuryManagerFactory Handlers
-TreasuryManagerFactory.ManagerImplementationUnapproved.handler(
-  async ({ event, context }) => {
-    const entity: TreasuryManagerFactory_ManagerImplementationUnapproved = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      implementation: event.params.implementation,
-    };
-    context.TreasuryManagerFactory_ManagerImplementationUnapproved.set(entity);
+// =============================================================================
+// TREASURY MANAGER FACTORY HANDLERS
+// =============================================================================
+
+TreasuryManagerFactory.ManagerImplementationApproved.handler(async ({ event, context }) => {
+  const implAddress = normalizeAddress(event.params.implementation);
+  
+  context.TreasuryManagerImplementation.set({
+    id: implAddress,
+    approvedAt: BigInt(event.block.timestamp),
+    unapprovedAt: undefined,
+  });
+});
+
+TreasuryManagerFactory.ManagerImplementationUnapproved.handler(async ({ event, context }) => {
+  const implAddress = normalizeAddress(event.params.implementation);
+  
+  const impl = await context.TreasuryManagerImplementation.get(implAddress);
+  if (impl) {
+    context.TreasuryManagerImplementation.set({
+      ...impl,
+      unapprovedAt: BigInt(event.block.timestamp),
+    });
   }
-);
+});
 
 TreasuryManagerFactory.ManagerDeployed.handler(async ({ event, context }) => {
-  const entity: TreasuryManagerFactory_ManagerDeployed = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    manager: event.params.manager,
-    implementation: event.params.implementation,
-  };
-  context.TreasuryManagerFactory_ManagerDeployed.set(entity);
+  const managerAddress = normalizeAddress(event.params.manager);
+  const implementationAddress = normalizeAddress(event.params.implementation);
+  
+  // TODO: Determine manager type based on implementation and create appropriate entity
 });
-
-TreasuryManagerFactory.ManagerImplementationApproved.handler(
-  async ({ event, context }) => {
-    const entity: TreasuryManagerFactory_ManagerImplementationApproved = {
-      id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-      implementation: event.params.implementation,
-    };
-    context.TreasuryManagerFactory_ManagerImplementationApproved.set(entity);
-  }
-);

@@ -203,4 +203,17 @@ networks:
           - event: ManagerImplementationUnapproved(address indexed implementation)
           - event: ManagerDeployed(address indexed manager, address indexed implementation)
           - event: ManagerImplementationApproved(address indexed implementation)
+      # Dynamic contracts (no address - registered via contractRegister)
+      - name: CollectionToken
+        # No address - dynamically registered when pools are created
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: Transfer(address indexed from, address indexed to, uint256 value)
+          - event: MetadataUpdated(string baseURI, string contractURI)
 unordered_multichain_mode: true
+preload_handlers: true
+
+field_selection:
+  transaction_fields:
+    - hash
