@@ -11,8 +11,11 @@ import "./fair-launch";
 import "./flay-burner";
 import "./action-manager";
 import "./flaunch-nft";
+import "./flaunch-nft4";
 import "./bid-wall";
 import "./treasury-manager-factory";
+import "./locker";
+import "./token-importer";
 
 // Position managers (largest files)
 // Note: position-manager-common is imported by the PM files, not directly

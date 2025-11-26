@@ -68,6 +68,7 @@ networks:
       - name: PositionManager3
         address:
           - 0xb903b0ab7bcee8f5e4d8c9b10a71aac7135d6fdc
+          - 0x23321f11a6d44fd1ab790044fdfde5758c902fdc # PositionManager4
         handler: src/EventHandlers.ts
         events:
           - event: FeeCalculatorUpdated(address _feeCalculator)
@@ -117,6 +118,7 @@ networks:
       - name: BidWall2
         address:
           - 0x7f22353d1634223a802D1c1Ea5308Ddf5DD0ef9c
+          - 0x2154c604df568A5285284D1c4918DC98C39240df # AnyBidWall
         handler: src/EventHandlers.ts
         events:
           - event: BidWallClosed(bytes32 indexed poolId, address recipient, uint256 amount)
@@ -180,6 +182,13 @@ networks:
       - name: AnyFlaunchNFT
         address:
           - 0xf175a370eb26ea26c42caaecd10ee723ed844c50
+          - 0xc5b2e8f197407263f4b62a35c71bfc394ecf95d5 # AnyFlaunchNFT2
+        handler: src/EventHandlers.ts
+        events:
+          - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+      - name: FlaunchNFT4
+        address:
+          - 0x516af52d0c629b5e378da4dc64ecb0744ce10109
         handler: src/EventHandlers.ts
         events:
           - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
@@ -192,10 +201,27 @@ networks:
       - name: BuyBackAndBurnFlay
         address:
           - 0x558a4d2f46765047596cef406e27fe8cb0725192
+          - 0x2994a2849666c3487aaef9bb0662f853a710413c # BuyBackAndBurnFlay2
         handler: src/EventHandlers.ts
         events:
           - event: BurnBabyBurn(uint256 amount)
           - event: EthBalanceUpdated(uint256 balance)
+      - name: Locker
+        address:
+          - 0x9EB1F3Bf4D2e8CD17347d062b164aD6B1Ade6a4E
+        handler: src/EventHandlers.ts
+        events:
+          - event: Paused(address account)
+          - event: Unpaused(address account)
+      - name: TokenImporter
+        address:
+          - 0xb47af90ae61bc916ea4b4bacffae4570e7435842
+        handler: src/EventHandlers.ts
+        events:
+          - event: AnyPositionManagerSet(address indexed _anyPositionManager)
+          - event: TokenImported(address indexed _memecoin, address indexed _verifier)
+          - event: VerifierAdded(address indexed _verifier)
+          - event: VerifierRemoved(address indexed _verifier)
       - name: TreasuryManagerFactory
         address:
           - 0x48af8b28DDC5e5A86c4906212fc35Fa808CA8763
