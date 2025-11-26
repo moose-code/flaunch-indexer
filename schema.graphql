@@ -146,9 +146,11 @@ type AddressFeeSplitManager {
   externalManagerETHTotal: BigInt!
   # Virtual derived fields
   holdings: [Collection!]! @derivedFrom(field: "addressFeeSplitManager_id")
-  recipients: [AddressFeeSplitManagerRecipient!]! @derivedFrom(field: "manager_id")
+  recipients: [AddressFeeSplitManagerRecipient!]!
+    @derivedFrom(field: "manager_id")
   claims: [AddressFeeSplitManagerClaim!]! @derivedFrom(field: "manager_id")
-  externalManagerETH: [AddressFeeSplitManagerExternalETH!]! @derivedFrom(field: "manager_id")
+  externalManagerETH: [AddressFeeSplitManagerExternalETH!]!
+    @derivedFrom(field: "manager_id")
 }
 
 type AddressFeeSplitManagerRecipient {
@@ -200,7 +202,8 @@ type StakingManager {
   stakesDeltas: [StakingManagerStakeDelta!]! @derivedFrom(field: "manager_id")
   claims: [StakingManagerClaim!]! @derivedFrom(field: "manager_id")
   escrows: [StakingManagerEscrow!]! @derivedFrom(field: "manager_id")
-  externalManagerETH: [StakingManagerExternalETH!]! @derivedFrom(field: "manager_id")
+  externalManagerETH: [StakingManagerExternalETH!]!
+    @derivedFrom(field: "manager_id")
 }
 
 type StakingManagerStake {
@@ -273,7 +276,8 @@ type BuyBackManager {
   holdings: [Collection!]! @derivedFrom(field: "buyBackManager_id")
   deposits: [BuyBackManagerDeposit!]! @derivedFrom(field: "manager_id")
   claims: [BuyBackManagerClaim!]! @derivedFrom(field: "manager_id")
-  externalManagerETH: [BuyBackManagerExternalETH!]! @derivedFrom(field: "manager_id")
+  externalManagerETH: [BuyBackManagerExternalETH!]!
+    @derivedFrom(field: "manager_id")
 }
 
 type BuyBackManagerDeposit {
@@ -376,6 +380,11 @@ type CollectionToken {
   lastHourRecorded: BigInt!
   lastFifteenMinuteRecorded: BigInt!
   lastFourHourRecorded: BigInt!
+  # Archive arrays
+  minuteArray: [Int!]!
+  hourArray: [Int!]!
+  fifteenMinuteArray: [Int!]!
+  fourHourArray: [Int!]!
   # Virtual derived fields
   dayData: [TokenDayData!]! @derivedFrom(field: "token_id")
   hourData: [TokenHourData!]! @derivedFrom(field: "token_id")

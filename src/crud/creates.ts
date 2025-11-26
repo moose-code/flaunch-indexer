@@ -279,6 +279,11 @@ export function createCollectionToken(
     lastFifteenMinuteArchived: ZERO_BI,
     lastFourHourRecorded: ZERO_BI,
     lastFourHourArchived: ZERO_BI,
+    // Archive arrays
+    minuteArray: [],
+    hourArray: [],
+    fifteenMinuteArray: [],
+    fourHourArray: [],
   };
   context.CollectionToken.set(token);
   return token;

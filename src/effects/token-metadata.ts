@@ -196,9 +196,9 @@ export const fetchAllTokenMetadata = createEffect(
   },
   async ({ input }) => {
     const address = input.address as `0x${string}`;
-    
+
     // Fetch all in parallel
-    const [nameResult, symbolResult, decimalsResult, totalSupplyResult] = 
+    const [nameResult, symbolResult, decimalsResult, totalSupplyResult] =
       await Promise.allSettled([
         client.readContract({
           address,
@@ -224,10 +224,136 @@ export const fetchAllTokenMetadata = createEffect(
 
     return {
       name: nameResult.status === "fulfilled" ? nameResult.value : "unknown",
-      symbol: symbolResult.status === "fulfilled" ? symbolResult.value : "UNKNOWN",
-      decimals: decimalsResult.status === "fulfilled" ? decimalsResult.value : 18,
-      totalSupply: totalSupplyResult.status === "fulfilled" ? totalSupplyResult.value : 0n,
+      symbol:
+        symbolResult.status === "fulfilled" ? symbolResult.value : "UNKNOWN",
+      decimals:
+        decimalsResult.status === "fulfilled" ? decimalsResult.value : 18,
+      totalSupply:
+        totalSupplyResult.status === "fulfilled" ? totalSupplyResult.value : 0n,
     };
   }
 );
 
+/**
+ * IPFS Metadata structure
+ */
+export interface IPFSMetadata {
+  name: string;
+  description: string;
+  logoHash: string;
+  symbol: string;
+  website?: string;
+  discord?: string;
+  twitter?: string;
+  telegram?: string;
+}
+
+/**
+ * Extract IPFS hash from URI
+ * Supports various IPFS URI formats:
+ * - ipfs://Qm...
+ * - https://ipfs.io/ipfs/Qm...
+ * - https://gateway.pinata.cloud/ipfs/Qm...
+ */
+export function extractIPFSHash(uri: string): string | null {
+  if (!uri) return null;
+
+  // Direct IPFS URI
+  if (uri.startsWith("ipfs://")) {
+    return uri.replace("ipfs://", "");
+  }
+
+  // HTTP gateway URLs
+  const ipfsMatch = uri.match(/\/ipfs\/([a-zA-Z0-9]+)/);
+  if (ipfsMatch) {
+    return ipfsMatch[1];
+  }
+
+  // Already a hash
+  if (uri.startsWith("Qm") || uri.startsWith("bafy")) {
+    return uri;
+  }
+
+  return null;
+}
+
+/**
+ * Effect to fetch and parse IPFS metadata
+ */
+export const fetchIPFSMetadata = createEffect(
+  {
+    name: "fetchIPFSMetadata",
+    input: {
+      ipfsHash: S.string,
+    },
+    output: {
+      name: S.string,
+      description: S.string,
+      logoHash: S.string,
+      symbol: S.string,
+      website: S.string,
+      discord: S.string,
+      twitter: S.string,
+      telegram: S.string,
+      found: S.boolean,
+    },
+    rateLimit: { calls: 5, per: "second" },
+    cache: true,
+  },
+  async ({ input }) => {
+    const gateways = [
+      `https://ipfs.io/ipfs/${input.ipfsHash}`,
+      `https://cloudflare-ipfs.com/ipfs/${input.ipfsHash}`,
+      `https://gateway.pinata.cloud/ipfs/${input.ipfsHash}`,
+    ];
+
+    for (const gateway of gateways) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+        const response = await fetch(gateway, {
+          signal: controller.signal,
+          headers: { Accept: "application/json" },
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = (await response.json()) as Record<string, unknown>;
+          return {
+            name: (data.name as string) || "",
+            description: (data.description as string) || "",
+            logoHash:
+              (data.logoHash as string) ||
+              (data.logo as string) ||
+              (data.image as string) ||
+              "",
+            symbol: (data.symbol as string) || "",
+            website:
+              (data.website as string) || (data.external_url as string) || "",
+            discord: (data.discord as string) || "",
+            twitter: (data.twitter as string) || "",
+            telegram: (data.telegram as string) || "",
+            found: true,
+          };
+        }
+      } catch (e) {
+        console.warn(`Failed to fetch from ${gateway}:`, e);
+        continue;
+      }
+    }
+
+    console.warn(`Failed to fetch IPFS metadata for hash: ${input.ipfsHash}`);
+    return {
+      name: "",
+      description: "",
+      logoHash: "",
+      symbol: "",
+      website: "",
+      discord: "",
+      twitter: "",
+      telegram: "",
+      found: false,
+    };
+  }
+);

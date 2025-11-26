@@ -26,6 +26,13 @@ import {
   BuyBackAndBurnFlay,
   TreasuryManagerFactory,
   CollectionToken,
+  ReferralEscrow,
+  MemecoinTreasuryContract,
+  ActionContract,
+  RevenueManager,
+  StakingManager,
+  AddressFeeSplitManager,
+  BuyBackManager,
   BigDecimal,
 } from "generated";
 
@@ -228,6 +235,10 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     lastFifteenMinuteArchived: ZERO_BI,
     lastFourHourRecorded: ZERO_BI,
     lastFourHourArchived: ZERO_BI,
+    minuteArray: [],
+    hourArray: [],
+    fifteenMinuteArray: [],
+    fourHourArray: [],
   });
 
   // Create Pool
@@ -867,6 +878,10 @@ PositionManager1.PoolCreated.handler(async ({ event, context }) => {
     lastFifteenMinuteArchived: ZERO_BI,
     lastFourHourRecorded: ZERO_BI,
     lastFourHourArchived: ZERO_BI,
+    minuteArray: [],
+    hourArray: [],
+    fifteenMinuteArray: [],
+    fourHourArray: [],
   });
 
   // Create Pool
@@ -1419,8 +1434,18 @@ PositionManager1.ReferrerFeePaid.handler(async ({ event, context }) => {
   }
 });
 
-PositionManager1.ReferralEscrowUpdated.handler(
-  async ({ event, context }) => {}
+PositionManager1.ReferralEscrowUpdated.handler(async ({ event, context }) => {
+  const referralEscrow = normalizeAddress(event.params._referralEscrow);
+  const config = await context.Config.get(CONFIG_ID);
+  if (config) {
+    context.Config.set({ ...config, latestReferralEscrow: referralEscrow });
+  }
+});
+
+PositionManager1.ReferralEscrowUpdated.contractRegister(
+  ({ event, context }) => {
+    context.addReferralEscrow(event.params._referralEscrow);
+  }
 );
 
 PositionManager1.FeeCalculatorUpdated.handler(async ({ event, context }) => {
@@ -1633,6 +1658,10 @@ PositionManager2.PoolCreated.handler(async ({ event, context }) => {
     lastFifteenMinuteArchived: ZERO_BI,
     lastFourHourRecorded: ZERO_BI,
     lastFourHourArchived: ZERO_BI,
+    minuteArray: [],
+    hourArray: [],
+    fifteenMinuteArray: [],
+    fourHourArray: [],
   });
 
   context.Pool.set({
@@ -2073,9 +2102,20 @@ PositionManager2.ReferrerFeePaid.handler(async ({ event, context }) => {
     context.User.set({ id: recipient });
   }
 });
-PositionManager2.ReferralEscrowUpdated.handler(
-  async ({ event, context }) => {}
+PositionManager2.ReferralEscrowUpdated.handler(async ({ event, context }) => {
+  const referralEscrow = normalizeAddress(event.params._referralEscrow);
+  const config = await context.Config.get(CONFIG_ID);
+  if (config) {
+    context.Config.set({ ...config, latestReferralEscrow: referralEscrow });
+  }
+});
+
+PositionManager2.ReferralEscrowUpdated.contractRegister(
+  ({ event, context }) => {
+    context.addReferralEscrow(event.params._referralEscrow);
+  }
 );
+
 PositionManager2.FeeCalculatorUpdated.handler(async ({ event, context }) => {
   const config = await context.Config.get(CONFIG_ID);
   if (config)
@@ -2222,6 +2262,10 @@ PositionManager3.PoolCreated.handler(async ({ event, context }) => {
     lastFifteenMinuteArchived: ZERO_BI,
     lastFourHourRecorded: ZERO_BI,
     lastFourHourArchived: ZERO_BI,
+    minuteArray: [],
+    hourArray: [],
+    fifteenMinuteArray: [],
+    fourHourArray: [],
   });
 
   context.Pool.set({
@@ -2662,9 +2706,20 @@ PositionManager3.ReferrerFeePaid.handler(async ({ event, context }) => {
     context.User.set({ id: recipient });
   }
 });
-PositionManager3.ReferralEscrowUpdated.handler(
-  async ({ event, context }) => {}
+PositionManager3.ReferralEscrowUpdated.handler(async ({ event, context }) => {
+  const referralEscrow = normalizeAddress(event.params._referralEscrow);
+  const config = await context.Config.get(CONFIG_ID);
+  if (config) {
+    context.Config.set({ ...config, latestReferralEscrow: referralEscrow });
+  }
+});
+
+PositionManager3.ReferralEscrowUpdated.contractRegister(
+  ({ event, context }) => {
+    context.addReferralEscrow(event.params._referralEscrow);
+  }
 );
+
 PositionManager3.FeeCalculatorUpdated.handler(async ({ event, context }) => {
   const config = await context.Config.get(CONFIG_ID);
   if (config)
@@ -2866,8 +2921,6 @@ BidWall1.BidWallDeposit.handler(async ({ event, context }) => {
   }
 });
 
-BidWall1.BidWallDisabledStateUpdated.handler(async ({ event, context }) => {});
-
 BidWall2.BidWallClosed.handler(async ({ event, context }) => {
   const poolId = event.params.poolId;
   const recipient = normalizeAddress(event.params.recipient);
@@ -2922,8 +2975,6 @@ BidWall2.BidWallDeposit.handler(async ({ event, context }) => {
     });
   }
 });
-
-BidWall2.BidWallDisabledStateUpdated.handler(async ({ event, context }) => {});
 
 // =============================================================================
 // FEE ESCROW HANDLERS
@@ -3310,6 +3361,1216 @@ TreasuryManagerFactory.ManagerDeployed.handler(async ({ event, context }) => {
       totalDeposits: 0n,
       totalDepositsUSDC: ZERO_BD,
       externalManagerETHTotal: 0n,
+    });
+  }
+});
+
+// =============================================================================
+// CONTRACT REGISTRATION HANDLERS (Dynamic Contract Discovery)
+// =============================================================================
+
+// Register treasury manager contracts when deployed
+TreasuryManagerFactory.ManagerDeployed.contractRegister(
+  ({ event, context }) => {
+    const impl = normalizeAddress(event.params.implementation);
+    const manager = event.params.manager;
+
+    if (isRevenueManager(impl)) {
+      context.addRevenueManager(manager);
+    } else if (isStakingManager(impl)) {
+      context.addStakingManager(manager);
+    } else if (isAddressFeeSplitManager(impl)) {
+      context.addAddressFeeSplitManager(manager);
+    } else if (isBuyBackManager(impl)) {
+      context.addBuyBackManager(manager);
+    }
+  }
+);
+
+// Register ReferralEscrow contracts when updated
+AnyPositionManager.ReferralEscrowUpdated.contractRegister(
+  ({ event, context }) => {
+    context.addReferralEscrow(event.params._referralEscrow);
+  }
+);
+
+// Register Action contracts when approved
+ActionManager1.ActionApproved.contractRegister(({ event, context }) => {
+  context.addActionContract(event.params.action);
+});
+
+ActionManager2.ActionApproved.contractRegister(({ event, context }) => {
+  context.addActionContract(event.params.action);
+});
+
+// =============================================================================
+// REFERRAL ESCROW HANDLERS
+// =============================================================================
+
+ReferralEscrow.TokensAssigned.handler(async ({ event, context }) => {
+  const userId = normalizeAddress(event.params.user);
+  const tokenAddress = normalizeAddress(event.params.token);
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  // Ensure user exists
+  if (!(await context.User.get(userId))) context.User.set({ id: userId });
+
+  // Create ReferralEscrowAssigned entity
+  context.ReferralEscrowAssigned.set({
+    id: `${txHash}-${event.logIndex}`,
+    amount: event.params.amount,
+    receiver_id: userId,
+    token_id: tokenAddress === FLETH ? "fleth" : tokenAddress,
+    timestamp,
+    txHash,
+  });
+
+  // Create or update TokenReferralFee
+  const isFleth =
+    tokenAddress === FLETH ||
+    tokenAddress === "0x0000000000000000000000000000000000000000";
+  const tokenRefFeeId = `${userId}-${isFleth ? "fleth" : tokenAddress}`;
+  const existingFee = await context.TokenReferralFee.get(tokenRefFeeId);
+
+  if (existingFee) {
+    context.TokenReferralFee.set({
+      ...existingFee,
+      totalAmount: existingFee.totalAmount + event.params.amount,
+    });
+  } else {
+    context.TokenReferralFee.set({
+      id: tokenRefFeeId,
+      totalAmount: event.params.amount,
+      collectionToken_id: isFleth ? undefined : tokenAddress,
+      isFleth,
+      user_id: userId,
+    });
+  }
+});
+
+ReferralEscrow.TokensClaimed.handler(async ({ event, context }) => {
+  const userId = normalizeAddress(event.params.user);
+  const recipientId = normalizeAddress(event.params.recipient);
+  const tokenAddress = normalizeAddress(event.params.token);
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  // Ensure users exist
+  if (!(await context.User.get(userId))) context.User.set({ id: userId });
+  if (!(await context.User.get(recipientId)))
+    context.User.set({ id: recipientId });
+
+  // Get or create UserAggregate
+  let userAggregate = await context.UserAggregate.get(userId);
+  let totalTokensInETH = 0n;
+
+  const isFleth =
+    tokenAddress === FLETH ||
+    tokenAddress === "0x0000000000000000000000000000000000000000";
+
+  if (isFleth) {
+    totalTokensInETH = event.params.amount;
+  } else {
+    // Convert tokens to ETH value using collectionToken price
+    const collectionToken = await context.CollectionToken.get(tokenAddress);
+    if (collectionToken && collectionToken.decimals > 0) {
+      // Scale and multiply by derivedETH
+      const scaled =
+        event.params.amount / BigInt(10 ** collectionToken.decimals);
+      totalTokensInETH = scaled * collectionToken.derivedETH;
+    }
+  }
+
+  if (userAggregate) {
+    context.UserAggregate.set({
+      ...userAggregate,
+      totalReferrerFeesETH:
+        userAggregate.totalReferrerFeesETH + totalTokensInETH,
+    });
+  } else {
+    context.UserAggregate.set({
+      id: userId,
+      user_id: userId,
+      totalReferrerFeesETH: totalTokensInETH,
+    });
+  }
+
+  // Create ReferralEscrowClaimed entity
+  const bundle = await context.Bundle.get(BUNDLE_ID);
+  context.ReferralEscrowClaimed.set({
+    id: `${txHash}-${event.logIndex}`,
+    amount: event.params.amount,
+    amountUSDC: convertETHtoUSDCWithBundle(totalTokensInETH, bundle),
+    receiver_id: recipientId,
+    token_id: isFleth ? "fleth" : tokenAddress,
+    timestamp,
+    txHash,
+  });
+
+  // Reset TokenReferralFee
+  const tokenRefFeeId = `${userId}-${isFleth ? "fleth" : tokenAddress}`;
+  const existingFee = await context.TokenReferralFee.get(tokenRefFeeId);
+  if (existingFee) {
+    context.TokenReferralFee.set({
+      ...existingFee,
+      totalAmount: 0n,
+    });
+  }
+});
+
+ReferralEscrow.TokensSwapped.handler(async ({ event, context }) => {
+  const userId = normalizeAddress(event.params.user);
+  const tokenAddress = normalizeAddress(event.params.token);
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  // Ensure user exists
+  if (!(await context.User.get(userId))) context.User.set({ id: userId });
+
+  context.ReferralEscrowSwapped.set({
+    id: `${txHash}-${event.logIndex}`,
+    ethOut: event.params.ethOut,
+    tokensIn: event.params.tokensIn,
+    receiver_id: userId,
+    token_id: tokenAddress,
+    timestamp,
+    txHash,
+  });
+});
+
+// =============================================================================
+// MEMECOIN TREASURY CONTRACT HANDLERS
+// =============================================================================
+
+MemecoinTreasuryContract.ActionExecuted.handler(async ({ event, context }) => {
+  const treasuryAddress = normalizeAddress(event.srcAddress);
+  const actionAddress = normalizeAddress(event.params.action);
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  // Load treasury
+  const treasury = await context.MemecoinTreasury.get(treasuryAddress);
+  if (!treasury) return;
+
+  // Load action
+  const action = await context.MemecoinAction.get(actionAddress);
+  const actionCount = action ? action.totalActions : 0n;
+
+  // Update treasury
+  context.MemecoinTreasury.set({
+    ...treasury,
+    totalActions: treasury.totalActions + 1n,
+    lastActionTimestamp: timestamp,
+  });
+
+  // Find matching activity created by ActionContract handler
+  const activityId = `${txHash}-${actionCount}`;
+  const activity = await context.MemecoinTreasuryActivity.get(activityId);
+
+  if (activity) {
+    context.MemecoinTreasuryActivity.set({
+      ...activity,
+      treasury_id: treasuryAddress,
+      pool_id: treasury.pool_id,
+    });
+  }
+});
+
+// =============================================================================
+// ACTION CONTRACT HANDLERS
+// =============================================================================
+
+ActionContract.ActionExecuted.handler(async ({ event, context }) => {
+  const actionAddress = normalizeAddress(event.srcAddress);
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  // Load action
+  let action = await context.MemecoinAction.get(actionAddress);
+
+  if (action && action.approved) {
+    const activityId = `${txHash}-${action.totalActions}`;
+
+    // Increment action count
+    context.MemecoinAction.set({
+      ...action,
+      totalActions: action.totalActions + 1n,
+    });
+
+    // Create activity - treasury will be linked by MemecoinTreasury handler
+    context.MemecoinTreasuryActivity.set({
+      id: activityId,
+      pool_id: undefined,
+      treasury_id: undefined,
+      action_id: actionAddress,
+      tokenDelta0: event.params._token0,
+      tokenDelta1: event.params._token1,
+      timestamp,
+      transactionHash: txHash,
+      blockNumber: BigInt(event.block.number),
+    });
+  }
+});
+
+// =============================================================================
+// REVENUE MANAGER HANDLERS
+// =============================================================================
+
+RevenueManager.CreatorUpdated.handler(async ({ event, context }) => {
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const creatorAddr = normalizeAddress(event.params.creator);
+
+  // Ensure creator user exists
+  if (!(await context.User.get(creatorAddr)))
+    context.User.set({ id: creatorAddr });
+
+  // Update collection owner
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (collection) {
+    context.Collection.set({ ...collection, owner_id: creatorAddr });
+  }
+});
+
+RevenueManager.ManagerInitialized.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const ownerAddr = normalizeAddress(event.params.owner);
+  const params = event.params.params;
+
+  // Ensure owner user exists
+  if (!(await context.User.get(ownerAddr))) context.User.set({ id: ownerAddr });
+
+  const manager = await context.RevenueManager.get(managerAddress);
+  if (manager) {
+    const protocolRecipient = normalizeAddress(params[0]);
+    if (!(await context.User.get(protocolRecipient)))
+      context.User.set({ id: protocolRecipient });
+
+    context.RevenueManager.set({
+      ...manager,
+      owner_id: ownerAddr,
+      protocolFee: params[1],
+      protocolFeeRecipient_id: protocolRecipient,
+    });
+  }
+});
+
+RevenueManager.ManagerOwnershipTransferred.handler(
+  async ({ event, context }) => {
+    const managerAddress = normalizeAddress(event.srcAddress);
+    const newOwner = normalizeAddress(event.params.newOwner);
+
+    if (!(await context.User.get(newOwner))) context.User.set({ id: newOwner });
+
+    const manager = await context.RevenueManager.get(managerAddress);
+    if (manager) {
+      context.RevenueManager.set({ ...manager, owner_id: newOwner });
+    }
+  }
+);
+
+RevenueManager.ProtocolRecipientUpdated.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const protocolRecipient = normalizeAddress(event.params.protocolRecipient);
+
+  if (!(await context.User.get(protocolRecipient)))
+    context.User.set({ id: protocolRecipient });
+
+  const manager = await context.RevenueManager.get(managerAddress);
+  if (manager) {
+    context.RevenueManager.set({
+      ...manager,
+      protocolFeeRecipient_id: protocolRecipient,
+    });
+  }
+});
+
+RevenueManager.TreasuryEscrowed.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const ownerAddr = normalizeAddress(event.params.owner);
+  const timestamp = BigInt(event.block.timestamp);
+
+  if (!(await context.User.get(ownerAddr))) context.User.set({ id: ownerAddr });
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (collection) {
+    context.Collection.set({
+      ...collection,
+      owner_id: ownerAddr,
+      revenueManager_id: managerAddress,
+      managerType: "RevenueManager",
+      managerUpdatedAt: timestamp,
+    });
+  }
+});
+
+RevenueManager.TreasuryReclaimed.handler(async ({ event, context }) => {
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const recipientAddr = normalizeAddress(event.params.recipient);
+  const timestamp = BigInt(event.block.timestamp);
+
+  if (!(await context.User.get(recipientAddr)))
+    context.User.set({ id: recipientAddr });
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (collection) {
+    context.Collection.set({
+      ...collection,
+      owner_id: recipientAddr,
+      revenueManager_id: undefined,
+      managerType: undefined,
+      managerUpdatedAt: timestamp,
+    });
+  }
+});
+
+RevenueManager.RevenueClaimed.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const recipientAddr = normalizeAddress(event.params.recipient);
+  const amount = event.params.amount;
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  if (!(await context.User.get(recipientAddr)))
+    context.User.set({ id: recipientAddr });
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  const bundle = await context.Bundle.get(BUNDLE_ID);
+
+  context.RevenueManagerClaim.set({
+    id: `${managerAddress}-${txHash}-${event.logIndex}`,
+    revenueManager_id: managerAddress,
+    isProtocol: false,
+    collection_id: collection ? collectionId : undefined,
+    amount,
+    amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
+    recipient_id: recipientAddr,
+    timestamp,
+    txHash,
+  });
+});
+
+RevenueManager.ProtocolRevenueClaimed.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const recipientAddr = normalizeAddress(event.params.recipient);
+  const amount = event.params.amount;
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  if (!(await context.User.get(recipientAddr)))
+    context.User.set({ id: recipientAddr });
+
+  const bundle = await context.Bundle.get(BUNDLE_ID);
+
+  context.RevenueManagerClaim.set({
+    id: `${managerAddress}-${txHash}-${event.logIndex}`,
+    revenueManager_id: managerAddress,
+    isProtocol: true,
+    collection_id: undefined,
+    amount,
+    amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
+    recipient_id: recipientAddr,
+    timestamp,
+    txHash,
+  });
+});
+
+RevenueManager.PermissionsUpdated.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const permissions = normalizeAddress(event.params.permissions);
+
+  const manager = await context.RevenueManager.get(managerAddress);
+  if (manager) {
+    context.RevenueManager.set({ ...manager, permissions });
+  }
+});
+
+// =============================================================================
+// STAKING MANAGER HANDLERS
+// =============================================================================
+
+StakingManager.CreatorUpdated.handler(async ({ event, context }) => {
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const creatorAddr = normalizeAddress(event.params.creator);
+
+  if (!(await context.User.get(creatorAddr)))
+    context.User.set({ id: creatorAddr });
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (collection) {
+    context.Collection.set({ ...collection, owner_id: creatorAddr });
+  }
+});
+
+StakingManager.ManagerInitialized.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const ownerAddr = normalizeAddress(event.params.owner);
+  const params = event.params.params;
+
+  if (!(await context.User.get(ownerAddr))) context.User.set({ id: ownerAddr });
+
+  const manager = await context.StakingManager.get(managerAddress);
+  if (manager) {
+    const stakingTokenAddr = normalizeAddress(params[0]);
+
+    // Create Token entity for staking token
+    let token = await context.Token.get(stakingTokenAddr);
+    if (!token) {
+      context.Token.set({
+        id: stakingTokenAddr,
+        name: "Unknown",
+        symbol: "UNKNOWN",
+        decimals: 18,
+        totalSupply: 0n,
+      });
+    }
+
+    context.StakingManager.set({
+      ...manager,
+      owner_id: ownerAddr,
+      stakingToken_id: stakingTokenAddr,
+      minEscrowDuration: params[1],
+      minStakeDuration: params[2],
+      creatorShare: params[3],
+      ownerShare: params[4],
+    });
+  }
+});
+
+StakingManager.ManagerOwnershipTransferred.handler(
+  async ({ event, context }) => {
+    const managerAddress = normalizeAddress(event.srcAddress);
+    const newOwner = normalizeAddress(event.params.newOwner);
+
+    if (!(await context.User.get(newOwner))) context.User.set({ id: newOwner });
+
+    const manager = await context.StakingManager.get(managerAddress);
+    if (manager) {
+      context.StakingManager.set({ ...manager, owner_id: newOwner });
+    }
+  }
+);
+
+StakingManager.TreasuryEscrowed.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const ownerAddr = normalizeAddress(event.params.owner);
+  const timestamp = BigInt(event.block.timestamp);
+
+  if (!(await context.User.get(ownerAddr))) context.User.set({ id: ownerAddr });
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (collection) {
+    context.Collection.set({
+      ...collection,
+      owner_id: ownerAddr,
+      stakingManager_id: managerAddress,
+      managerType: "StakingManager",
+      managerUpdatedAt: timestamp,
+    });
+  }
+});
+
+StakingManager.TreasuryReclaimed.handler(async ({ event, context }) => {
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const recipientAddr = normalizeAddress(event.params.recipient);
+  const timestamp = BigInt(event.block.timestamp);
+
+  if (!(await context.User.get(recipientAddr)))
+    context.User.set({ id: recipientAddr });
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (collection) {
+    context.Collection.set({
+      ...collection,
+      owner_id: recipientAddr,
+      stakingManager_id: undefined,
+      managerType: undefined,
+      managerUpdatedAt: timestamp,
+    });
+
+    // Remove escrow if exists
+    const escrow = await context.StakingManagerEscrow.get(collectionId);
+    if (escrow) {
+      context.StakingManagerEscrow.deleteUnsafe(collectionId);
+    }
+  }
+});
+
+StakingManager.Claim.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const senderAddr = normalizeAddress(event.params.sender);
+  const amount = event.params.amount;
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  if (!(await context.User.get(senderAddr)))
+    context.User.set({ id: senderAddr });
+
+  const bundle = await context.Bundle.get(BUNDLE_ID);
+
+  context.StakingManagerClaim.set({
+    id: `${managerAddress}-${txHash}-${event.logIndex}`,
+    manager_id: managerAddress,
+    amount,
+    amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
+    recipient_id: senderAddr,
+    createdAt: timestamp,
+    txHash,
+  });
+});
+
+StakingManager.EscrowDurationExtended.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const newDuration = event.params.newDuration;
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (!collection) return;
+
+  let escrow = await context.StakingManagerEscrow.get(collectionId);
+
+  if (escrow) {
+    context.StakingManagerEscrow.set({
+      ...escrow,
+      timelockedUntil: newDuration,
+      updatedAt: timestamp,
+      txHash,
+    });
+  } else {
+    context.StakingManagerEscrow.set({
+      id: collectionId,
+      manager_id: managerAddress,
+      collection_id: collectionId,
+      timelockedUntil: newDuration,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      txHash,
+    });
+  }
+});
+
+StakingManager.Stake.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const stakerAddr = normalizeAddress(event.params.sender);
+  const amount = event.params.amount;
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  if (!(await context.User.get(stakerAddr)))
+    context.User.set({ id: stakerAddr });
+
+  const manager = await context.StakingManager.get(managerAddress);
+  if (!manager) return;
+
+  const stakeId = `${managerAddress}-${stakerAddr}`;
+  let stake = await context.StakingManagerStake.get(stakeId);
+
+  if (!stake) {
+    stake = {
+      id: stakeId,
+      manager_id: managerAddress,
+      user_id: stakerAddr,
+      amount: 0n,
+      unlocksAt: timestamp + manager.minStakeDuration,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
+  }
+
+  // Increment stakers if new stake
+  if (stake.amount === 0n) {
+    context.StakingManager.set({
+      ...manager,
+      totalStakers: manager.totalStakers + 1n,
+      totalStaked: manager.totalStaked + amount,
+    });
+  } else {
+    context.StakingManager.set({
+      ...manager,
+      totalStaked: manager.totalStaked + amount,
+    });
+  }
+
+  context.StakingManagerStake.set({
+    ...stake,
+    amount: stake.amount + amount,
+    updatedAt: timestamp,
+  });
+
+  // Create stake delta
+  context.StakingManagerStakeDelta.set({
+    id: `${stakeId}-${txHash}-${event.logIndex}`,
+    manager_id: managerAddress,
+    user_id: stakerAddr,
+    stake_id: stakeId,
+    amount,
+    createdAt: timestamp,
+    txHash,
+  });
+});
+
+StakingManager.Unstake.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const stakerAddr = normalizeAddress(event.params.sender);
+  const amount = event.params.amount;
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  if (!(await context.User.get(stakerAddr)))
+    context.User.set({ id: stakerAddr });
+
+  const stakeId = `${managerAddress}-${stakerAddr}`;
+  const stake = await context.StakingManagerStake.get(stakeId);
+  if (!stake) return;
+
+  const newAmount = stake.amount - amount;
+
+  context.StakingManagerStake.set({
+    ...stake,
+    amount: newAmount,
+    updatedAt: timestamp,
+  });
+
+  // Create stake delta (negative)
+  context.StakingManagerStakeDelta.set({
+    id: `${stakeId}-${txHash}-${event.logIndex}`,
+    manager_id: managerAddress,
+    user_id: stakerAddr,
+    stake_id: stakeId,
+    amount: -amount,
+    createdAt: timestamp,
+    txHash,
+  });
+
+  // Update manager totals
+  const manager = await context.StakingManager.get(managerAddress);
+  if (manager) {
+    if (newAmount === 0n) {
+      context.StakingManager.set({
+        ...manager,
+        totalStakers: manager.totalStakers - 1n,
+        totalStaked: manager.totalStaked - amount,
+      });
+    } else {
+      context.StakingManager.set({
+        ...manager,
+        totalStaked: manager.totalStaked - amount,
+      });
+    }
+  }
+});
+
+StakingManager.PermissionsUpdated.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const permissions = normalizeAddress(event.params.permissions);
+
+  const manager = await context.StakingManager.get(managerAddress);
+  if (manager) {
+    context.StakingManager.set({ ...manager, permissions });
+  }
+});
+
+StakingManager.ETHReceivedFromUnknownSource.handler(
+  async ({ event, context }) => {
+    const managerAddress = normalizeAddress(event.srcAddress);
+    const senderAddr = normalizeAddress(event.params.sender);
+    const amount = event.params.amount;
+    const timestamp = BigInt(event.block.timestamp);
+    const txHash = event.transaction.hash || "";
+
+    if (!(await context.User.get(senderAddr)))
+      context.User.set({ id: senderAddr });
+
+    const bundle = await context.Bundle.get(BUNDLE_ID);
+
+    context.StakingManagerExternalETH.set({
+      id: `${managerAddress}-${txHash}-${event.logIndex}`,
+      manager_id: managerAddress,
+      user_id: senderAddr,
+      amount,
+      amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
+      createdAt: timestamp,
+      txHash,
+    });
+
+    const manager = await context.StakingManager.get(managerAddress);
+    if (manager) {
+      context.StakingManager.set({
+        ...manager,
+        externalManagerETHTotal: manager.externalManagerETHTotal + amount,
+      });
+    }
+  }
+);
+
+// =============================================================================
+// ADDRESS FEE SPLIT MANAGER HANDLERS
+// =============================================================================
+
+AddressFeeSplitManager.CreatorUpdated.handler(async ({ event, context }) => {
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const creatorAddr = normalizeAddress(event.params.creator);
+
+  if (!(await context.User.get(creatorAddr)))
+    context.User.set({ id: creatorAddr });
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (collection) {
+    context.Collection.set({ ...collection, owner_id: creatorAddr });
+  }
+});
+
+AddressFeeSplitManager.ManagerInitialized.handler(
+  async ({ event, context }) => {
+    const managerAddress = normalizeAddress(event.srcAddress);
+    const ownerAddr = normalizeAddress(event.params.owner);
+    // params is a single-element tuple (uint256), so it's just a BigInt
+    const creatorShare = event.params.params as unknown as bigint;
+
+    if (!(await context.User.get(ownerAddr)))
+      context.User.set({ id: ownerAddr });
+
+    const manager = await context.AddressFeeSplitManager.get(managerAddress);
+    if (manager) {
+      context.AddressFeeSplitManager.set({
+        ...manager,
+        owner_id: ownerAddr,
+        creatorShare,
+      });
+    }
+  }
+);
+
+AddressFeeSplitManager.RecipientAdded.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const recipientAddr = normalizeAddress(event.params.recipient);
+  const share = event.params.share;
+
+  if (!(await context.User.get(recipientAddr)))
+    context.User.set({ id: recipientAddr });
+
+  context.AddressFeeSplitManagerRecipient.set({
+    id: `${managerAddress}-${recipientAddr}`,
+    manager_id: managerAddress,
+    recipient: recipientAddr,
+    recipientShare: share,
+  });
+});
+
+AddressFeeSplitManager.ManagerOwnershipTransferred.handler(
+  async ({ event, context }) => {
+    const managerAddress = normalizeAddress(event.srcAddress);
+    const newOwner = normalizeAddress(event.params.newOwner);
+
+    if (!(await context.User.get(newOwner))) context.User.set({ id: newOwner });
+
+    const manager = await context.AddressFeeSplitManager.get(managerAddress);
+    if (manager) {
+      context.AddressFeeSplitManager.set({ ...manager, owner_id: newOwner });
+    }
+  }
+);
+
+AddressFeeSplitManager.RevenueClaimed.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const recipientAddr = normalizeAddress(event.params.recipient);
+  const amount = event.params.amountClaimed;
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  if (!(await context.User.get(recipientAddr)))
+    context.User.set({ id: recipientAddr });
+
+  const bundle = await context.Bundle.get(BUNDLE_ID);
+
+  context.AddressFeeSplitManagerClaim.set({
+    id: `${managerAddress}-${txHash}-${event.logIndex}`,
+    manager_id: managerAddress,
+    amount,
+    amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
+    recipient_id: recipientAddr,
+    timestamp,
+    txHash,
+  });
+});
+
+AddressFeeSplitManager.TreasuryEscrowed.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const ownerAddr = normalizeAddress(event.params.owner);
+  const timestamp = BigInt(event.block.timestamp);
+
+  if (!(await context.User.get(ownerAddr))) context.User.set({ id: ownerAddr });
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (collection) {
+    context.Collection.set({
+      ...collection,
+      owner_id: ownerAddr,
+      addressFeeSplitManager_id: managerAddress,
+      managerType: "AddressFeeSplitManager",
+      managerUpdatedAt: timestamp,
+    });
+  }
+});
+
+AddressFeeSplitManager.TreasuryReclaimed.handler(async ({ event, context }) => {
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const recipientAddr = normalizeAddress(event.params.recipient);
+  const timestamp = BigInt(event.block.timestamp);
+
+  if (!(await context.User.get(recipientAddr)))
+    context.User.set({ id: recipientAddr });
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (collection) {
+    context.Collection.set({
+      ...collection,
+      owner_id: recipientAddr,
+      addressFeeSplitManager_id: undefined,
+      managerType: undefined,
+      managerUpdatedAt: timestamp,
+    });
+  }
+});
+
+AddressFeeSplitManager.RecipientShareTransferred.handler(
+  async ({ event, context }) => {
+    const managerAddress = normalizeAddress(event.srcAddress);
+    const oldRecipient = normalizeAddress(event.params.oldRecipient);
+    const newRecipient = normalizeAddress(event.params.newRecipient);
+
+    if (!(await context.User.get(oldRecipient)))
+      context.User.set({ id: oldRecipient });
+    if (!(await context.User.get(newRecipient)))
+      context.User.set({ id: newRecipient });
+
+    // Get old recipient share
+    const oldRecipientShare = await context.AddressFeeSplitManagerRecipient.get(
+      `${managerAddress}-${oldRecipient}`
+    );
+    const oldShare = oldRecipientShare ? oldRecipientShare.recipientShare : 0n;
+
+    // Reset old recipient share
+    if (oldRecipientShare) {
+      context.AddressFeeSplitManagerRecipient.set({
+        ...oldRecipientShare,
+        recipientShare: 0n,
+      });
+    }
+
+    // Update or create new recipient share
+    let newRecipientShare = await context.AddressFeeSplitManagerRecipient.get(
+      `${managerAddress}-${newRecipient}`
+    );
+    if (newRecipientShare) {
+      context.AddressFeeSplitManagerRecipient.set({
+        ...newRecipientShare,
+        recipientShare: newRecipientShare.recipientShare + oldShare,
+      });
+    } else {
+      context.AddressFeeSplitManagerRecipient.set({
+        id: `${managerAddress}-${newRecipient}`,
+        manager_id: managerAddress,
+        recipient: newRecipient,
+        recipientShare: oldShare,
+      });
+    }
+  }
+);
+
+AddressFeeSplitManager.PermissionsUpdated.handler(
+  async ({ event, context }) => {
+    const managerAddress = normalizeAddress(event.srcAddress);
+    const permissions = normalizeAddress(event.params.permissions);
+
+    const manager = await context.AddressFeeSplitManager.get(managerAddress);
+    if (manager) {
+      context.AddressFeeSplitManager.set({ ...manager, permissions });
+    }
+  }
+);
+
+AddressFeeSplitManager.ETHReceivedFromUnknownSource.handler(
+  async ({ event, context }) => {
+    const managerAddress = normalizeAddress(event.srcAddress);
+    const senderAddr = normalizeAddress(event.params.sender);
+    const amount = event.params.amount;
+    const timestamp = BigInt(event.block.timestamp);
+    const txHash = event.transaction.hash || "";
+
+    if (!(await context.User.get(senderAddr)))
+      context.User.set({ id: senderAddr });
+
+    const bundle = await context.Bundle.get(BUNDLE_ID);
+
+    context.AddressFeeSplitManagerExternalETH.set({
+      id: `${managerAddress}-${txHash}-${event.logIndex}`,
+      manager_id: managerAddress,
+      user_id: senderAddr,
+      amount,
+      amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
+      createdAt: timestamp,
+      txHash,
+    });
+
+    const manager = await context.AddressFeeSplitManager.get(managerAddress);
+    if (manager) {
+      context.AddressFeeSplitManager.set({
+        ...manager,
+        externalManagerETHTotal: manager.externalManagerETHTotal + amount,
+      });
+    }
+  }
+);
+
+// =============================================================================
+// BUYBACK MANAGER HANDLERS
+// =============================================================================
+
+BuyBackManager.CreatorUpdated.handler(async ({ event, context }) => {
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const creatorAddr = normalizeAddress(event.params.creator);
+
+  if (!(await context.User.get(creatorAddr)))
+    context.User.set({ id: creatorAddr });
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (collection) {
+    context.Collection.set({ ...collection, owner_id: creatorAddr });
+  }
+});
+
+BuyBackManager.ManagerInitialized.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const ownerAddr = normalizeAddress(event.params.owner);
+  const params = event.params.params;
+
+  if (!(await context.User.get(ownerAddr))) context.User.set({ id: ownerAddr });
+
+  const manager = await context.BuyBackManager.get(managerAddress);
+  if (manager) {
+    // params is ((currency0, currency1, fee, tickSpacing, hooks), creatorShare, ownerShare)
+    const poolKey = params[0];
+    context.BuyBackManager.set({
+      ...manager,
+      owner_id: ownerAddr,
+      buyBackCurrency0: normalizeAddress(poolKey[0]),
+      buyBackCurrency1: normalizeAddress(poolKey[1]),
+      creatorShare: params[1],
+      ownerShare: params[2],
+    });
+  }
+});
+
+BuyBackManager.ManagerOwnershipTransferred.handler(
+  async ({ event, context }) => {
+    const managerAddress = normalizeAddress(event.srcAddress);
+    const newOwner = normalizeAddress(event.params.newOwner);
+
+    if (!(await context.User.get(newOwner))) context.User.set({ id: newOwner });
+
+    const manager = await context.BuyBackManager.get(managerAddress);
+    if (manager) {
+      context.BuyBackManager.set({ ...manager, owner_id: newOwner });
+    }
+  }
+);
+
+BuyBackManager.TreasuryEscrowed.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const ownerAddr = normalizeAddress(event.params.owner);
+  const timestamp = BigInt(event.block.timestamp);
+
+  if (!(await context.User.get(ownerAddr))) context.User.set({ id: ownerAddr });
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (collection) {
+    context.Collection.set({
+      ...collection,
+      owner_id: ownerAddr,
+      buyBackManager_id: managerAddress,
+      managerType: "BuyBackManager",
+      managerUpdatedAt: timestamp,
+    });
+  }
+});
+
+BuyBackManager.TreasuryReclaimed.handler(async ({ event, context }) => {
+  const flaunchAddr = normalizeAddress(event.params.flaunch);
+  const tokenId = event.params.tokenId;
+  const recipientAddr = normalizeAddress(event.params.recipient);
+  const timestamp = BigInt(event.block.timestamp);
+
+  if (!(await context.User.get(recipientAddr)))
+    context.User.set({ id: recipientAddr });
+
+  const collectionId = `${flaunchAddr}-${tokenId}`;
+  const collection = await context.Collection.get(collectionId);
+  if (collection) {
+    context.Collection.set({
+      ...collection,
+      owner_id: recipientAddr,
+      buyBackManager_id: undefined,
+      managerType: undefined,
+      managerUpdatedAt: timestamp,
+    });
+  }
+});
+
+BuyBackManager.RevenueClaimed.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const recipientAddr = normalizeAddress(event.params.recipient);
+  const amount = event.params.amountClaimed;
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  if (!(await context.User.get(recipientAddr)))
+    context.User.set({ id: recipientAddr });
+
+  const bundle = await context.Bundle.get(BUNDLE_ID);
+
+  context.BuyBackManagerClaim.set({
+    id: `${managerAddress}-${txHash}-${event.logIndex}`,
+    manager_id: managerAddress,
+    collection_id: undefined,
+    amount,
+    amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
+    recipient_id: recipientAddr,
+    createdAt: timestamp,
+    txHash,
+  });
+});
+
+BuyBackManager.BidWallDeposit.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const amount = event.params.ethAmount;
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  const bundle = await context.Bundle.get(BUNDLE_ID);
+  const amountUSDC = convertETHtoUSDCWithBundle(amount, bundle);
+
+  const manager = await context.BuyBackManager.get(managerAddress);
+  if (manager) {
+    context.BuyBackManager.set({
+      ...manager,
+      totalDeposits: manager.totalDeposits + amount,
+      totalDepositsUSDC: manager.totalDepositsUSDC.plus(amountUSDC),
+    });
+  }
+
+  context.BuyBackManagerDeposit.set({
+    id: `${managerAddress}-${txHash}-${event.logIndex}`,
+    manager_id: managerAddress,
+    amount,
+    amountUSDC,
+    createdAt: timestamp,
+    txHash,
+  });
+});
+
+BuyBackManager.PermissionsUpdated.handler(async ({ event, context }) => {
+  const managerAddress = normalizeAddress(event.srcAddress);
+  const permissions = normalizeAddress(event.params.permissions);
+
+  const manager = await context.BuyBackManager.get(managerAddress);
+  if (manager) {
+    context.BuyBackManager.set({ ...manager, permissions });
+  }
+});
+
+BuyBackManager.ETHReceivedFromUnknownSource.handler(
+  async ({ event, context }) => {
+    const managerAddress = normalizeAddress(event.srcAddress);
+    const senderAddr = normalizeAddress(event.params.sender);
+    const amount = event.params.amount;
+    const timestamp = BigInt(event.block.timestamp);
+    const txHash = event.transaction.hash || "";
+
+    if (!(await context.User.get(senderAddr)))
+      context.User.set({ id: senderAddr });
+
+    const bundle = await context.Bundle.get(BUNDLE_ID);
+
+    context.BuyBackManagerExternalETH.set({
+      id: `${managerAddress}-${txHash}-${event.logIndex}`,
+      manager_id: managerAddress,
+      user_id: senderAddr,
+      amount,
+      amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
+      createdAt: timestamp,
+      txHash,
+    });
+
+    const manager = await context.BuyBackManager.get(managerAddress);
+    if (manager) {
+      context.BuyBackManager.set({
+        ...manager,
+        externalManagerETHTotal: manager.externalManagerETHTotal + amount,
+      });
+    }
+  }
+);
+
+// =============================================================================
+// BIDWALL STUB HANDLERS (Filling in empty handlers)
+// =============================================================================
+
+BidWall1.BidWallDisabledStateUpdated.handler(async ({ event, context }) => {
+  const poolId = event.params.poolId;
+  const bidWall = await context.BidWall.get(poolId);
+  if (bidWall) {
+    context.BidWall.set({ ...bidWall, closed: event.params.disabled });
+  }
+});
+
+BidWall2.BidWallDisabledStateUpdated.handler(async ({ event, context }) => {
+  const poolId = event.params.poolId;
+  const bidWall = await context.BidWall.get(poolId);
+  if (bidWall) {
+    context.BidWall.set({ ...bidWall, closed: event.params.disabled });
+  }
+});
+
+BidWall2.StaleTimeWindowUpdated.handler(async ({ event, context }) => {
+  const config = await context.Config.get(CONFIG_ID);
+  if (config) {
+    context.Config.set({
+      ...config,
+      staleTimeWindow: event.params.staleTimeWindow,
     });
   }
 });

@@ -23,7 +23,10 @@ export function safeDiv(numerator: bigint, denominator: bigint): bigint {
 /**
  * Safe division for BigDecimal
  */
-export function safeDivBD(numerator: BigDecimal, denominator: BigDecimal): BigDecimal {
+export function safeDivBD(
+  numerator: BigDecimal,
+  denominator: BigDecimal
+): BigDecimal {
   if (denominator.eq(ZERO_BD)) {
     return ZERO_BD;
   }
@@ -34,47 +37,55 @@ export function safeDivBD(numerator: BigDecimal, denominator: BigDecimal): BigDe
  * Scale a value by decimals (multiply by 10^decimals)
  */
 export function scale(value: bigint, decimals: number): bigint {
-  return value * (10n ** BigInt(decimals));
+  return value * 10n ** BigInt(decimals);
 }
 
 /**
  * Descale a value by decimals (divide by 10^decimals)
  */
 export function descale(value: bigint, decimals: number): bigint {
-  return value / (10n ** BigInt(decimals));
+  return value / 10n ** BigInt(decimals);
 }
 
 /**
  * Convert BigInt to BigDecimal with given decimals
  */
-export function convertTokenToDecimal(amount: bigint, decimals: number): BigDecimal {
+export function convertTokenToDecimal(
+  amount: bigint,
+  decimals: number
+): BigDecimal {
   if (decimals === 0) {
     return BigDecimal(amount.toString());
   }
   const divisor = 10n ** BigInt(decimals);
   const integerPart = amount / divisor;
   const remainder = amount % divisor;
-  
+
   // Pad remainder with leading zeros
   let remainderStr = remainder.toString();
   while (remainderStr.length < decimals) {
     remainderStr = "0" + remainderStr;
   }
-  
+
   return BigDecimal(`${integerPart}.${remainderStr}`);
 }
 
 /**
  * Generate entity ID from components (multichain safe)
  */
-export function generateId(...components: (string | number | bigint)[]): string {
-  return components.map(c => c.toString()).join("-");
+export function generateId(
+  ...components: (string | number | bigint)[]
+): string {
+  return components.map((c) => c.toString()).join("-");
 }
 
 /**
  * Generate entity ID with chain prefix for multichain support
  */
-export function generateChainId(chainId: number, ...components: (string | number | bigint)[]): string {
+export function generateChainId(
+  chainId: number,
+  ...components: (string | number | bigint)[]
+): string {
   return generateId(chainId, ...components);
 }
 
@@ -92,28 +103,34 @@ export function sqrtPriceX96ToTokenPrices(
   // price = (sqrtPriceX96 / 2^96)^2
   // price0 = price = token1 per token0
   // price1 = 1/price = token0 per token1
-  
+
   const sqrtPrice = sqrtPriceX96;
   const price = (sqrtPrice * sqrtPrice) / Q192;
-  
+
   // Adjust for decimal differences
   const decimalDiff = token1Decimals - token0Decimals;
-  
+
   if (decimalDiff > 0) {
     // token1 has more decimals
     const multiplier = 10n ** BigInt(decimalDiff);
     const price0 = price * multiplier;
-    const price1 = price0 > 0n ? (10n ** BigInt(token0Decimals + token1Decimals)) / price0 : 0n;
+    const price1 =
+      price0 > 0n
+        ? 10n ** BigInt(token0Decimals + token1Decimals) / price0
+        : 0n;
     return [price0, price1];
   } else if (decimalDiff < 0) {
     // token0 has more decimals
     const divisor = 10n ** BigInt(-decimalDiff);
     const price0 = price / divisor;
-    const price1 = price0 > 0n ? (10n ** BigInt(token0Decimals + token1Decimals)) / price0 : 0n;
+    const price1 =
+      price0 > 0n
+        ? 10n ** BigInt(token0Decimals + token1Decimals) / price0
+        : 0n;
     return [price0, price1];
   } else {
     // Same decimals
-    const price1 = price > 0n ? (10n ** BigInt(token0Decimals * 2)) / price : 0n;
+    const price1 = price > 0n ? 10n ** BigInt(token0Decimals * 2) / price : 0n;
     return [price, price1];
   }
 }
@@ -228,6 +245,3 @@ export function normalizeAddress(address: string): string {
 export function addressesEqual(a: string, b: string): boolean {
   return a.toLowerCase() === b.toLowerCase();
 }
-
-
-

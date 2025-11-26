@@ -15,10 +15,12 @@ export function convertETHtoUSDCWithBundle(
   if (!bundle) {
     return ZERO_BD;
   }
-  
+
   // ethAmount is in wei (18 decimals)
   // Convert to ETH first, then multiply by USD price
-  const ethBD = BigDecimal(ethAmount.toString()).div(BigDecimal("1000000000000000000"));
+  const ethBD = BigDecimal(ethAmount.toString()).div(
+    BigDecimal("1000000000000000000")
+  );
   return ethBD.times(bundle.ethPriceUSDC);
 }
 
@@ -38,7 +40,7 @@ export async function convertETHtoUSDC(
 /**
  * Convert sqrtPriceX96 to human-readable prices
  * For Uniswap V3/V4 style AMMs
- * 
+ *
  * sqrtPriceX96 = sqrt(price) * 2^96
  * price = (sqrtPriceX96 / 2^96)^2
  */
@@ -53,19 +55,19 @@ export function sqrtPriceX96ToTokenPrices(
 
   // Calculate price = (sqrtPriceX96)^2 / 2^192
   const sqrtPriceSquared = sqrtPriceX96 * sqrtPriceX96;
-  
+
   // Adjust for decimal differences between tokens
   const decimalsDiff = token0Decimals - token1Decimals;
-  
+
   // price0 = how much token1 for 1 token0
   // price1 = how much token0 for 1 token1 (inverse)
-  
+
   let price0: bigint;
   let price1: bigint;
-  
+
   // Scale by 10^18 to maintain precision (since we're dealing with integers)
   const precision = 10n ** 18n;
-  
+
   if (decimalsDiff >= 0) {
     const decimalMultiplier = 10n ** BigInt(decimalsDiff);
     price0 = (sqrtPriceSquared * precision * decimalMultiplier) / Q192;
@@ -73,14 +75,14 @@ export function sqrtPriceX96ToTokenPrices(
     const decimalDivisor = 10n ** BigInt(-decimalsDiff);
     price0 = (sqrtPriceSquared * precision) / (Q192 * decimalDivisor);
   }
-  
+
   // Calculate inverse price
   if (price0 > 0n) {
     price1 = (precision * precision) / price0;
   } else {
     price1 = ZERO_BI;
   }
-  
+
   return [price0, price1];
 }
 
@@ -99,8 +101,12 @@ export function calculateInitialTokenPrice(
 
   // For flETH (token0) / memecoin (token1) pairs
   // Price is expressed as memecoin per flETH (or inverse if flipped)
-  const [price0, price1] = sqrtPriceX96ToTokenPrices(sqrtPriceX96, 18, decimals);
-  
+  const [price0, price1] = sqrtPriceX96ToTokenPrices(
+    sqrtPriceX96,
+    18,
+    decimals
+  );
+
   // If flipped, token0 is memecoin, so use price1 (flETH per memecoin)
   return flipped ? price0 : price1;
 }
@@ -115,18 +121,20 @@ export function calculateMarketCapETH(
   if (tokenPrice === 0n || totalSupply === 0n) {
     return ZERO_BI;
   }
-  
+
   // tokenPrice is in 18 decimal precision
   // totalSupply is in token decimals (usually 18)
   // marketCap = tokenPrice * totalSupply / 10^18
-  return (tokenPrice * totalSupply) / (10n ** 18n);
+  return (tokenPrice * totalSupply) / 10n ** 18n;
 }
 
 /**
  * Get or create Bundle with default ETH price
  * NOTE: This is async - must be awaited
  */
-export async function getOrCreateBundle(context: handlerContext): Promise<Bundle> {
+export async function getOrCreateBundle(
+  context: handlerContext
+): Promise<Bundle> {
   let bundle = await context.Bundle.get(BUNDLE_ID);
   if (!bundle) {
     bundle = {

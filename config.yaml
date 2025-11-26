@@ -124,6 +124,7 @@ networks:
           - event: BidWallRewardsTransferred(bytes32 indexed poolId, address recipient, uint256 amount)
           - event: BidWallDeposit(bytes32 indexed poolId, uint256 amount0, uint256 amount1)
           - event: BidWallDisabledStateUpdated(bytes32 indexed poolId, bool disabled)
+          - event: StaleTimeWindowUpdated(uint256 staleTimeWindow)
       - name: FeeEscrow
         address:
           - 0x72e6f7948b1B1A343B477F39aAbd2E35E6D27dde
@@ -211,6 +212,93 @@ networks:
         events:
           - event: Transfer(address indexed from, address indexed to, uint256 value)
           - event: MetadataUpdated(string baseURI, string contractURI)
+
+      # ReferralEscrow - registered via ReferralEscrowUpdated
+      - name: ReferralEscrow
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: TokensAssigned(bytes32 indexed poolId, address indexed user, address indexed token, uint256 amount)
+          - event: TokensClaimed(address indexed user, address token, address indexed recipient, uint256 amount)
+          - event: TokensSwapped(address indexed user, address indexed token, uint256 ethOut, uint256 tokensIn)
+
+      # MemecoinTreasury - registered via PoolCreated
+      - name: MemecoinTreasuryContract
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: ActionExecuted(address action, int256 token0, int256 token1)
+
+      # Action contracts - registered via ActionApproved
+      - name: ActionContract
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: ActionExecuted((address,address,uint24,int24,address) poolKey, int256 _token0, int256 _token1)
+
+      # RevenueManager - registered via TreasuryManagerFactory.ManagerDeployed
+      - name: RevenueManager
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: CreatorUpdated(address indexed flaunch, uint256 indexed tokenId, address creator)
+          - event: ManagerInitialized(address owner, (address,uint256) params)
+          - event: ManagerOwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+          - event: ProtocolRecipientUpdated(address protocolRecipient)
+          - event: TreasuryEscrowed(address indexed flaunch, uint256 indexed tokenId, address owner, address sender)
+          - event: TreasuryReclaimed(address indexed flaunch, uint256 indexed tokenId, address recipient, address sender)
+          - event: RevenueClaimed(address indexed flaunch, uint256 indexed tokenId, address recipient, uint256 amount)
+          - event: ProtocolRevenueClaimed(address recipient, uint256 amount)
+          - event: PermissionsUpdated(address permissions)
+
+      # StakingManager - registered via TreasuryManagerFactory.ManagerDeployed
+      - name: StakingManager
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: CreatorUpdated(address indexed flaunch, uint256 indexed tokenId, address creator)
+          - event: ManagerInitialized(address owner, (address,uint256,uint256,uint256,uint256) params)
+          - event: ManagerOwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+          - event: TreasuryEscrowed(address indexed flaunch, uint256 indexed tokenId, address owner, address sender)
+          - event: TreasuryReclaimed(address indexed flaunch, uint256 indexed tokenId, address recipient, address sender)
+          - event: Claim(address sender, uint256 amount)
+          - event: EscrowDurationExtended(address indexed flaunch, uint256 indexed tokenId, uint256 newDuration)
+          - event: Stake(address indexed sender, uint256 amount, (uint256,uint256) position)
+          - event: Unstake(address indexed sender, uint256 amount, (uint256,uint256) position)
+          - event: PermissionsUpdated(address permissions)
+          - event: ETHReceivedFromUnknownSource(address sender, uint256 amount)
+
+      # AddressFeeSplitManager - registered via TreasuryManagerFactory.ManagerDeployed
+      - name: AddressFeeSplitManager
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: CreatorUpdated(address indexed flaunch, uint256 indexed tokenId, address creator)
+          - event: ManagerInitialized(address owner, (uint256) params)
+          - event: RecipientAdded(address recipient, uint256 share)
+          - event: ManagerOwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+          - event: RevenueClaimed(address indexed recipient, uint256 amountClaimed)
+          - event: TreasuryEscrowed(address indexed flaunch, uint256 indexed tokenId, address owner, address sender)
+          - event: TreasuryReclaimed(address indexed flaunch, uint256 indexed tokenId, address recipient, address sender)
+          - event: RecipientShareTransferred(address oldRecipient, address newRecipient)
+          - event: PermissionsUpdated(address permissions)
+          - event: ETHReceivedFromUnknownSource(address sender, uint256 amount)
+
+      # BuyBackManager - registered via TreasuryManagerFactory.ManagerDeployed
+      - name: BuyBackManager
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: CreatorUpdated(address indexed flaunch, uint256 indexed tokenId, address creator)
+          - event: ManagerInitialized(address owner, ((address,address,uint24,int24,address),uint256,uint256) params)
+          - event: ManagerOwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+          - event: TreasuryEscrowed(address indexed flaunch, uint256 indexed tokenId, address owner, address sender)
+          - event: TreasuryReclaimed(address indexed flaunch, uint256 indexed tokenId, address recipient, address sender)
+          - event: RevenueClaimed(address indexed recipient, uint256 amountClaimed)
+          - event: BidWallDeposit(uint256 ethAmount)
+          - event: PermissionsUpdated(address permissions)
+          - event: ETHReceivedFromUnknownSource(address sender, uint256 amount)
+
 unordered_multichain_mode: true
 preload_handlers: true
 
