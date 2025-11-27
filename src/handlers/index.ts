@@ -11,7 +11,7 @@ import "./fair-launch";
 import "./flay-burner";
 import "./action-manager";
 import "./flaunch-nft";
-import "./flaunch-nft4";
+// Note: flaunch-nft4.ts is no longer needed - FlaunchNFT4 handlers are in flaunch-nft.ts
 import "./bid-wall";
 import "./treasury-manager-factory";
 import "./locker";
