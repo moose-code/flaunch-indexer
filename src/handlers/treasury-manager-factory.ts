@@ -133,3 +133,4 @@ TreasuryManagerFactory.ManagerDeployed.contractRegister(
   }
 );
 
+
