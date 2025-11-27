@@ -4,7 +4,7 @@
  */
 
 import { MemecoinTreasuryContract } from "generated";
-import { normalizeAddress } from "../utils/helpers";
+import { normalizeAddress, generateActivityId } from "../utils/helpers";
 
 // =============================================================================
 // MEMECOIN TREASURY CONTRACT HANDLERS
@@ -31,8 +31,8 @@ MemecoinTreasuryContract.ActionExecuted.handler(async ({ event, context }) => {
     lastActionTimestamp: timestamp,
   });
 
-  // Find matching activity created by ActionContract handler
-  const activityId = `${txHash}-${actionCount}`;
+  // Find matching activity created by ActionContract handler - use subgraph-compatible ID format
+  const activityId = generateActivityId(txHash, actionCount);
   const activity = await context.MemecoinTreasuryActivity.get(activityId);
 
   if (activity) {

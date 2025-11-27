@@ -5,13 +5,20 @@
 
 import { AnyPositionManager, BigDecimal } from "generated";
 import { ZERO_BI, ZERO_BD, CONFIG_ID, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, absBigInt } from "../utils/helpers";
+import { normalizeAddress, absBigInt, generateCollectionId } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 import {
   getBidWallAddressForPositionManager,
   getFlaunchAddressForPositionManager,
   FLETH,
 } from "../addresses/base";
+import {
+  updateTokenDayData,
+  updateTokenHourData,
+  updateTokenMinuteData,
+  updateToken15MinuteData,
+  updateToken4HourData,
+} from "../utils/timeseries";
 
 const DEFAULT_FEE_DISTRIBUTION_ID = CONFIG_ID;
 
@@ -131,7 +138,8 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
   // Get Flaunch address for this position manager
   const flaunchAddr =
     getFlaunchAddressForPositionManager(positionManager) || positionManager;
-  const collectionId = `${flaunchAddr}-${tokenId.toString()}`;
+  // Use subgraph-compatible ID format
+  const collectionId = generateCollectionId(flaunchAddr, tokenId);
 
   // Create Collection
   context.Collection.set({
@@ -275,10 +283,9 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     totalTokenIn: ZERO_BI,
   });
 
-  // Create NFTLookup
-  const nftLookupId = `${flaunchAddr}-${tokenId.toString()}`;
+  // Create NFTLookup - use same ID format as collection
   context.NFTLookup.set({
-    id: nftLookupId,
+    id: collectionId,
     collectionToken_id: memecoin,
   });
 
@@ -358,12 +365,63 @@ AnyPositionManager.PoolSwap.handler(async ({ event, context }) => {
     pool.collectionToken_id
   );
   if (collectionToken) {
+    // Save open price before updating
+    const openPrice = collectionToken.derivedETH;
+
     const newVolumeETH = collectionToken.volumeETH + totalETHAmount;
-    context.CollectionToken.set({
+    const updatedToken = {
       ...collectionToken,
       volumeETH: newVolumeETH,
       volumeUSDC: convertETHtoUSDCWithBundle(newVolumeETH, bundle),
-    });
+    };
+
+    context.CollectionToken.set(updatedToken);
+
+    // Update time series data
+    const [dayData, hourData, minuteData, fifteenMinData, fourHourData] = await Promise.all([
+      updateTokenDayData(context, updatedToken, timestamp, openPrice),
+      updateTokenHourData(context, updatedToken, timestamp, openPrice),
+      updateTokenMinuteData(context, updatedToken, timestamp, openPrice),
+      updateToken15MinuteData(context, updatedToken, timestamp, openPrice),
+      updateToken4HourData(context, updatedToken, timestamp, openPrice),
+    ]);
+
+    // Update volume on time series data
+    if (dayData) {
+      context.TokenDayData.set({
+        ...dayData,
+        volumeETH: dayData.volumeETH + totalETHAmount,
+        volumeUSDC: dayData.volumeUSDC.plus(convertETHtoUSDCWithBundle(totalETHAmount, bundle)),
+      });
+    }
+    if (hourData) {
+      context.TokenHourData.set({
+        ...hourData,
+        volumeETH: hourData.volumeETH + totalETHAmount,
+        volumeUSDC: hourData.volumeUSDC.plus(convertETHtoUSDCWithBundle(totalETHAmount, bundle)),
+      });
+    }
+    if (minuteData) {
+      context.TokenMinuteData.set({
+        ...minuteData,
+        volumeETH: minuteData.volumeETH + totalETHAmount,
+        volumeUSDC: minuteData.volumeUSDC.plus(convertETHtoUSDCWithBundle(totalETHAmount, bundle)),
+      });
+    }
+    if (fifteenMinData) {
+      context.Token15MinuteData.set({
+        ...fifteenMinData,
+        volumeETH: fifteenMinData.volumeETH + totalETHAmount,
+        volumeUSDC: fifteenMinData.volumeUSDC.plus(convertETHtoUSDCWithBundle(totalETHAmount, bundle)),
+      });
+    }
+    if (fourHourData) {
+      context.Token4HourData.set({
+        ...fourHourData,
+        volumeETH: fourHourData.volumeETH + totalETHAmount,
+        volumeUSDC: fourHourData.volumeUSDC.plus(convertETHtoUSDCWithBundle(totalETHAmount, bundle)),
+      });
+    }
   }
   context.PoolSwap.set({
     id: `${txHash}-${event.logIndex}`,

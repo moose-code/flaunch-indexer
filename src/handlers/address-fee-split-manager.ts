@@ -5,7 +5,7 @@
 
 import { AddressFeeSplitManager } from "generated";
 import { BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress } from "../utils/helpers";
+import { normalizeAddress, generateCollectionId } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 
 // =============================================================================
@@ -20,7 +20,8 @@ AddressFeeSplitManager.CreatorUpdated.handler(async ({ event, context }) => {
   if (!(await context.User.get(creatorAddr)))
     context.User.set({ id: creatorAddr });
 
-  const collectionId = `${flaunchAddr}-${tokenId}`;
+  // Use subgraph-compatible ID format
+  const collectionId = generateCollectionId(flaunchAddr, tokenId);
   const collection = await context.Collection.get(collectionId);
   if (collection) {
     context.Collection.set({ ...collection, owner_id: creatorAddr });
@@ -67,8 +68,11 @@ AddressFeeSplitManager.RecipientAdded.handler(async ({ event, context }) => {
 AddressFeeSplitManager.ManagerOwnershipTransferred.handler(
   async ({ event, context }) => {
     const managerAddress = normalizeAddress(event.srcAddress);
+    const previousOwner = normalizeAddress(event.params.previousOwner);
     const newOwner = normalizeAddress(event.params.newOwner);
 
+    // Ensure both users exist
+    if (!(await context.User.get(previousOwner))) context.User.set({ id: previousOwner });
     if (!(await context.User.get(newOwner))) context.User.set({ id: newOwner });
 
     const manager = await context.AddressFeeSplitManager.get(managerAddress);
@@ -110,7 +114,8 @@ AddressFeeSplitManager.TreasuryEscrowed.handler(async ({ event, context }) => {
 
   if (!(await context.User.get(ownerAddr))) context.User.set({ id: ownerAddr });
 
-  const collectionId = `${flaunchAddr}-${tokenId}`;
+  // Use subgraph-compatible ID format
+  const collectionId = generateCollectionId(flaunchAddr, tokenId);
   const collection = await context.Collection.get(collectionId);
   if (collection) {
     context.Collection.set({
@@ -132,7 +137,8 @@ AddressFeeSplitManager.TreasuryReclaimed.handler(async ({ event, context }) => {
   if (!(await context.User.get(recipientAddr)))
     context.User.set({ id: recipientAddr });
 
-  const collectionId = `${flaunchAddr}-${tokenId}`;
+  // Use subgraph-compatible ID format
+  const collectionId = generateCollectionId(flaunchAddr, tokenId);
   const collection = await context.Collection.get(collectionId);
   if (collection) {
     context.Collection.set({

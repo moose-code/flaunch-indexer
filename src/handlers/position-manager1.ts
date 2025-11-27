@@ -3,8 +3,9 @@
  */
 
 import { PositionManager1 } from "generated";
-import { CONFIG_ID } from "../utils/constants";
+import { CONFIG_ID, ZERO_BI, ZERO_BD, BUNDLE_ID } from "../utils/constants";
 import { normalizeAddress } from "../utils/helpers";
+import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 import {
   createPoolEntities,
   processPoolSwap,
@@ -178,17 +179,181 @@ PositionManager1.FairLaunchFeeCalculatorUpdated.handler(
 PositionManager1.InitialPriceUpdated.handler(async ({ event, context }) => {});
 
 PositionManager1.CreatorFeeAllocationUpdated.handler(
-  async ({ event, context }) => {}
+  async ({ event, context }) => {
+    const poolId = event.params._poolId;
+    const allocation = event.params._allocation;
+
+    const pool = await context.Pool.get(poolId);
+    if (!pool) return;
+
+    // Create or update FeeAllocation
+    const feeAllocationId = `pool-${poolId}`;
+    let feeAllocation = await context.FeeAllocation.get(feeAllocationId);
+
+    // allocation is the creator's share (out of 100)
+    const creatorShare = Number(allocation);
+    const communityShare = 100 - creatorShare;
+
+    if (!feeAllocation) {
+      context.FeeAllocation.set({
+        id: feeAllocationId,
+        creator: creatorShare,
+        community: communityShare,
+      });
+    } else {
+      context.FeeAllocation.set({
+        ...feeAllocation,
+        creator: creatorShare,
+        community: communityShare,
+      });
+    }
+
+    // Link pool to fee allocation
+    context.Pool.set({
+      ...pool,
+      feeAllocation_id: feeAllocationId,
+    });
+  }
 );
 
 PositionManager1.Deposit.handler(async ({ event, context }) => {
   const payee = normalizeAddress(event.params._payee);
-  if (!(await context.User.get(payee))) context.User.set({ id: payee });
+  const poolId = event.params._poolId;
+  const amount = event.params._amount;
+  const timestamp = BigInt(event.block.timestamp);
+
+  // Ensure User exists
+  if (!(await context.User.get(payee))) {
+    context.User.set({ id: payee });
+  }
+
+  // Get bundle for USD conversion
+  const bundle = await context.Bundle.get(BUNDLE_ID);
+
+  // 1. Create or update UserFee for the payee
+  const userFeeId = payee;
+  let userFee = await context.UserFee.get(userFeeId);
+  if (!userFee) {
+    userFee = {
+      id: userFeeId,
+      payee_id: payee,
+      claimableAmount: ZERO_BI,
+      claimableAmountUSDC: ZERO_BD,
+      lifetimeFees: ZERO_BI,
+      totalClaimed: ZERO_BI,
+      totalClaimedUSDC: ZERO_BD,
+      updatedAt: timestamp,
+    };
+  }
+
+  context.UserFee.set({
+    ...userFee,
+    claimableAmount: userFee.claimableAmount + amount,
+    claimableAmountUSDC: userFee.claimableAmountUSDC.plus(
+      convertETHtoUSDCWithBundle(amount, bundle)
+    ),
+    lifetimeFees: userFee.lifetimeFees + amount,
+    updatedAt: timestamp,
+  });
+
+  // 2. Find the collection token from the pool
+  const poolLookup = await context.PoolCollectionLookup.get(poolId);
+  if (!poolLookup) return;
+
+  const collectionTokenId = poolLookup.collectionToken_id;
+
+  // 3. Create or update UserCollectionFee
+  const userCollectionFeeId = `${payee}-${collectionTokenId}`;
+  let userCollectionFee = await context.UserCollectionFee.get(userCollectionFeeId);
+  if (!userCollectionFee) {
+    userCollectionFee = {
+      id: userCollectionFeeId,
+      user_id: payee,
+      collectionToken_id: collectionTokenId,
+      lifetimeFees: ZERO_BI,
+      updatedAt: timestamp,
+    };
+  }
+
+  context.UserCollectionFee.set({
+    ...userCollectionFee,
+    lifetimeFees: userCollectionFee.lifetimeFees + amount,
+    updatedAt: timestamp,
+  });
+
+  // 4. Create or update CollectionFee
+  const collectionFeeId = collectionTokenId;
+  let collectionFee = await context.CollectionFee.get(collectionFeeId);
+  if (!collectionFee) {
+    collectionFee = {
+      id: collectionFeeId,
+      lifetimeFees: ZERO_BI,
+      updatedAt: timestamp,
+    };
+  }
+
+  context.CollectionFee.set({
+    ...collectionFee,
+    lifetimeFees: collectionFee.lifetimeFees + amount,
+    updatedAt: timestamp,
+  });
 });
 
 PositionManager1.Withdrawal.handler(async ({ event, context }) => {
   const sender = normalizeAddress(event.params._sender);
-  if (!(await context.User.get(sender))) context.User.set({ id: sender });
+  const recipient = normalizeAddress(event.params._recipient);
+  const amount = event.params._amount;
+  const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
+
+  // Ensure Users exist
+  if (!(await context.User.get(sender))) {
+    context.User.set({ id: sender });
+  }
+  if (!(await context.User.get(recipient))) {
+    context.User.set({ id: recipient });
+  }
+
+  // Get bundle for USD conversion
+  const bundle = await context.Bundle.get(BUNDLE_ID);
+
+  // Update UserFee - reset claimable, add to totalClaimed
+  const userFeeId = recipient;
+  let userFee = await context.UserFee.get(userFeeId);
+  if (!userFee) {
+    userFee = {
+      id: userFeeId,
+      payee_id: recipient,
+      claimableAmount: ZERO_BI,
+      claimableAmountUSDC: ZERO_BD,
+      lifetimeFees: ZERO_BI,
+      totalClaimed: ZERO_BI,
+      totalClaimedUSDC: ZERO_BD,
+      updatedAt: timestamp,
+    };
+  }
+
+  context.UserFee.set({
+    ...userFee,
+    claimableAmount: ZERO_BI,
+    claimableAmountUSDC: ZERO_BD,
+    totalClaimed: userFee.totalClaimed + amount,
+    totalClaimedUSDC: userFee.totalClaimedUSDC.plus(
+      convertETHtoUSDCWithBundle(amount, bundle)
+    ),
+    updatedAt: timestamp,
+  });
+
+  // Create UserFeeClaimed record
+  const userFeeClaimedId = `${txHash}-${event.logIndex}`;
+  context.UserFeeClaimed.set({
+    id: userFeeClaimedId,
+    payee_id: recipient,
+    amount,
+    amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
+    date: timestamp,
+    txHash,
+  });
 });
 
 PositionManager1.PoolPremine.handler(async ({ event, context }) => {

@@ -4,7 +4,7 @@
  */
 
 import { FlaunchNFT4 } from "generated";
-import { normalizeAddress } from "../utils/helpers";
+import { normalizeAddress, generateCollectionId } from "../utils/helpers";
 
 // =============================================================================
 // FLAUNCH NFT 4 HANDLERS
@@ -20,8 +20,8 @@ FlaunchNFT4.Transfer.handler(async ({ event, context }) => {
   if (!(await context.User.get(from))) context.User.set({ id: from });
   if (!(await context.User.get(to))) context.User.set({ id: to });
 
-  // Update Collection and CollectionToken owner
-  const collectionId = `${contractAddr}-${tokenId.toString()}`;
+  // Update Collection and CollectionToken owner - use subgraph-compatible ID format
+  const collectionId = generateCollectionId(contractAddr, tokenId);
   const collection = await context.Collection.get(collectionId);
   if (collection) {
     context.Collection.set({ ...collection, owner_id: to });

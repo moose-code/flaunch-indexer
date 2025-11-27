@@ -14,6 +14,7 @@ import { normalizeAddress } from "../utils/helpers";
 BidWall1.BidWallClosed.handler(async ({ event, context }) => {
   const poolId = event.params.poolId;
   const recipient = normalizeAddress(event.params.recipient);
+  const ethAmount = event.params.amount;
 
   const user = await context.User.get(recipient);
   if (!user) {
@@ -26,6 +27,15 @@ BidWall1.BidWallClosed.handler(async ({ event, context }) => {
       ...bidWall,
       closed: true,
       balance: ZERO_BI,
+    });
+  }
+
+  // Update MemecoinTreasury ETH balance (recipient is the treasury address)
+  const treasury = await context.MemecoinTreasury.get(recipient);
+  if (treasury) {
+    context.MemecoinTreasury.set({
+      ...treasury,
+      totalETH: treasury.totalETH + ethAmount,
     });
   }
 });
@@ -58,10 +68,38 @@ BidWall1.BidWallRepositioned.handler(async ({ event, context }) => {
 });
 
 BidWall1.BidWallRewardsTransferred.handler(async ({ event, context }) => {
+  const poolId = event.params.poolId;
   const recipient = normalizeAddress(event.params.recipient);
+  const tokensAmount = event.params.amount;
+  const txHash = event.transaction.hash || "";
+
   const user = await context.User.get(recipient);
   if (!user) {
     context.User.set({ id: recipient });
+  }
+
+  // Get pool to find collection token
+  const poolLookup = await context.PoolCollectionLookup.get(poolId);
+  if (!poolLookup) return;
+
+  const collectionTokenId = poolLookup.collectionToken_id;
+
+  // Create BidWallDistribution entity
+  context.BidWallDistribution.set({
+    id: `${poolId}-${txHash}`,
+    bidWall_id: poolId,
+    collectionToken_id: collectionTokenId,
+    amount: tokensAmount,
+    recipient_id: recipient,
+  });
+
+  // Update MemecoinTreasury token balance (recipient is the treasury address)
+  const treasury = await context.MemecoinTreasury.get(recipient);
+  if (treasury) {
+    context.MemecoinTreasury.set({
+      ...treasury,
+      totalToken: treasury.totalToken + tokensAmount,
+    });
   }
 });
 
@@ -95,6 +133,7 @@ BidWall1.BidWallDisabledStateUpdated.handler(async ({ event, context }) => {
 BidWall2.BidWallClosed.handler(async ({ event, context }) => {
   const poolId = event.params.poolId;
   const recipient = normalizeAddress(event.params.recipient);
+  const ethAmount = event.params.amount;
 
   const user = await context.User.get(recipient);
   if (!user) {
@@ -107,6 +146,15 @@ BidWall2.BidWallClosed.handler(async ({ event, context }) => {
       ...bidWall,
       closed: true,
       balance: ZERO_BI,
+    });
+  }
+
+  // Update MemecoinTreasury ETH balance (recipient is the treasury address)
+  const treasury = await context.MemecoinTreasury.get(recipient);
+  if (treasury) {
+    context.MemecoinTreasury.set({
+      ...treasury,
+      totalETH: treasury.totalETH + ethAmount,
     });
   }
 });
@@ -126,10 +174,38 @@ BidWall2.BidWallRepositioned.handler(async ({ event, context }) => {
 });
 
 BidWall2.BidWallRewardsTransferred.handler(async ({ event, context }) => {
+  const poolId = event.params.poolId;
   const recipient = normalizeAddress(event.params.recipient);
+  const tokensAmount = event.params.amount;
+  const txHash = event.transaction.hash || "";
+
   const user = await context.User.get(recipient);
   if (!user) {
     context.User.set({ id: recipient });
+  }
+
+  // Get pool to find collection token
+  const poolLookup = await context.PoolCollectionLookup.get(poolId);
+  if (!poolLookup) return;
+
+  const collectionTokenId = poolLookup.collectionToken_id;
+
+  // Create BidWallDistribution entity
+  context.BidWallDistribution.set({
+    id: `${poolId}-${txHash}`,
+    bidWall_id: poolId,
+    collectionToken_id: collectionTokenId,
+    amount: tokensAmount,
+    recipient_id: recipient,
+  });
+
+  // Update MemecoinTreasury token balance (recipient is the treasury address)
+  const treasury = await context.MemecoinTreasury.get(recipient);
+  if (treasury) {
+    context.MemecoinTreasury.set({
+      ...treasury,
+      totalToken: treasury.totalToken + tokensAmount,
+    });
   }
 });
 

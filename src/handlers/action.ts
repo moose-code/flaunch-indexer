@@ -4,7 +4,7 @@
  */
 
 import { ActionContract } from "generated";
-import { normalizeAddress } from "../utils/helpers";
+import { normalizeAddress, generateActivityId } from "../utils/helpers";
 
 // =============================================================================
 // ACTION CONTRACT HANDLERS
@@ -19,7 +19,8 @@ ActionContract.ActionExecuted.handler(async ({ event, context }) => {
   let action = await context.MemecoinAction.get(actionAddress);
 
   if (action && action.approved) {
-    const activityId = `${txHash}-${action.totalActions}`;
+    // Use subgraph-compatible ID format
+    const activityId = generateActivityId(txHash, action.totalActions);
 
     // Increment action count
     context.MemecoinAction.set({

@@ -5,7 +5,7 @@
 
 import { BigDecimal } from "generated";
 import { ZERO_BI, ZERO_BD, CONFIG_ID, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, absBigInt } from "../utils/helpers";
+import { normalizeAddress, absBigInt, generateCollectionId } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 import {
   getBidWallAddressForPositionManager,
@@ -73,7 +73,8 @@ export async function createPoolEntities(
   // Get Flaunch and BidWall addresses
   const flaunchAddr =
     getFlaunchAddressForPositionManager(positionManager) || positionManager;
-  const collectionId = `${flaunchAddr}-${tokenId.toString()}`;
+  // Use subgraph-compatible Collection ID format
+  const collectionId = generateCollectionId(flaunchAddr, tokenId);
   const bidWallAddr =
     getBidWallAddressForPositionManager(positionManager) || positionManager;
 

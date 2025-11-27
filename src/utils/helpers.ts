@@ -240,6 +240,45 @@ export function normalizeAddress(address: string): string {
 }
 
 /**
+ * Generate Collection ID to match subgraph format.
+ * Subgraph uses: flaunchAddr.concatI32(tokenId.toI32()).toHexString()
+ * This concatenates the address bytes with the tokenId as a 4-byte int32.
+ */
+export function generateCollectionId(
+  flaunchAddr: string,
+  tokenId: bigint
+): string {
+  // Normalize address and remove 0x prefix
+  const addrHex = normalizeAddress(flaunchAddr).replace("0x", "");
+
+  // Convert tokenId to 4-byte int32 hex (big-endian)
+  const tokenIdNum = Number(tokenId);
+  const tokenIdHex = tokenIdNum.toString(16).padStart(8, "0");
+
+  // Concatenate and add 0x prefix
+  return "0x" + addrHex + tokenIdHex;
+}
+
+/**
+ * Generate Activity ID to match subgraph format.
+ * Subgraph uses: txHash.concatI32(totalActions.toI32())
+ */
+export function generateActivityId(
+  txHash: string,
+  actionCount: bigint
+): string {
+  // Normalize txHash and remove 0x prefix
+  const hashHex = txHash.toLowerCase().replace("0x", "");
+
+  // Convert actionCount to 4-byte int32 hex (big-endian)
+  const countNum = Number(actionCount);
+  const countHex = countNum.toString(16).padStart(8, "0");
+
+  // Concatenate and add 0x prefix
+  return "0x" + hashHex + countHex;
+}
+
+/**
  * Check if two addresses are equal (case-insensitive)
  */
 export function addressesEqual(a: string, b: string): boolean {

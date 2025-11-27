@@ -7,6 +7,7 @@ networks:
       - name: AnyPositionManager
         address:
           - 0x2ad43d0618b1d8a0cc75cf716cf0bf64070725dc
+          - 0x8dc3b85e1dc1c846ebf3971179a751896842e5dc # AnyPositionManager2
         handler: src/EventHandlers.ts
         events:
           - event: FeeCalculatorUpdated(address _feeCalculator)
@@ -167,18 +168,24 @@ networks:
         handler: src/EventHandlers.ts
         events:
           - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+          - event: Approval(address indexed owner, address indexed account, uint256 indexed id)
+          - event: ApprovalForAll(address indexed owner, address indexed operator, bool isApproved)
       - name: FlaunchNFT2
         address:
           - 0xb4512bf57d50fbcb64a3adf8b17a79b2a204c18c
         handler: src/EventHandlers.ts
         events:
           - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+          - event: Approval(address indexed owner, address indexed account, uint256 indexed id)
+          - event: ApprovalForAll(address indexed owner, address indexed operator, bool isApproved)
       - name: FlaunchNFT3
         address:
           - 0x0cf6bdf0a85a9d6763361037985b76c8893553af
         handler: src/EventHandlers.ts
         events:
           - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+          - event: Approval(address indexed owner, address indexed account, uint256 indexed id)
+          - event: ApprovalForAll(address indexed owner, address indexed operator, bool isApproved)
       - name: AnyFlaunchNFT
         address:
           - 0xf175a370eb26ea26c42caaecd10ee723ed844c50
@@ -186,12 +193,16 @@ networks:
         handler: src/EventHandlers.ts
         events:
           - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+          - event: Approval(address indexed owner, address indexed account, uint256 indexed id)
+          - event: ApprovalForAll(address indexed owner, address indexed operator, bool isApproved)
       - name: FlaunchNFT4
         address:
           - 0x516af52d0c629b5e378da4dc64ecb0744ce10109
         handler: src/EventHandlers.ts
         events:
           - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+          - event: Approval(address indexed owner, address indexed account, uint256 indexed id)
+          - event: ApprovalForAll(address indexed owner, address indexed operator, bool isApproved)
       - name: FlayBurner
         address:
           - 0x94e1Ea82515c79159349bB38919B083E7D888Ce9
