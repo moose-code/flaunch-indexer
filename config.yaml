@@ -23,7 +23,7 @@ networks:
           - event: ReferralEscrowUpdated(address _referralEscrow)
       - name: PositionManager1
         address:
-          - 0x51Bba15255406Cfe7099a42183302640ba7dAFDC
+          - 0x51bba15255406cfe7099a42183302640ba7dafdc
         handler: src/EventHandlers.ts
         events:
           - event: CreatorFeeAllocationUpdated(bytes32 indexed _poolId, uint24 _allocation)
@@ -88,27 +88,27 @@ networks:
           - event: ReferralEscrowUpdated(address _referralEscrow)
       - name: PoolManager
         address:
-          - 0x498581fF718922c3f8e6A244956aF099B2652b2b
+          - 0x498581ff718922c3f8e6a244956af099b2652b2b
         handler: src/EventHandlers.ts
         events:
           - event: Swap(bytes32 indexed poolId, address indexed sender, int128 amount0, int128 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick, uint24 fee)
       - name: ActionManager1
         address:
-          - 0xeC2a53F572cFD952aAA3a8359Ac54B31d0A186a4
+          - 0xec2a53f572cfd952aaa3a8359ac54b31d0a186a4
         handler: src/EventHandlers.ts
         events:
           - event: ActionApproved(address indexed action)
           - event: ActionUnapproved(address indexed action)
       - name: ActionManager2
         address:
-          - 0xFB5c20c4E60c9c64648DD3692437E3E313Add4A4
+          - 0xfb5c20c4e60c9c64648dd3692437e3e313add4a4
         handler: src/EventHandlers.ts
         events:
           - event: ActionApproved(address indexed action)
           - event: ActionUnapproved(address indexed action)
       - name: BidWall1
         address:
-          - 0x66681f10BA90496241A25e33380004f30Dfd8aa8
+          - 0x66681f10ba90496241a25e33380004f30dfd8aa8
         handler: src/EventHandlers.ts
         events:
           - event: BidWallClosed(bytes32 indexed poolId, address recipient, uint256 amount)
@@ -118,8 +118,8 @@ networks:
           - event: BidWallDisabledStateUpdated(bytes32 indexed poolId, bool disabled)
       - name: BidWall2
         address:
-          - 0x7f22353d1634223a802D1c1Ea5308Ddf5DD0ef9c
-          - 0x2154c604df568A5285284D1c4918DC98C39240df # AnyBidWall
+          - 0x7f22353d1634223a802d1c1ea5308ddf5dd0ef9c
+          - 0x2154c604df568a5285284d1c4918dc98c39240df # AnyBidWall
         handler: src/EventHandlers.ts
         events:
           - event: BidWallClosed(bytes32 indexed poolId, address recipient, uint256 amount)
@@ -130,14 +130,14 @@ networks:
           - event: StaleTimeWindowUpdated(uint256 staleTimeWindow)
       - name: FeeEscrow
         address:
-          - 0x72e6f7948b1B1A343B477F39aAbd2E35E6D27dde
+          - 0x72e6f7948b1b1a343b477f39aabd2e35e6d27dde
         handler: src/EventHandlers.ts
         events:
           - event: Deposit(bytes32 indexed poolId, address sender, address token, uint256 amount)
           - event: Withdrawal(address sender, address recipient, address token, uint256 amount)
       - name: FeeExemptions
         address:
-          - 0xfdCE459071c74b732B2dEC579Afb38Ea552C4e06
+          - 0xfdce459071c74b732b2dec579afb38ea552c4e06
         handler: src/EventHandlers.ts
         events:
           - event: BeneficiaryFeeRemoved(address beneficiary)
@@ -150,7 +150,7 @@ networks:
           - event: FeeExemptionUpdated(address indexed user, bool exempt)
       - name: FairLaunch1
         address:
-          - 0xCc7A4A00072ccbeEEbd999edc812C0ce498Fb63B
+          - 0xcc7a4a00072ccbeeebd999edc812c0ce498fb63b
         handler: src/EventHandlers.ts
         events:
           - event: FairLaunchEnded(bytes32 indexed poolId, uint256 totalRaised, uint256 liquidityAdded, uint256 refundAmount)
@@ -164,7 +164,7 @@ networks:
           - event: FairLaunchCreated(bytes32 indexed poolId, uint256 targetAmount, uint256 maxAmount, uint256 deadline)
       - name: FlaunchNFT1
         address:
-          - 0x6A53F8b799bE11a2A3264eF0bfF183dCB12d9571
+          - 0x6a53f8b799be11a2a3264ef0bff183dcb12d9571
         handler: src/EventHandlers.ts
         events:
           - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
@@ -205,7 +205,7 @@ networks:
           - event: ApprovalForAll(address indexed owner, address indexed operator, bool isApproved)
       - name: FlayBurner
         address:
-          - 0x94e1Ea82515c79159349bB38919B083E7D888Ce9
+          - 0x94e1ea82515c79159349bb38919b083e7d888ce9
         handler: src/EventHandlers.ts
         events:
           - event: BurnerUpdated(address burner)
@@ -219,7 +219,7 @@ networks:
           - event: EthBalanceUpdated(uint256 balance)
       - name: Locker
         address:
-          - 0x9EB1F3Bf4D2e8CD17347d062b164aD6B1Ade6a4E
+          - 0x9eb1f3bf4d2e8cd17347d062b164ad6b1ade6a4e
         handler: src/EventHandlers.ts
         events:
           - event: Paused(address account)
@@ -235,7 +235,7 @@ networks:
           - event: VerifierRemoved(address indexed _verifier)
       - name: TreasuryManagerFactory
         address:
-          - 0x48af8b28DDC5e5A86c4906212fc35Fa808CA8763
+          - 0x48af8b28ddc5e5a86c4906212fc35fa808ca8763
         handler: src/EventHandlers.ts
         events:
           - event: ManagerImplementationUnapproved(address indexed implementation)
@@ -338,6 +338,7 @@ networks:
 
 unordered_multichain_mode: true
 preload_handlers: true
+address_format: lowercase
 
 field_selection:
   transaction_fields:

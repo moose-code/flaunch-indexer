@@ -8,9 +8,10 @@ import { createPublicClient, http, erc20Abi } from "viem";
 import { base } from "viem/chains";
 
 // Create a viem client for Base
+// Use ENVIO_ prefix for hosted service compatibility
 const client = createPublicClient({
   chain: base,
-  transport: http(process.env.RPC_URL_8453 || "https://mainnet.base.org"),
+  transport: http(process.env.ENVIO_RPC_URL_8453 || process.env.RPC_URL_8453 || "https://mainnet.base.org"),
 });
 
 /**

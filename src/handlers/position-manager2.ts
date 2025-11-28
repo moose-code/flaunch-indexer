@@ -34,6 +34,7 @@ PositionManager2.PoolCreated.handler(async ({ event, context }) => {
   const paramsData = event.params._params;
   const name = paramsData[0] || "Unknown";
   const symbol = paramsData[1] || "UNKNOWN";
+  const initialSupply = BigInt(paramsData[3] || "0");
   const creator = normalizeAddress(paramsData[6]); // Different index for PM2
 
   await createPoolEntities(
@@ -48,7 +49,8 @@ PositionManager2.PoolCreated.handler(async ({ event, context }) => {
     positionManager,
     name,
     symbol,
-    creator
+    creator,
+    initialSupply
   );
 });
 
@@ -183,5 +185,7 @@ PositionManager2.PoolScheduled.handler(async ({ event, context }) => {
     context.Pool.set({ ...pool, liveAtTimestamp: flaunchesAt });
   }
 });
+
+
 
 

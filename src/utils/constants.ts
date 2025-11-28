@@ -16,7 +16,7 @@ export const ONE_BD = BigDecimal("1");
  * Singleton IDs
  */
 export const CONFIG_ID = "flaunch-config";
-export const BUNDLE_ID = "eth-price-bundle";
+export const BUNDLE_ID = "1"; // Match subgraph convention
 export const BURNER_ID = "flay-burner";
 
 /**
@@ -45,4 +45,3 @@ export const DEFAULT_DECIMALS = 18;
  */
 export const Q96 = 2n ** 96n;
 export const Q192 = 2n ** 192n;
-

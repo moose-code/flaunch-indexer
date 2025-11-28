@@ -35,6 +35,7 @@ PositionManager1.PoolCreated.handler(async ({ event, context }) => {
   const paramsData = event.params._params;
   const name = paramsData[0] || "Unknown";
   const symbol = paramsData[1] || "UNKNOWN";
+  const initialSupply = BigInt(paramsData[3] || "0");
   const creator = normalizeAddress(paramsData[5]);
 
   await createPoolEntities(
@@ -49,7 +50,8 @@ PositionManager1.PoolCreated.handler(async ({ event, context }) => {
     positionManager,
     name,
     symbol,
-    creator
+    creator,
+    initialSupply
   );
 });
 
@@ -394,5 +396,7 @@ PositionManager1.OwnershipHandoverRequested.handler(
 PositionManager1.OwnershipHandoverCanceled.handler(
   async ({ event, context }) => {}
 );
+
+
 
 

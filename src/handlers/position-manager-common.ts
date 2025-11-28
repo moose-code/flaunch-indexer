@@ -18,6 +18,7 @@ import {
   updateToken15MinuteData,
   updateToken4HourData,
 } from "../utils/timeseries";
+import { fetchTokenTotalSupply, fetchTokenURI } from "../effects/token-metadata";
 
 /**
  * Create all entities for a new pool
@@ -34,7 +35,8 @@ export async function createPoolEntities(
   positionManager: string,
   name: string,
   symbol: string,
-  creator: string
+  creator: string,
+  initialSupply: bigint = ZERO_BI
 ) {
   // Ensure Bundle exists for ETH price
   let bundle = await context.Bundle.get(BUNDLE_ID);
@@ -190,7 +192,7 @@ export async function createPoolEntities(
     active: true,
     collectionToken_id: memecoin,
     tick: 0,
-    initialSupply: ZERO_BI,
+    initialSupply: initialSupply,
     soldInitialSupply: ZERO_BI,
     ethEarned: ZERO_BI,
     starts_at: timestamp,
@@ -234,6 +236,28 @@ export async function createPoolEntities(
     ...config,
     collectionCount: config.collectionCount + 1n,
   });
+
+  // Fetch totalSupply and tokenURI via RPC call effects
+  const [totalSupply, tokenURI] = await Promise.all([
+    context.effect(fetchTokenTotalSupply, { address: memecoin }),
+    context.effect(fetchTokenURI, { address: memecoin }),
+  ]);
+
+  // Extract baseURI from tokenURI (strip ipfs:// prefix if present)
+  let baseURI = tokenURI || "";
+  if (baseURI.startsWith("ipfs://")) {
+    baseURI = baseURI.replace("ipfs://", "");
+  }
+
+  // Update the CollectionToken with the fetched data
+  const token = await context.CollectionToken.get(memecoin);
+  if (token) {
+    context.CollectionToken.set({
+      ...token,
+      totalSupply,
+      baseURI,
+    });
+  }
 }
 
 /**
@@ -581,5 +605,7 @@ export async function processPoolFeesDistributed(
     protocolAmount,
   });
 }
+
+
 
 

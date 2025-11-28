@@ -32,7 +32,7 @@ export async function updateTokenDayData(
   if (!dayData) {
     dayData = {
       id: tokenDayId,
-      date: dayId,
+      date: dayStartTimestamp, // Use Unix timestamp to match subgraph
       periodStartUnix: dayStartTimestamp,
       token_id: token.id,
       pool_id: token.pool_id,
@@ -63,7 +63,7 @@ export async function updateTokenDayData(
     let priceHighUSDC = dayData.priceHighUSDC;
     let priceLow = dayData.priceLow;
     let priceLowUSDC = dayData.priceLowUSDC;
-    
+
     if (tokenPrice > dayData.priceHigh) {
       priceHigh = tokenPrice;
       priceHighUSDC = convertETHtoUSDCWithBundle(tokenPrice, bundle);
@@ -72,7 +72,7 @@ export async function updateTokenDayData(
       priceLow = tokenPrice;
       priceLowUSDC = convertETHtoUSDCWithBundle(tokenPrice, bundle);
     }
-    
+
     dayData = {
       ...dayData,
       priceHigh,
@@ -91,7 +91,7 @@ export async function updateTokenDayData(
       totalVolumeUSDC: convertETHtoUSDCWithBundle(token.volumeETH, bundle),
     };
   }
-  
+
   context.TokenDayData.set(dayData);
   return dayData;
 }
@@ -146,7 +146,7 @@ export async function updateTokenHourData(
     let priceHighUSDC = hourData.priceHighUSDC;
     let priceLow = hourData.priceLow;
     let priceLowUSDC = hourData.priceLowUSDC;
-    
+
     if (tokenPrice > hourData.priceHigh) {
       priceHigh = tokenPrice;
       priceHighUSDC = convertETHtoUSDCWithBundle(tokenPrice, bundle);
@@ -155,7 +155,7 @@ export async function updateTokenHourData(
       priceLow = tokenPrice;
       priceLowUSDC = convertETHtoUSDCWithBundle(tokenPrice, bundle);
     }
-    
+
     hourData = {
       ...hourData,
       priceHigh,
@@ -174,7 +174,7 @@ export async function updateTokenHourData(
       totalVolumeUSDC: convertETHtoUSDCWithBundle(token.volumeETH, bundle),
     };
   }
-  
+
   context.TokenHourData.set(hourData);
   return hourData;
 }
@@ -228,7 +228,7 @@ export async function updateTokenMinuteData(
     let priceHighUSDC = minuteData.priceHighUSDC;
     let priceLow = minuteData.priceLow;
     let priceLowUSDC = minuteData.priceLowUSDC;
-    
+
     if (tokenPrice > minuteData.priceHigh) {
       priceHigh = tokenPrice;
       priceHighUSDC = convertETHtoUSDCWithBundle(tokenPrice, bundle);
@@ -237,7 +237,7 @@ export async function updateTokenMinuteData(
       priceLow = tokenPrice;
       priceLowUSDC = convertETHtoUSDCWithBundle(tokenPrice, bundle);
     }
-    
+
     minuteData = {
       ...minuteData,
       priceHigh,
@@ -256,7 +256,7 @@ export async function updateTokenMinuteData(
       totalVolumeUSDC: convertETHtoUSDCWithBundle(token.volumeETH, bundle),
     };
   }
-  
+
   context.TokenMinuteData.set(minuteData);
   return minuteData;
 }
@@ -310,7 +310,7 @@ export async function updateToken15MinuteData(
     let priceHighUSDC = data.priceHighUSDC;
     let priceLow = data.priceLow;
     let priceLowUSDC = data.priceLowUSDC;
-    
+
     if (tokenPrice > data.priceHigh) {
       priceHigh = tokenPrice;
       priceHighUSDC = convertETHtoUSDCWithBundle(tokenPrice, bundle);
@@ -319,7 +319,7 @@ export async function updateToken15MinuteData(
       priceLow = tokenPrice;
       priceLowUSDC = convertETHtoUSDCWithBundle(tokenPrice, bundle);
     }
-    
+
     data = {
       ...data,
       priceHigh,
@@ -338,7 +338,7 @@ export async function updateToken15MinuteData(
       totalVolumeUSDC: convertETHtoUSDCWithBundle(token.volumeETH, bundle),
     };
   }
-  
+
   context.Token15MinuteData.set(data);
   return data;
 }
@@ -392,7 +392,7 @@ export async function updateToken4HourData(
     let priceHighUSDC = data.priceHighUSDC;
     let priceLow = data.priceLow;
     let priceLowUSDC = data.priceLowUSDC;
-    
+
     if (tokenPrice > data.priceHigh) {
       priceHigh = tokenPrice;
       priceHighUSDC = convertETHtoUSDCWithBundle(tokenPrice, bundle);
@@ -401,7 +401,7 @@ export async function updateToken4HourData(
       priceLow = tokenPrice;
       priceLowUSDC = convertETHtoUSDCWithBundle(tokenPrice, bundle);
     }
-    
+
     data = {
       ...data,
       priceHigh,
@@ -420,7 +420,7 @@ export async function updateToken4HourData(
       totalVolumeUSDC: convertETHtoUSDCWithBundle(token.volumeETH, bundle),
     };
   }
-  
+
   context.Token4HourData.set(data);
   return data;
 }

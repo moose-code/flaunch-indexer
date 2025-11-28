@@ -243,6 +243,7 @@ export function normalizeAddress(address: string): string {
  * Generate Collection ID to match subgraph format.
  * Subgraph uses: flaunchAddr.concatI32(tokenId.toI32()).toHexString()
  * This concatenates the address bytes with the tokenId as a 4-byte int32.
+ * AssemblyScript's concatI32 uses LITTLE-ENDIAN byte order.
  */
 export function generateCollectionId(
   flaunchAddr: string,
@@ -251,17 +252,21 @@ export function generateCollectionId(
   // Normalize address and remove 0x prefix
   const addrHex = normalizeAddress(flaunchAddr).replace("0x", "");
 
-  // Convert tokenId to 4-byte int32 hex (big-endian)
+  // Convert tokenId to 4-byte int32 hex in LITTLE-ENDIAN format
+  // (to match AssemblyScript's concatI32 behavior)
   const tokenIdNum = Number(tokenId);
   const tokenIdHex = tokenIdNum.toString(16).padStart(8, "0");
+  // Reverse byte order: "00001f5d" -> "5d1f0000"
+  const littleEndian = tokenIdHex.match(/.{2}/g)!.reverse().join("");
 
   // Concatenate and add 0x prefix
-  return "0x" + addrHex + tokenIdHex;
+  return "0x" + addrHex + littleEndian;
 }
 
 /**
  * Generate Activity ID to match subgraph format.
  * Subgraph uses: txHash.concatI32(totalActions.toI32())
+ * AssemblyScript's concatI32 uses LITTLE-ENDIAN byte order.
  */
 export function generateActivityId(
   txHash: string,
@@ -270,12 +275,14 @@ export function generateActivityId(
   // Normalize txHash and remove 0x prefix
   const hashHex = txHash.toLowerCase().replace("0x", "");
 
-  // Convert actionCount to 4-byte int32 hex (big-endian)
+  // Convert actionCount to 4-byte int32 hex in LITTLE-ENDIAN format
   const countNum = Number(actionCount);
   const countHex = countNum.toString(16).padStart(8, "0");
+  // Reverse byte order to match AssemblyScript's concatI32
+  const littleEndian = countHex.match(/.{2}/g)!.reverse().join("");
 
   // Concatenate and add 0x prefix
-  return "0x" + hashHex + countHex;
+  return "0x" + hashHex + littleEndian;
 }
 
 /**
@@ -284,4 +291,3 @@ export function generateActivityId(
 export function addressesEqual(a: string, b: string): boolean {
   return a.toLowerCase() === b.toLowerCase();
 }
-
