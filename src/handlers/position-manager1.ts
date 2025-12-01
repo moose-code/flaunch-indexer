@@ -11,6 +11,7 @@ import {
   processPoolSwap,
   processPoolFeesReceived,
   processPoolFeesDistributed,
+  processPoolStateUpdated,
 } from "./position-manager-common";
 
 // =============================================================================
@@ -31,14 +32,15 @@ PositionManager1.PoolCreated.handler(async ({ event, context }) => {
   const timestamp = BigInt(event.block.timestamp);
   const positionManager = normalizeAddress(event.srcAddress);
 
-  // PM1 params: [name, symbol, tokenURI, initialSupply, maxSupply, creator, uint24, uint256, bytes fairLaunchParams, bytes initialPriceParams]
+  // PM1 params: [name, symbol, tokenURI, initialSupply, maxSupply, creator, uint24, uint256, bytes initialPriceParams, bytes feeCalculatorParams]
+  // Indices:      0      1        2          3            4         5       6       7              8                      9
   const paramsData = event.params._params;
   const name = paramsData[0] || "Unknown";
   const symbol = paramsData[1] || "UNKNOWN";
   const initialSupply = BigInt(paramsData[3] || "0");
   const creator = normalizeAddress(paramsData[5]);
-  // Parse startingMarketCap from initialPriceParams (index 9)
-  const initialPriceParams = paramsData[9] as string;
+  // Parse startingMarketCap from initialPriceParams (index 8, second-to-last)
+  const initialPriceParams = paramsData[8] as string;
   const startingMarketCap = initialPriceParams ? getBigIntFromBytes(initialPriceParams) : ZERO_BI;
 
   await createPoolEntities(
@@ -64,26 +66,13 @@ PositionManager1.PoolSwap.handler(async ({ event, context }) => {
 });
 
 PositionManager1.PoolStateUpdated.handler(async ({ event, context }) => {
-  const poolId = event.params._poolId;
-  const pool = await context.Pool.get(poolId);
-  if (!pool) return;
-
-  context.Pool.set({
-    ...pool,
-    sqrtPriceX96: event.params._sqrtPriceX96,
-    liquidity: event.params._liquidity,
-    tick: Number(event.params._tick),
-  });
-
-  if (!pool.fairLaunchedEnded) {
-    const fairLaunch = await context.FairLaunch.get(poolId);
-    if (fairLaunch) {
-      context.FairLaunch.set({
-        ...fairLaunch,
-        tick: Number(event.params._tick),
-      });
-    }
-  }
+  await processPoolStateUpdated(
+    context,
+    event.params._poolId,
+    event.params._sqrtPriceX96,
+    event.params._liquidity,
+    Number(event.params._tick)
+  );
 });
 
 PositionManager1.PoolFeesReceived.handler(async ({ event, context }) => {

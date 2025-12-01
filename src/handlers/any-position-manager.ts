@@ -19,6 +19,7 @@ import {
   updateToken15MinuteData,
   updateToken4HourData,
 } from "../utils/timeseries";
+import { processPoolStateUpdated } from "./position-manager-common";
 
 const DEFAULT_FEE_DISTRIBUTION_ID = CONFIG_ID;
 
@@ -93,11 +94,12 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
   const timestamp = BigInt(event.block.timestamp);
   const positionManager = normalizeAddress(event.srcAddress);
 
-  // Extract params from tuple: [address creator, address, uint24, bytes fairLaunchParams, bytes initialPriceParams] for AnyPositionManager
+  // Extract params from tuple: [address creator, address, uint24, bytes initialPriceParams, bytes feeCalculatorParams] for AnyPositionManager
+  // Indices:                         0              1       2              3                      4
   const paramsData = event.params._params;
   const creator = normalizeAddress(paramsData[0]);
-  // Parse startingMarketCap from initialPriceParams (index 4 for AnyPositionManager)
-  const initialPriceParams = paramsData[4] as string;
+  // Parse startingMarketCap from initialPriceParams (index 3, second-to-last)
+  const initialPriceParams = paramsData[3] as string;
   const startingMarketCap = initialPriceParams ? getBigIntFromBytes(initialPriceParams) : ZERO_BI;
 
   // Ensure Bundle exists for ETH price
@@ -515,23 +517,13 @@ AnyPositionManager.PoolSwap.handler(async ({ event, context }) => {
 });
 
 AnyPositionManager.PoolStateUpdated.handler(async ({ event, context }) => {
-  const poolId = event.params._poolId;
-  const pool = await context.Pool.get(poolId);
-  if (!pool) return;
-  context.Pool.set({
-    ...pool,
-    sqrtPriceX96: event.params._sqrtPriceX96,
-    liquidity: event.params._liquidity,
-    tick: Number(event.params._tick),
-  });
-  if (!pool.fairLaunchedEnded) {
-    const fairLaunch = await context.FairLaunch.get(poolId);
-    if (fairLaunch)
-      context.FairLaunch.set({
-        ...fairLaunch,
-        tick: Number(event.params._tick),
-      });
-  }
+  await processPoolStateUpdated(
+    context,
+    event.params._poolId,
+    event.params._sqrtPriceX96,
+    event.params._liquidity,
+    Number(event.params._tick)
+  );
 });
 
 AnyPositionManager.PoolFeesReceived.handler(async ({ event, context }) => {

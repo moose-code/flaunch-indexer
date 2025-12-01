@@ -6,7 +6,7 @@
 import { BigDecimal } from "generated";
 import { ZERO_BI, ZERO_BD, CONFIG_ID, BUNDLE_ID } from "../utils/constants";
 import { normalizeAddress, absBigInt, generateCollectionId } from "../utils/helpers";
-import { convertETHtoUSDCWithBundle } from "../utils/pricing";
+import { convertETHtoUSDCWithBundle, sqrtPriceX96ToTokenPrices } from "../utils/pricing";
 import {
   getBidWallAddressForPositionManager,
   getFlaunchAddressForPositionManager,
@@ -284,6 +284,74 @@ export async function createPoolEntities(
 }
 
 /**
+ * Process a pool state updated event (PoolInitialized in subgraph terms)
+ * Calculates startingMarketCapETH on first state update
+ */
+export async function processPoolStateUpdated(
+  context: any,
+  poolId: string,
+  sqrtPriceX96: bigint,
+  liquidity: bigint,
+  tick: number
+) {
+  const pool = await context.Pool.get(poolId);
+  if (!pool) return;
+
+  // Update pool state
+  let updatedPool = {
+    ...pool,
+    sqrtPriceX96,
+    liquidity,
+    tick,
+  };
+
+  // Calculate startingMarketCapETH if not yet set (matches subgraph PoolInitialized behavior)
+  if (pool.startingMarketCapETH === ZERO_BI) {
+    const collectionToken = await context.CollectionToken.get(pool.collectionToken_id);
+    if (collectionToken && collectionToken.totalSupply > ZERO_BI) {
+      const decimals = collectionToken.decimals || 18;
+
+      // Calculate prices from sqrtPriceX96
+      // Our sqrtPriceX96ToTokenPrices returns: price0 = token1/token0, price1 = token0/token1
+      let prices: [bigint, bigint];
+      if (!pool.flipped) {
+        // ETH is token0, collectionToken is token1
+        prices = sqrtPriceX96ToTokenPrices(sqrtPriceX96, 18, decimals);
+      } else {
+        // collectionToken is token0, ETH is token1
+        prices = sqrtPriceX96ToTokenPrices(sqrtPriceX96, decimals, 18);
+      }
+
+      // Get ETH per token (derivedETH)
+      // When not flipped: prices[1] = token0/token1 = ETH/collectionToken
+      // When flipped: prices[0] = token1/token0 = ETH/collectionToken
+      const price = !pool.flipped ? prices[1] : prices[0];
+
+      if (price > ZERO_BI) {
+        // startingMarketCapETH = (totalSupply / 10^decimals) * price
+        // price is already in 18 decimal precision from our pricing function
+        const divisor = 10n ** BigInt(decimals);
+        const startingMarketCapETH = (collectionToken.totalSupply * price) / divisor;
+        updatedPool = { ...updatedPool, startingMarketCapETH };
+      }
+    }
+  }
+
+  context.Pool.set(updatedPool);
+
+  // Update FairLaunch tick if not ended
+  if (!pool.fairLaunchedEnded) {
+    const fairLaunch = await context.FairLaunch.get(poolId);
+    if (fairLaunch) {
+      context.FairLaunch.set({
+        ...fairLaunch,
+        tick,
+      });
+    }
+  }
+}
+
+/**
  * Process a pool swap event
  */
 export async function processPoolSwap(
@@ -415,21 +483,6 @@ export async function processPoolSwap(
         volumeETH: fourHourData.volumeETH + totalETHAmount,
       });
     }
-  }
-
-  // Calculate startingMarketCapETH if not yet set (on first swap)
-  if (pool.startingMarketCapETH === ZERO_BI && collectionToken && collectionToken.derivedETH > ZERO_BI) {
-    // startingMarketCapETH = (totalSupply * derivedETH) / 10^decimals
-    const totalSupply = BigInt(collectionToken.totalSupply.toString());
-    const derivedETH = BigInt(collectionToken.derivedETH.toString());
-    const decimals = Number(collectionToken.decimals);
-    const divisor = 10n ** BigInt(decimals);
-    const startingMarketCapETH = divisor > 0n ? (totalSupply * derivedETH) / divisor : ZERO_BI;
-
-    context.Pool.set({
-      ...pool,
-      startingMarketCapETH,
-    });
   }
 
   // Create PoolSwap entity

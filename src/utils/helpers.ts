@@ -137,17 +137,46 @@ export function sqrtPriceX96ToTokenPrices(
 
 /**
  * Get BigInt from hex bytes
+ * Matches subgraph behavior: extracts first 32 bytes (64 hex chars) from the bytes string
  * Handles empty bytes ("0x" or "") by returning 0n
+ *
+ * @param bytes - Hex string of bytes, e.g., "0x000000000000000000000000000000000000000000000000000000012a05f200"
  */
 export function getBigIntFromBytes(bytes: string): bigint {
   // Handle empty or invalid bytes
-  if (!bytes || bytes === "0x" || bytes === "") {
+  if (!bytes || bytes === "0x" || bytes === "" || bytes.length < 3) {
     return 0n;
   }
-  if (bytes.startsWith("0x")) {
-    return BigInt(bytes);
+
+  // Normalize to lowercase
+  let normalized = bytes.toLowerCase();
+
+  // Determine if string has 0x prefix and adjust accordingly
+  let hexPortion: string;
+  if (normalized.startsWith("0x")) {
+    // Has 0x prefix - extract first 32 bytes (64 hex chars) after the prefix
+    // substring(2, 66) gets chars 2-65 (64 chars = 32 bytes)
+    hexPortion = normalized.substring(2, 66);
+  } else {
+    // No 0x prefix - extract first 64 hex chars directly
+    hexPortion = normalized.substring(0, 64);
   }
-  return BigInt("0x" + bytes);
+
+  // Handle empty extraction
+  if (!hexPortion || hexPortion.length === 0) {
+    return 0n;
+  }
+
+  // Ensure we have a valid hex string
+  if (!/^[0-9a-f]+$/i.test(hexPortion)) {
+    return 0n;
+  }
+
+  try {
+    return BigInt("0x" + hexPortion);
+  } catch {
+    return 0n;
+  }
 }
 
 /**
