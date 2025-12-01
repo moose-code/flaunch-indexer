@@ -114,12 +114,18 @@ PoolManager.Swap.handler(async ({ event, context }) => {
   }
 
   // Update collectionToken with new prices
-  const derivedETH = !pool.flipped ? prices[0] : prices[1];
-  const tokenPrice = !pool.flipped ? prices[1] : prices[0];
+  // My sqrtPriceX96ToTokenPrices returns: price0 = token1/token0, price1 = token0/token1
+  // derivedETH should be ETH per token (token0/token1 when ETH is token0)
+  // tokenPrice should be token per ETH (token1/token0 when ETH is token0)
+  const derivedETH = !pool.flipped ? prices[1] : prices[0];
+  const tokenPrice = !pool.flipped ? prices[0] : prices[1];
 
   // Calculate market cap
+  // totalSupplyScaled = human-readable token count (e.g., 100 billion)
+  // derivedETH = ETH per token in 18 decimal precision
+  // marketCapETH should be in wei (18 decimals), so don't divide by 10^18
   const totalSupplyScaled = collectionToken.totalSupply / (10n ** BigInt(decimals));
-  const marketCapETH = totalSupplyScaled * derivedETH / (10n ** 18n);
+  const marketCapETH = totalSupplyScaled * derivedETH;
   const marketCapUSDC = convertETHtoUSDCWithBundle(marketCapETH, bundle);
 
   // Update CollectionToken
