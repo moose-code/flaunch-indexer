@@ -114,7 +114,7 @@ networks:
           - event: BidWallClosed(bytes32 indexed poolId, address recipient, uint256 amount)
           - event: BidWallRepositioned(bytes32 indexed poolId, uint256 liquidity, int24 tickLower, int24 tickUpper)
           - event: BidWallRewardsTransferred(bytes32 indexed poolId, address recipient, uint256 amount)
-          - event: BidWallDeposit(bytes32 indexed poolId, uint256 amount0, uint256 amount1)
+          - event: BidWallDeposit(bytes32 indexed poolId, uint256 added, uint256 pending)
           - event: BidWallDisabledStateUpdated(bytes32 indexed poolId, bool disabled)
       - name: BidWall2
         address:
@@ -125,7 +125,7 @@ networks:
           - event: BidWallClosed(bytes32 indexed poolId, address recipient, uint256 amount)
           - event: BidWallRepositioned(bytes32 indexed poolId, uint256 liquidity, int24 tickLower, int24 tickUpper)
           - event: BidWallRewardsTransferred(bytes32 indexed poolId, address recipient, uint256 amount)
-          - event: BidWallDeposit(bytes32 indexed poolId, uint256 amount0, uint256 amount1)
+          - event: BidWallDeposit(bytes32 indexed poolId, uint256 added, uint256 pending)
           - event: BidWallDisabledStateUpdated(bytes32 indexed poolId, bool disabled)
           - event: StaleTimeWindowUpdated(uint256 staleTimeWindow)
       - name: FeeEscrow
@@ -154,14 +154,14 @@ networks:
         handler: src/EventHandlers.ts
         events:
           - event: FairLaunchEnded(bytes32 indexed poolId, uint256 totalRaised, uint256 liquidityAdded, uint256 refundAmount)
-          - event: FairLaunchCreated(bytes32 indexed poolId, uint256 targetAmount, uint256 maxAmount, uint256 deadline)
+          - event: FairLaunchCreated(bytes32 indexed poolId, uint256 tokens, uint256 startsAt, uint256 endsAt)
       - name: FairLaunch2
         address:
           - 0x4dc442403e8c758425b93c59dc737da522f32640
         handler: src/EventHandlers.ts
         events:
           - event: FairLaunchEnded(bytes32 indexed poolId, uint256 totalRaised, uint256 liquidityAdded, uint256 refundAmount)
-          - event: FairLaunchCreated(bytes32 indexed poolId, uint256 targetAmount, uint256 maxAmount, uint256 deadline)
+          - event: FairLaunchCreated(bytes32 indexed poolId, uint256 tokens, uint256 startsAt, uint256 endsAt)
       - name: FlaunchNFT1
         address:
           - 0x6a53f8b799be11a2a3264ef0bff183dcb12d9571
@@ -300,8 +300,8 @@ networks:
           - event: TreasuryReclaimed(address indexed flaunch, uint256 indexed tokenId, address recipient, address sender)
           - event: Claim(address sender, uint256 amount)
           - event: EscrowDurationExtended(address indexed flaunch, uint256 indexed tokenId, uint256 newDuration)
-          - event: Stake(address indexed sender, uint256 amount, (uint256,uint256) position)
-          - event: Unstake(address indexed sender, uint256 amount, (uint256,uint256) position)
+          - event: Stake(address sender, uint256 amount, (uint256,uint256,uint256,uint256) position)
+          - event: Unstake(address sender, uint256 amount, (uint256,uint256,uint256,uint256) position)
           - event: PermissionsUpdated(address permissions)
           - event: ETHReceivedFromUnknownSource(address sender, uint256 amount)
 
@@ -311,13 +311,13 @@ networks:
         handler: src/EventHandlers.ts
         events:
           - event: CreatorUpdated(address indexed flaunch, uint256 indexed tokenId, address creator)
-          - event: ManagerInitialized(address owner, (uint256) params)
+          - event: ManagerInitialized(address owner, (uint256,(address,uint256)[]) params)
           - event: RecipientAdded(address recipient, uint256 share)
           - event: ManagerOwnershipTransferred(address indexed previousOwner, address indexed newOwner)
           - event: RevenueClaimed(address indexed recipient, uint256 amountClaimed)
           - event: TreasuryEscrowed(address indexed flaunch, uint256 indexed tokenId, address owner, address sender)
           - event: TreasuryReclaimed(address indexed flaunch, uint256 indexed tokenId, address recipient, address sender)
-          - event: RecipientShareTransferred(address oldRecipient, address newRecipient)
+          - event: RecipientShareTransferred(address indexed oldRecipient, address indexed newRecipient, uint256 share)
           - event: PermissionsUpdated(address permissions)
           - event: ETHReceivedFromUnknownSource(address sender, uint256 amount)
 

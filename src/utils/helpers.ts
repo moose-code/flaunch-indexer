@@ -137,8 +137,13 @@ export function sqrtPriceX96ToTokenPrices(
 
 /**
  * Get BigInt from hex bytes
+ * Handles empty bytes ("0x" or "") by returning 0n
  */
 export function getBigIntFromBytes(bytes: string): bigint {
+  // Handle empty or invalid bytes
+  if (!bytes || bytes === "0x" || bytes === "") {
+    return 0n;
+  }
   if (bytes.startsWith("0x")) {
     return BigInt(bytes);
   }
@@ -291,3 +296,5 @@ export function generateActivityId(
 export function addressesEqual(a: string, b: string): boolean {
   return a.toLowerCase() === b.toLowerCase();
 }
+
+

@@ -264,7 +264,7 @@ export function createCollectionToken(
     tokenPrice: derivedETH,
     marketCapETH,
     marketCapUSDC: ZERO_BD,
-    totalHolders: ZERO_BI,
+    totalHolders: 1n, // Creator gets initial supply
     isNative: flipped,
     createdAt: timestamp,
     baseURI: "",

@@ -24,7 +24,7 @@ TreasuryManagerFactory.ManagerImplementationApproved.handler(
     context.TreasuryManagerImplementation.set({
       id: implAddress,
       approvedAt: BigInt(event.block.timestamp),
-      unapprovedAt: undefined,
+      unapprovedAt: 0n,  // Use 0n to match subgraph (not undefined)
     });
   }
 );
@@ -132,6 +132,8 @@ TreasuryManagerFactory.ManagerDeployed.contractRegister(
     }
   }
 );
+
+
 
 
 

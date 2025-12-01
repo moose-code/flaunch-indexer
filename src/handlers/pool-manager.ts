@@ -32,11 +32,7 @@ PoolManager.Swap.handler(async ({ event, context }) => {
   const amount1 = event.params.amount1;
   const timestamp = BigInt(event.block.timestamp);
 
-  // Load pool
-  const pool = await context.Pool.get(poolId);
-  if (!pool) return;
-
-  // Get bundle for ETH price
+  // Get bundle for ETH price FIRST (before any early returns)
   let bundle = await context.Bundle.get(BUNDLE_ID);
   if (!bundle) {
     bundle = {
@@ -46,39 +42,40 @@ PoolManager.Swap.handler(async ({ event, context }) => {
     context.Bundle.set(bundle);
   }
 
-  // Check if this is ETH/USDC pool - update ETH price oracle
+  // Check if this is ETH/USDC pool - update ETH price oracle BEFORE pool check
+  // The ETH/USDC pool is a Uniswap system pool, NOT a flaunch Pool entity
   if (poolId.toLowerCase() === ETH_USDC_POOL_ID.toLowerCase()) {
     // Calculate price from sqrtPriceX96
-    // ETH/USDC pool: USDC has 6 decimals, ETH has 18 decimals
+    // On Base: WETH (0x4200...) < USDC (0x8335...) so ETH is token0, USDC is token1
     const [price0, price1] = sqrtPriceX96ToTokenPrices(
       BigInt(sqrtPriceX96.toString()),
-      6,  // USDC decimals
-      18  // ETH decimals
+      18, // ETH decimals (token0)
+      6   // USDC decimals (token1)
     );
 
-    // Determine ETH price in USDC based on pool flipped status
-    let ethPriceInUSDC: bigint;
-    if (pool.flipped) {
-      // ETH is token1, price0 is USDC per ETH
-      ethPriceInUSDC = price0;
-    } else {
-      // ETH is token0, price1 is USDC per ETH
-      ethPriceInUSDC = price1;
-    }
+    // price0 = USDC per ETH (how much USDC for 1 ETH) - this is what we want
+    // price1 = ETH per USDC (how much ETH for 1 USDC)
+    // The price is in 18-decimal precision from sqrtPriceX96ToTokenPrices
+    const ethPriceInUSDC = price0;
 
-    // Convert to BigDecimal (price is in 18 decimal precision)
-    // Divide by 10^12 to adjust from 18 decimals to 6 decimals (USDC)
+    // Convert to BigDecimal - divide by 10^18 to get human-readable price
     const ethPriceUSDC = BigDecimal(ethPriceInUSDC.toString()).div(
-      BigDecimal("1000000000000")
+      BigDecimal("1000000000000000000")
     );
 
-    // Update bundle
-    context.Bundle.set({
-      ...bundle,
-      ethPriceUSDC,
-    });
-    bundle = { ...bundle, ethPriceUSDC };
+    // Only update if we got a valid price
+    if (ethPriceInUSDC > 0n) {
+      context.Bundle.set({
+        ...bundle,
+        ethPriceUSDC,
+      });
+      bundle = { ...bundle, ethPriceUSDC };
+    }
   }
+
+  // NOW load and check for flaunch pool
+  const pool = await context.Pool.get(poolId);
+  if (!pool) return;
 
   // Get collection token
   const collectionToken = await context.CollectionToken.get(pool.collectionToken_id);
@@ -211,6 +208,8 @@ PoolManager.Swap.handler(async ({ event, context }) => {
     });
   }
 });
+
+
 
 
 

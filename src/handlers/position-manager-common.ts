@@ -36,7 +36,8 @@ export async function createPoolEntities(
   name: string,
   symbol: string,
   creator: string,
-  initialSupply: bigint = ZERO_BI
+  initialSupply: bigint = ZERO_BI,
+  startingMarketCap: bigint = ZERO_BI
 ) {
   // Ensure Bundle exists for ETH price
   let bundle = await context.Bundle.get(BUNDLE_ID);
@@ -119,7 +120,7 @@ export async function createPoolEntities(
     tokenPrice: ZERO_BI,
     marketCapETH: ZERO_BI,
     marketCapUSDC: ZERO_BD,
-    totalHolders: ZERO_BI,
+    totalHolders: 1n, // Creator gets initial supply
     isNative: flipped,
     createdAt: timestamp,
     baseURI: "",
@@ -140,6 +141,17 @@ export async function createPoolEntities(
     fourHourArray: [],
   });
 
+  // Create FeeDistribution (subgraph creates this per pool)
+  context.FeeDistribution.set({
+    id: poolId,
+    swapFee: 0,
+    referrer: 0,
+    protocol: 0,
+    community: 0,
+    active: true,
+    creator: 0,
+  });
+
   // Create Pool
   context.Pool.set({
     id: poolId,
@@ -151,8 +163,8 @@ export async function createPoolEntities(
     liquidity: ZERO_BI,
     liveAtTimestamp: timestamp,
     flipped,
-    startingMarketCap: ZERO_BI,
-    startingMarketCapETH: ZERO_BI,
+    startingMarketCap,  // Parsed from initialPriceParams
+    startingMarketCapETH: ZERO_BI,  // Calculated on first swap
     volumeETH: ZERO_BI,
     volumeUSDC: ZERO_BD,
     totalFeesETH: ZERO_BI,
@@ -167,7 +179,7 @@ export async function createPoolEntities(
     poolFees_id: poolId,
     memecoinTreasury_id: memecoinTreasury,
     feeAllocation_id: undefined,
-    feeDistribution_id: undefined,
+    feeDistribution_id: poolId,  // Link to FeeDistribution
     positionManager,
   });
 
@@ -252,11 +264,22 @@ export async function createPoolEntities(
   // Update the CollectionToken with the fetched data
   const token = await context.CollectionToken.get(memecoin);
   if (token) {
-    context.CollectionToken.set({
+    const updatedToken = {
       ...token,
       totalSupply,
       baseURI,
-    });
+    };
+    context.CollectionToken.set(updatedToken);
+
+    // Create initial time series data on pool creation (matches subgraph behavior)
+    const openPrice = token.derivedETH;
+    await Promise.all([
+      updateTokenDayData(context, updatedToken, timestamp, openPrice),
+      updateTokenHourData(context, updatedToken, timestamp, openPrice),
+      updateTokenMinuteData(context, updatedToken, timestamp, openPrice),
+      updateToken15MinuteData(context, updatedToken, timestamp, openPrice),
+      updateToken4HourData(context, updatedToken, timestamp, openPrice),
+    ]);
   }
 }
 
@@ -392,6 +415,21 @@ export async function processPoolSwap(
         volumeETH: fourHourData.volumeETH + totalETHAmount,
       });
     }
+  }
+
+  // Calculate startingMarketCapETH if not yet set (on first swap)
+  if (pool.startingMarketCapETH === ZERO_BI && collectionToken && collectionToken.derivedETH > ZERO_BI) {
+    // startingMarketCapETH = (totalSupply * derivedETH) / 10^decimals
+    const totalSupply = BigInt(collectionToken.totalSupply.toString());
+    const derivedETH = BigInt(collectionToken.derivedETH.toString());
+    const decimals = Number(collectionToken.decimals);
+    const divisor = 10n ** BigInt(decimals);
+    const startingMarketCapETH = divisor > 0n ? (totalSupply * derivedETH) / divisor : ZERO_BI;
+
+    context.Pool.set({
+      ...pool,
+      startingMarketCapETH,
+    });
   }
 
   // Create PoolSwap entity
@@ -605,6 +643,8 @@ export async function processPoolFeesDistributed(
     protocolAmount,
   });
 }
+
+
 
 
 

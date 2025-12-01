@@ -12,7 +12,6 @@ import { normalizeAddress } from "../utils/helpers";
 // =============================================================================
 
 BidWall1.BidWallClosed.handler(async ({ event, context }) => {
-  const poolId = event.params.poolId;
   const recipient = normalizeAddress(event.params.recipient);
   const ethAmount = event.params.amount;
 
@@ -21,15 +20,7 @@ BidWall1.BidWallClosed.handler(async ({ event, context }) => {
     context.User.set({ id: recipient });
   }
 
-  const bidWall = await context.BidWall.get(poolId);
-  if (bidWall) {
-    context.BidWall.set({
-      ...bidWall,
-      closed: true,
-      balance: ZERO_BI,
-    });
-  }
-
+  // Subgraph only updates MemecoinTreasury on BidWallClosed, NOT the BidWall entity
   // Update MemecoinTreasury ETH balance (recipient is the treasury address)
   const treasury = await context.MemecoinTreasury.get(recipient);
   if (treasury) {
@@ -105,15 +96,14 @@ BidWall1.BidWallRewardsTransferred.handler(async ({ event, context }) => {
 
 BidWall1.BidWallDeposit.handler(async ({ event, context }) => {
   const poolId = event.params.poolId;
-  // BidWallDeposit has amount0 and amount1, use amount0 as ETH
-  const ethAmount = event.params.amount0;
+  // Subgraph only updates balance, not amount (using _added parameter)
+  const addedAmount = event.params.added;
 
   const bidWall = await context.BidWall.get(poolId);
   if (bidWall) {
     context.BidWall.set({
       ...bidWall,
-      balance: bidWall.balance + ethAmount,
-      amount: bidWall.amount + ethAmount,
+      balance: bidWall.balance + addedAmount,
     });
   }
 });
@@ -131,7 +121,6 @@ BidWall1.BidWallDisabledStateUpdated.handler(async ({ event, context }) => {
 // =============================================================================
 
 BidWall2.BidWallClosed.handler(async ({ event, context }) => {
-  const poolId = event.params.poolId;
   const recipient = normalizeAddress(event.params.recipient);
   const ethAmount = event.params.amount;
 
@@ -140,15 +129,7 @@ BidWall2.BidWallClosed.handler(async ({ event, context }) => {
     context.User.set({ id: recipient });
   }
 
-  const bidWall = await context.BidWall.get(poolId);
-  if (bidWall) {
-    context.BidWall.set({
-      ...bidWall,
-      closed: true,
-      balance: ZERO_BI,
-    });
-  }
-
+  // Subgraph only updates MemecoinTreasury on BidWallClosed, NOT the BidWall entity
   // Update MemecoinTreasury ETH balance (recipient is the treasury address)
   const treasury = await context.MemecoinTreasury.get(recipient);
   if (treasury) {
@@ -211,14 +192,14 @@ BidWall2.BidWallRewardsTransferred.handler(async ({ event, context }) => {
 
 BidWall2.BidWallDeposit.handler(async ({ event, context }) => {
   const poolId = event.params.poolId;
-  const ethAmount = event.params.amount0;
+  // Subgraph only updates balance, not amount (using _added parameter)
+  const addedAmount = event.params.added;
 
   const bidWall = await context.BidWall.get(poolId);
   if (bidWall) {
     context.BidWall.set({
       ...bidWall,
-      balance: bidWall.balance + ethAmount,
-      amount: bidWall.amount + ethAmount,
+      balance: bidWall.balance + addedAmount,
     });
   }
 });
@@ -240,6 +221,8 @@ BidWall2.StaleTimeWindowUpdated.handler(async ({ event, context }) => {
     });
   }
 });
+
+
 
 
 

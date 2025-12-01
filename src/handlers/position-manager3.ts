@@ -3,8 +3,8 @@
  */
 
 import { PositionManager3 } from "generated";
-import { CONFIG_ID } from "../utils/constants";
-import { normalizeAddress } from "../utils/helpers";
+import { CONFIG_ID, ZERO_BI } from "../utils/constants";
+import { normalizeAddress, getBigIntFromBytes } from "../utils/helpers";
 import {
   createPoolEntities,
   processPoolSwap,
@@ -30,12 +30,15 @@ PositionManager3.PoolCreated.handler(async ({ event, context }) => {
   const timestamp = BigInt(event.block.timestamp);
   const positionManager = normalizeAddress(event.srcAddress);
 
-  // PM3 params: [name, symbol, tokenURI, initialSupply, maxSupply, ?, creator, ...]
+  // PM3 params: [name, symbol, tokenURI, initialSupply, maxSupply, uint256, creator, uint24, uint256, bytes fairLaunchParams, bytes initialPriceParams]
   const paramsData = event.params._params;
   const name = paramsData[0] || "Unknown";
   const symbol = paramsData[1] || "UNKNOWN";
   const initialSupply = BigInt(paramsData[3] || "0");
   const creator = normalizeAddress(paramsData[6]); // Same as PM2
+  // Parse startingMarketCap from initialPriceParams (index 10 for PM2/PM3)
+  const initialPriceParams = paramsData[10] as string;
+  const startingMarketCap = initialPriceParams ? getBigIntFromBytes(initialPriceParams) : ZERO_BI;
 
   await createPoolEntities(
     context,
@@ -50,7 +53,8 @@ PositionManager3.PoolCreated.handler(async ({ event, context }) => {
     name,
     symbol,
     creator,
-    initialSupply
+    initialSupply,
+    startingMarketCap
   );
 });
 
@@ -185,6 +189,8 @@ PositionManager3.PoolScheduled.handler(async ({ event, context }) => {
     context.Pool.set({ ...pool, liveAtTimestamp: flaunchesAt });
   }
 });
+
+
 
 
 

@@ -4,7 +4,7 @@
 
 import { PositionManager1 } from "generated";
 import { CONFIG_ID, ZERO_BI, ZERO_BD, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress } from "../utils/helpers";
+import { normalizeAddress, getBigIntFromBytes } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 import {
   createPoolEntities,
@@ -31,12 +31,15 @@ PositionManager1.PoolCreated.handler(async ({ event, context }) => {
   const timestamp = BigInt(event.block.timestamp);
   const positionManager = normalizeAddress(event.srcAddress);
 
-  // PM1 params: [name, symbol, tokenURI, initialSupply, maxSupply, creator, ...]
+  // PM1 params: [name, symbol, tokenURI, initialSupply, maxSupply, creator, uint24, uint256, bytes fairLaunchParams, bytes initialPriceParams]
   const paramsData = event.params._params;
   const name = paramsData[0] || "Unknown";
   const symbol = paramsData[1] || "UNKNOWN";
   const initialSupply = BigInt(paramsData[3] || "0");
   const creator = normalizeAddress(paramsData[5]);
+  // Parse startingMarketCap from initialPriceParams (index 9)
+  const initialPriceParams = paramsData[9] as string;
+  const startingMarketCap = initialPriceParams ? getBigIntFromBytes(initialPriceParams) : ZERO_BI;
 
   await createPoolEntities(
     context,
@@ -51,7 +54,8 @@ PositionManager1.PoolCreated.handler(async ({ event, context }) => {
     name,
     symbol,
     creator,
-    initialSupply
+    initialSupply,
+    startingMarketCap
   );
 });
 
@@ -396,6 +400,8 @@ PositionManager1.OwnershipHandoverRequested.handler(
 PositionManager1.OwnershipHandoverCanceled.handler(
   async ({ event, context }) => {}
 );
+
+
 
 
 

@@ -32,8 +32,10 @@ AddressFeeSplitManager.ManagerInitialized.handler(
   async ({ event, context }) => {
     const managerAddress = normalizeAddress(event.srcAddress);
     const ownerAddr = normalizeAddress(event.params.owner);
-    // params is a single-element tuple (uint256), so it's just a BigInt
-    const creatorShare = event.params.params as unknown as bigint;
+    // params is (uint256 creatorShare, (address recipient, uint256 share)[] recipientShares)
+    const params = event.params.params as unknown as [bigint, readonly [string, bigint][]];
+    const creatorShare = params[0];
+    const recipientShares = params[1] || [];
 
     if (!(await context.User.get(ownerAddr)))
       context.User.set({ id: ownerAddr });
@@ -44,6 +46,20 @@ AddressFeeSplitManager.ManagerInitialized.handler(
         ...manager,
         owner_id: ownerAddr,
         creatorShare,
+      });
+    }
+
+    // Create recipient entities from initialization params
+    for (const [recipient, share] of recipientShares) {
+      const recipientAddr = normalizeAddress(recipient);
+      if (!(await context.User.get(recipientAddr)))
+        context.User.set({ id: recipientAddr });
+
+      context.AddressFeeSplitManagerRecipient.set({
+        id: `${managerAddress}-${recipientAddr}`,
+        manager_id: managerAddress,
+        recipient: recipientAddr,
+        recipientShare: share,
       });
     }
   }
@@ -156,17 +172,17 @@ AddressFeeSplitManager.RecipientShareTransferred.handler(
     const managerAddress = normalizeAddress(event.srcAddress);
     const oldRecipient = normalizeAddress(event.params.oldRecipient);
     const newRecipient = normalizeAddress(event.params.newRecipient);
+    const shareTransferred = event.params.share;
 
     if (!(await context.User.get(oldRecipient)))
       context.User.set({ id: oldRecipient });
     if (!(await context.User.get(newRecipient)))
       context.User.set({ id: newRecipient });
 
-    // Get old recipient share
+    // Get old recipient share entity
     const oldRecipientShare = await context.AddressFeeSplitManagerRecipient.get(
       `${managerAddress}-${oldRecipient}`
     );
-    const oldShare = oldRecipientShare ? oldRecipientShare.recipientShare : 0n;
 
     // Reset old recipient share
     if (oldRecipientShare) {
@@ -176,21 +192,21 @@ AddressFeeSplitManager.RecipientShareTransferred.handler(
       });
     }
 
-    // Update or create new recipient share
-    let newRecipientShare = await context.AddressFeeSplitManagerRecipient.get(
+    // Update or create new recipient share using the event's share value
+    let newRecipientShareEntity = await context.AddressFeeSplitManagerRecipient.get(
       `${managerAddress}-${newRecipient}`
     );
-    if (newRecipientShare) {
+    if (newRecipientShareEntity) {
       context.AddressFeeSplitManagerRecipient.set({
-        ...newRecipientShare,
-        recipientShare: newRecipientShare.recipientShare + oldShare,
+        ...newRecipientShareEntity,
+        recipientShare: newRecipientShareEntity.recipientShare + shareTransferred,
       });
     } else {
       context.AddressFeeSplitManagerRecipient.set({
         id: `${managerAddress}-${newRecipient}`,
         manager_id: managerAddress,
         recipient: newRecipient,
-        recipientShare: oldShare,
+        recipientShare: shareTransferred,
       });
     }
   }
@@ -240,6 +256,8 @@ AddressFeeSplitManager.ETHReceivedFromUnknownSource.handler(
     }
   }
 );
+
+
 
 
 

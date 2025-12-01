@@ -7,6 +7,7 @@ import { StakingManager } from "generated";
 import { BUNDLE_ID } from "../utils/constants";
 import { normalizeAddress, generateCollectionId } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
+import { fetchAllTokenMetadata } from "../effects/token-metadata";
 
 // =============================================================================
 // STAKING MANAGER HANDLERS
@@ -39,15 +40,17 @@ StakingManager.ManagerInitialized.handler(async ({ event, context }) => {
   if (manager) {
     const stakingTokenAddr = normalizeAddress(params[0]);
 
-    // Create Token entity for staking token
+    // Create Token entity for staking token with real metadata via Effect API
     let token = await context.Token.get(stakingTokenAddr);
     if (!token) {
+      // Fetch actual token metadata from chain
+      const metadata = await context.effect(fetchAllTokenMetadata, { address: stakingTokenAddr });
       context.Token.set({
         id: stakingTokenAddr,
-        name: "Unknown",
-        symbol: "UNKNOWN",
-        decimals: 18,
-        totalSupply: 0n,
+        name: metadata.name || "Unknown",
+        symbol: metadata.symbol || "UNKNOWN",
+        decimals: metadata.decimals || 18,
+        totalSupply: metadata.totalSupply || 0n,
       });
     }
 
@@ -343,6 +346,8 @@ StakingManager.ETHReceivedFromUnknownSource.handler(
     }
   }
 );
+
+
 
 
 

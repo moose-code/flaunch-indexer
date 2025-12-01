@@ -11,15 +11,18 @@ import { FairLaunch1, FairLaunch2 } from "generated";
 
 FairLaunch1.FairLaunchCreated.handler(async ({ event, context }) => {
   const poolId = event.params.poolId;
-  const timestamp = BigInt(event.block.timestamp);
+  const tokens = event.params.tokens;
+  const startsAt = event.params.startsAt;
+  const endsAt = event.params.endsAt;
 
-  // FairLaunch is already created by PoolCreated, just update with deadline
+  // FairLaunch is already created by PoolCreated, just update with actual params
   const fairLaunch = await context.FairLaunch.get(poolId);
   if (fairLaunch) {
     context.FairLaunch.set({
       ...fairLaunch,
-      starts_at: timestamp,
-      ends_at: event.params.deadline,
+      initialSupply: tokens,
+      starts_at: startsAt,
+      ends_at: endsAt,
     });
   }
 });
@@ -52,14 +55,17 @@ FairLaunch1.FairLaunchEnded.handler(async ({ event, context }) => {
 
 FairLaunch2.FairLaunchCreated.handler(async ({ event, context }) => {
   const poolId = event.params.poolId;
-  const timestamp = BigInt(event.block.timestamp);
+  const tokens = event.params.tokens;
+  const startsAt = event.params.startsAt;
+  const endsAt = event.params.endsAt;
 
   const fairLaunch = await context.FairLaunch.get(poolId);
   if (fairLaunch) {
     context.FairLaunch.set({
       ...fairLaunch,
-      starts_at: timestamp,
-      ends_at: event.params.deadline,
+      initialSupply: tokens,
+      starts_at: startsAt,
+      ends_at: endsAt,
     });
   }
 });
@@ -85,6 +91,8 @@ FairLaunch2.FairLaunchEnded.handler(async ({ event, context }) => {
     });
   }
 });
+
+
 
 
 

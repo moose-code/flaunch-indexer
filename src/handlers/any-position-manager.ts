@@ -5,7 +5,7 @@
 
 import { AnyPositionManager, BigDecimal } from "generated";
 import { ZERO_BI, ZERO_BD, CONFIG_ID, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, absBigInt, generateCollectionId } from "../utils/helpers";
+import { normalizeAddress, absBigInt, generateCollectionId, getBigIntFromBytes } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 import {
   getBidWallAddressForPositionManager,
@@ -93,9 +93,12 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
   const timestamp = BigInt(event.block.timestamp);
   const positionManager = normalizeAddress(event.srcAddress);
 
-  // Extract params from tuple: [creator, ?, uint24, bytes, bytes] for AnyPositionManager
+  // Extract params from tuple: [address creator, address, uint24, bytes fairLaunchParams, bytes initialPriceParams] for AnyPositionManager
   const paramsData = event.params._params;
   const creator = normalizeAddress(paramsData[0]);
+  // Parse startingMarketCap from initialPriceParams (index 4 for AnyPositionManager)
+  const initialPriceParams = paramsData[4] as string;
+  const startingMarketCap = initialPriceParams ? getBigIntFromBytes(initialPriceParams) : ZERO_BI;
 
   // Ensure Bundle exists for ETH price
   let bundle = await context.Bundle.get(BUNDLE_ID);
@@ -181,7 +184,7 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     tokenPrice: initialPrice,
     marketCapETH: ZERO_BI,
     marketCapUSDC: ZERO_BD,
-    totalHolders: ZERO_BI,
+    totalHolders: 1n, // Creator gets initial supply
     isNative: flipped,
     createdAt: timestamp,
     baseURI: "",
@@ -202,6 +205,17 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     fourHourArray: [],
   });
 
+  // Create FeeDistribution (subgraph creates this per pool)
+  context.FeeDistribution.set({
+    id: poolId,
+    swapFee: 0,
+    referrer: 0,
+    protocol: 0,
+    community: 0,
+    active: true,
+    creator: 0,
+  });
+
   // Create Pool
   context.Pool.set({
     id: poolId,
@@ -213,8 +227,8 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     liquidity: ZERO_BI,
     liveAtTimestamp: timestamp,
     flipped,
-    startingMarketCap: ZERO_BI,
-    startingMarketCapETH: ZERO_BI,
+    startingMarketCap,  // Parsed from initialPriceParams
+    startingMarketCapETH: ZERO_BI,  // Calculated on first swap
     volumeETH: ZERO_BI,
     volumeUSDC: ZERO_BD,
     totalFeesETH: ZERO_BI,
@@ -229,7 +243,7 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     poolFees_id: poolId,
     memecoinTreasury_id: memecoinTreasury,
     feeAllocation_id: undefined,
-    feeDistribution_id: undefined,
+    feeDistribution_id: poolId,  // Link to FeeDistribution
     positionManager,
   });
 
@@ -300,6 +314,19 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     ...config,
     collectionCount: config.collectionCount + 1n,
   });
+
+  // Create initial time series data on pool creation (matches subgraph behavior)
+  const collectionToken = await context.CollectionToken.get(memecoin);
+  if (collectionToken) {
+    const openPrice = collectionToken.derivedETH;
+    await Promise.all([
+      updateTokenDayData(context, collectionToken, timestamp, openPrice),
+      updateTokenHourData(context, collectionToken, timestamp, openPrice),
+      updateTokenMinuteData(context, collectionToken, timestamp, openPrice),
+      updateToken15MinuteData(context, collectionToken, timestamp, openPrice),
+      updateToken4HourData(context, collectionToken, timestamp, openPrice),
+    ]);
+  }
 });
 
 // Contract registration
@@ -458,6 +485,33 @@ AnyPositionManager.PoolSwap.handler(async ({ event, context }) => {
     amountToken: totalTokenAmount,
     activityType: isBuy ? "Buy" : "Sell",
   });
+
+  // Update FairLaunch ethEarned (subgraph does this during swaps)
+  if (
+    absBigInt(event.params.flAmount0) > 0n ||
+    absBigInt(event.params.flAmount1) > 0n
+  ) {
+    const fairLaunch = await context.FairLaunch.get(poolId);
+    if (fairLaunch) {
+      if (!pool.flipped) {
+        // ETH is token0
+        context.FairLaunch.set({
+          ...fairLaunch,
+          ethEarned: fairLaunch.ethEarned + absBigInt(event.params.flAmount0),
+          soldInitialSupply:
+            fairLaunch.soldInitialSupply + absBigInt(event.params.flAmount1),
+        });
+      } else {
+        // ETH is token1
+        context.FairLaunch.set({
+          ...fairLaunch,
+          ethEarned: fairLaunch.ethEarned + absBigInt(event.params.flAmount1),
+          soldInitialSupply:
+            fairLaunch.soldInitialSupply + absBigInt(event.params.flAmount0),
+        });
+      }
+    }
+  }
 });
 
 AnyPositionManager.PoolStateUpdated.handler(async ({ event, context }) => {
@@ -639,6 +693,8 @@ AnyPositionManager.ReferralEscrowUpdated.contractRegister(
     context.addReferralEscrow(event.params._referralEscrow);
   }
 );
+
+
 
 
 
