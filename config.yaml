@@ -21,6 +21,7 @@ networks:
           - event: PoolStateUpdated(bytes32 indexed _poolId, uint160 _sqrtPriceX96, int24 _tick, uint24 _protocolFee, uint24 _swapFee, uint128 _liquidity)
           - event: ReferrerFeePaid(bytes32 indexed _poolId, address _recipient, address _token, uint256 _amount)
           - event: ReferralEscrowUpdated(address _referralEscrow)
+          - event: CreatorFeeAllocationUpdated(bytes32 indexed _poolId, uint24 _allocation)
       - name: PositionManager1
         address:
           - 0x51bba15255406cfe7099a42183302640ba7dafdc
@@ -66,6 +67,7 @@ networks:
           - event: ReferrerFeePaid(bytes32 indexed _poolId, address _recipient, address _token, uint256 _amount)
           - event: FairLaunchFeeCalculatorUpdated(address _feeCalculator)
           - event: ReferralEscrowUpdated(address _referralEscrow)
+          - event: CreatorFeeAllocationUpdated(bytes32 indexed _poolId, uint24 _allocation)
       - name: PositionManager3
         address:
           - 0xb903b0ab7bcee8f5e4d8c9b10a71aac7135d6fdc
@@ -86,6 +88,7 @@ networks:
           - event: ReferrerFeePaid(bytes32 indexed _poolId, address _recipient, address _token, uint256 _amount)
           - event: FairLaunchFeeCalculatorUpdated(address _feeCalculator)
           - event: ReferralEscrowUpdated(address _referralEscrow)
+          - event: CreatorFeeAllocationUpdated(bytes32 indexed _poolId, uint24 _allocation)
       - name: PoolManager
         address:
           - 0x498581ff718922c3f8e6a244956af099b2652b2b

@@ -237,9 +237,9 @@ export async function createPoolEntities(
     collectionToken_id: memecoin,
   });
 
-  // Create PoolCollectionLookup
+  // Create PoolCollectionLookup - ID must be poolId for FeeEscrow handlers to work
   context.PoolCollectionLookup.set({
-    id: memecoin,
+    id: poolId,
     collectionToken_id: memecoin,
   });
 

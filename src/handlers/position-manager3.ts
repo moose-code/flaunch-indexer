@@ -179,6 +179,44 @@ PositionManager3.PoolScheduled.handler(async ({ event, context }) => {
   }
 });
 
+PositionManager3.CreatorFeeAllocationUpdated.handler(
+  async ({ event, context }) => {
+    const poolId = event.params._poolId;
+    const allocation = event.params._allocation;
+
+    const pool = await context.Pool.get(poolId);
+    if (!pool) return;
+
+    // Create or update FeeAllocation - ID is poolId to match subgraph
+    const feeAllocationId = poolId;
+    let feeAllocation = await context.FeeAllocation.get(feeAllocationId);
+
+    // allocation is the creator's share in basis points (out of 10000)
+    const creatorShare = Number(allocation);
+    const communityShare = 10000 - creatorShare;
+
+    if (!feeAllocation) {
+      context.FeeAllocation.set({
+        id: feeAllocationId,
+        creator: creatorShare,
+        community: communityShare,
+      });
+    } else {
+      context.FeeAllocation.set({
+        ...feeAllocation,
+        creator: creatorShare,
+        community: communityShare,
+      });
+    }
+
+    // Link Pool to FeeAllocation
+    context.Pool.set({
+      ...pool,
+      feeAllocation_id: feeAllocationId,
+    });
+  }
+);
+
 
 
 

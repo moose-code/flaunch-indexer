@@ -181,13 +181,13 @@ PositionManager1.CreatorFeeAllocationUpdated.handler(
     const pool = await context.Pool.get(poolId);
     if (!pool) return;
 
-    // Create or update FeeAllocation
-    const feeAllocationId = `pool-${poolId}`;
+    // Create or update FeeAllocation - ID is poolId to match subgraph
+    const feeAllocationId = poolId;
     let feeAllocation = await context.FeeAllocation.get(feeAllocationId);
 
-    // allocation is the creator's share (out of 100)
+    // allocation is the creator's share in basis points (out of 10000)
     const creatorShare = Number(allocation);
-    const communityShare = 100 - creatorShare;
+    const communityShare = 10000 - creatorShare;
 
     if (!feeAllocation) {
       context.FeeAllocation.set({
@@ -203,7 +203,7 @@ PositionManager1.CreatorFeeAllocationUpdated.handler(
       });
     }
 
-    // Link pool to fee allocation
+    // Link Pool to FeeAllocation
     context.Pool.set({
       ...pool,
       feeAllocation_id: feeAllocationId,

@@ -59,9 +59,10 @@ PoolManager.Swap.handler(async ({ event, context }) => {
     const ethPriceInUSDC = price0;
 
     // Convert to BigDecimal - divide by 10^18 to get human-readable price
-    const ethPriceUSDC = BigDecimal(ethPriceInUSDC.toString()).div(
-      BigDecimal("1000000000000000000")
-    );
+    // Round to 6 decimal places to match USDC precision (subgraph behavior)
+    const ethPriceUSDC = BigDecimal(ethPriceInUSDC.toString())
+      .div(BigDecimal("1000000000000000000"))
+      .decimalPlaces(6, BigDecimal.ROUND_DOWN);
 
     // Only update if we got a valid price
     if (ethPriceInUSDC > 0n) {

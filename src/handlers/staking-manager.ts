@@ -89,6 +89,7 @@ StakingManager.TreasuryEscrowed.handler(async ({ event, context }) => {
   const tokenId = event.params.tokenId;
   const ownerAddr = normalizeAddress(event.params.owner);
   const timestamp = BigInt(event.block.timestamp);
+  const txHash = event.transaction.hash || "";
 
   if (!(await context.User.get(ownerAddr))) context.User.set({ id: ownerAddr });
 
@@ -103,6 +104,30 @@ StakingManager.TreasuryEscrowed.handler(async ({ event, context }) => {
       managerType: "StakingManager",
       managerUpdatedAt: timestamp,
     });
+
+    // Create StakingManagerEscrow entity on escrow
+    const manager = await context.StakingManager.get(managerAddress);
+    const timelockedUntil = manager ? timestamp + manager.minEscrowDuration : timestamp;
+
+    let escrow = await context.StakingManagerEscrow.get(collectionId);
+    if (!escrow) {
+      context.StakingManagerEscrow.set({
+        id: collectionId,
+        manager_id: managerAddress,
+        collection_id: collectionId,
+        timelockedUntil,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        txHash,
+      });
+    } else {
+      context.StakingManagerEscrow.set({
+        ...escrow,
+        timelockedUntil,
+        updatedAt: timestamp,
+        txHash,
+      });
+    }
   }
 });
 
