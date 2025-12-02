@@ -35,7 +35,6 @@ FairLaunch1.FairLaunchEnded.handler(async ({ event, context }) => {
     context.FairLaunch.set({
       ...fairLaunch,
       active: false,
-      ethEarned: event.params.totalRaised,
       ends_at: BigInt(event.block.timestamp),
     });
   }
@@ -78,7 +77,6 @@ FairLaunch2.FairLaunchEnded.handler(async ({ event, context }) => {
     context.FairLaunch.set({
       ...fairLaunch,
       active: false,
-      ethEarned: event.params.totalRaised,
       ends_at: BigInt(event.block.timestamp),
     });
   }
@@ -91,10 +89,3 @@ FairLaunch2.FairLaunchEnded.handler(async ({ event, context }) => {
     });
   }
 });
-
-
-
-
-
-
-
