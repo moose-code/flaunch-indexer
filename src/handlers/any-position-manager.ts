@@ -661,8 +661,9 @@ AnyPositionManager.ReferrerFeePaid.handler(async ({ event, context }) => {
 
   const isETH =
     token === "0x0000000000000000000000000000000000000000" || token === FLETH;
+  // Subgraph: txHash.concatI32(logIndex)
   context.ReferrerFee.set({
-    id: `${txHash}-${event.logIndex}`,
+    id: concatI32(txHash, event.logIndex),
     pool_id: poolId,
     recipient_id: recipient,
     txHash,

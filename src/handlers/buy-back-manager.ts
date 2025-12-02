@@ -5,7 +5,7 @@
 
 import { BuyBackManager } from "generated";
 import { ZERO_BD, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, generateCollectionId } from "../utils/helpers";
+import { normalizeAddress, generateCollectionId, concatBytes, concatI32 } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 
 // =============================================================================
@@ -125,8 +125,9 @@ BuyBackManager.RevenueClaimed.handler(async ({ event, context }) => {
 
   const bundle = await context.Bundle.get(BUNDLE_ID);
 
+  // Subgraph: address.concat(txHash).concatI32(logIndex)
   context.BuyBackManagerClaim.set({
-    id: `${managerAddress}-${txHash}-${event.logIndex}`,
+    id: concatI32(concatBytes(managerAddress, txHash), event.logIndex),
     manager_id: managerAddress,
     collection_id: undefined,
     amount,
@@ -155,8 +156,9 @@ BuyBackManager.BidWallDeposit.handler(async ({ event, context }) => {
     });
   }
 
+  // Subgraph: address.concat(txHash).concatI32(logIndex)
   context.BuyBackManagerDeposit.set({
-    id: `${managerAddress}-${txHash}-${event.logIndex}`,
+    id: concatI32(concatBytes(managerAddress, txHash), event.logIndex),
     manager_id: managerAddress,
     amount,
     amountUSDC,
@@ -188,8 +190,9 @@ BuyBackManager.ETHReceivedFromUnknownSource.handler(
 
     const bundle = await context.Bundle.get(BUNDLE_ID);
 
+    // Subgraph: address.concat(txHash).concatI32(logIndex)
     context.BuyBackManagerExternalETH.set({
-      id: `${managerAddress}-${txHash}-${event.logIndex}`,
+      id: concatI32(concatBytes(managerAddress, txHash), event.logIndex),
       manager_id: managerAddress,
       user_id: senderAddr,
       amount,
