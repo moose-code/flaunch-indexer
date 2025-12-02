@@ -5,7 +5,7 @@
 
 import { RevenueManager } from "generated";
 import { BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, generateCollectionId } from "../utils/helpers";
+import { normalizeAddress, generateCollectionId, concatBytes, concatI32 } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 
 // =============================================================================
@@ -148,8 +148,9 @@ RevenueManager.RevenueClaimed.handler(async ({ event, context }) => {
   const collection = await context.Collection.get(collectionId);
   const bundle = await context.Bundle.get(BUNDLE_ID);
 
+  // Subgraph: address.concat(txHash).concatI32(logIndex)
   context.RevenueManagerClaim.set({
-    id: `${managerAddress}-${txHash}-${event.logIndex}`,
+    id: concatI32(concatBytes(managerAddress, txHash), event.logIndex),
     revenueManager_id: managerAddress,
     isProtocol: false,
     collection_id: collection ? collectionId : undefined,
@@ -173,8 +174,9 @@ RevenueManager.ProtocolRevenueClaimed.handler(async ({ event, context }) => {
 
   const bundle = await context.Bundle.get(BUNDLE_ID);
 
+  // Subgraph: address.concat(txHash).concatI32(logIndex)
   context.RevenueManagerClaim.set({
-    id: `${managerAddress}-${txHash}-${event.logIndex}`,
+    id: concatI32(concatBytes(managerAddress, txHash), event.logIndex),
     revenueManager_id: managerAddress,
     isProtocol: true,
     collection_id: undefined,
@@ -195,6 +197,7 @@ RevenueManager.PermissionsUpdated.handler(async ({ event, context }) => {
     context.RevenueManager.set({ ...manager, permissions });
   }
 });
+
 
 
 

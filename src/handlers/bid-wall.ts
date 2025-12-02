@@ -5,7 +5,7 @@
 
 import { BidWall1, BidWall2 } from "generated";
 import { ZERO_BI, CONFIG_ID } from "../utils/constants";
-import { normalizeAddress } from "../utils/helpers";
+import { normalizeAddress, concatBytes } from "../utils/helpers";
 
 // =============================================================================
 // BID WALL 1 HANDLERS
@@ -44,17 +44,17 @@ BidWall1.BidWallRepositioned.handler(async ({ event, context }) => {
     });
   }
 
-  // Create BidWallRepositioned record
-  const id = `${poolId}-${event.transaction.hash}`;
+  // Create BidWallRepositioned record (subgraph: id.concat(txHash))
+  const txHash = event.transaction.hash || "";
   context.BidWallRepositioned.set({
-    id,
+    id: concatBytes(poolId, txHash),
     pool_id: poolId,
     _eth: event.params.liquidity,
     _tickLower: Number(event.params.tickLower),
     _tickUpper: Number(event.params.tickUpper),
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
-    transactionHash: event.transaction.hash,
+    transactionHash: txHash,
   });
 });
 
@@ -75,9 +75,9 @@ BidWall1.BidWallRewardsTransferred.handler(async ({ event, context }) => {
 
   const collectionTokenId = poolLookup.collectionToken_id;
 
-  // Create BidWallDistribution entity
+  // Create BidWallDistribution entity (subgraph: id.concat(txHash))
   context.BidWallDistribution.set({
-    id: `${poolId}-${txHash}`,
+    id: concatBytes(poolId, txHash),
     bidWall_id: poolId,
     collectionToken_id: collectionTokenId,
     amount: tokensAmount,
@@ -171,9 +171,9 @@ BidWall2.BidWallRewardsTransferred.handler(async ({ event, context }) => {
 
   const collectionTokenId = poolLookup.collectionToken_id;
 
-  // Create BidWallDistribution entity
+  // Create BidWallDistribution entity (subgraph: id.concat(txHash))
   context.BidWallDistribution.set({
-    id: `${poolId}-${txHash}`,
+    id: concatBytes(poolId, txHash),
     bidWall_id: poolId,
     collectionToken_id: collectionTokenId,
     amount: tokensAmount,
@@ -221,6 +221,7 @@ BidWall2.StaleTimeWindowUpdated.handler(async ({ event, context }) => {
     });
   }
 });
+
 
 
 

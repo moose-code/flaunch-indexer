@@ -151,7 +151,6 @@ PositionManager3.FairLaunchFeeCalculatorUpdated.handler(
 PositionManager3.PoolPremine.handler(async ({ event, context }) => {
   const poolId = event.params._poolId;
   const premineAmount = event.params._premineAmount;
-  const txHash = event.transaction.hash || "";
 
   const pool = await context.Pool.get(poolId);
   if (!pool) return;
@@ -161,8 +160,9 @@ PositionManager3.PoolPremine.handler(async ({ event, context }) => {
   );
   if (!collectionToken) return;
 
+  // Subgraph uses poolId as the ID (not txHash)
   context.PoolPremine.set({
-    id: `${txHash}-${event.logIndex}`,
+    id: poolId,
     pool_id: poolId,
     receiver_id: collectionToken.creator_id,
     amount: premineAmount,
@@ -216,6 +216,7 @@ PositionManager3.CreatorFeeAllocationUpdated.handler(
     });
   }
 );
+
 
 
 

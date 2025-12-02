@@ -326,4 +326,72 @@ export function addressesEqual(a: string, b: string): boolean {
   return a.toLowerCase() === b.toLowerCase();
 }
 
+// =============================================================================
+// SUBGRAPH-COMPATIBLE ID GENERATION FUNCTIONS
+// These functions replicate AssemblyScript's Bytes class methods for ID generation
+// =============================================================================
+
+/**
+ * Replicate Bytes.fromI32() from AssemblyScript.
+ * Creates a 4-byte hex string from an integer in LITTLE-ENDIAN format.
+ * 
+ * @example bytesFromI32(1) => "0x01000000"
+ * @example bytesFromI32(2) => "0x02000000"
+ */
+export function bytesFromI32(num: number): string {
+  // Convert to 4-byte hex in little-endian format
+  const hex = (num >>> 0).toString(16).padStart(8, "0");
+  // Reverse byte order: "00000001" -> "01000000"
+  const littleEndian = hex.match(/.{2}/g)!.reverse().join("");
+  return "0x" + littleEndian;
+}
+
+/**
+ * Replicate Bytes.concat() from AssemblyScript.
+ * Concatenates two hex strings by removing the 0x prefix from the second.
+ * 
+ * @example concatBytes("0xabc123", "0xdef456") => "0xabc123def456"
+ */
+export function concatBytes(a: string, b: string): string {
+  const aHex = a.toLowerCase().replace("0x", "");
+  const bHex = b.toLowerCase().replace("0x", "");
+  return "0x" + aHex + bHex;
+}
+
+/**
+ * Replicate Bytes.concatI32() from AssemblyScript.
+ * Appends a 4-byte little-endian integer to a hex string.
+ * 
+ * @example concatI32("0xabc123", 5) => "0xabc12305000000"
+ */
+export function concatI32(bytes: string, num: number | bigint): string {
+  const bytesHex = bytes.toLowerCase().replace("0x", "");
+  // Convert to 4-byte hex in little-endian format
+  const numValue = typeof num === "bigint" ? Number(num) : num;
+  const hex = (numValue >>> 0).toString(16).padStart(8, "0");
+  // Reverse byte order for little-endian
+  const littleEndian = hex.match(/.{2}/g)!.reverse().join("");
+  return "0x" + bytesHex + littleEndian;
+}
+
+/**
+ * Generate a subgraph-compatible ID from txHash and logIndex.
+ * Matches: txHash.concatI32(logIndex.toI32())
+ */
+export function generateTxLogId(txHash: string, logIndex: number | bigint): string {
+  return concatI32(txHash, logIndex);
+}
+
+/**
+ * Generate a subgraph-compatible ID from address + txHash + logIndex.
+ * Matches: address.concat(txHash).concatI32(logIndex.toI32())
+ */
+export function generateAddressTxLogId(
+  address: string,
+  txHash: string,
+  logIndex: number | bigint
+): string {
+  return concatI32(concatBytes(address, txHash), logIndex);
+}
+
 

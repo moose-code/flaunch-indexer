@@ -4,8 +4,8 @@
  */
 
 import { ReferralEscrow } from "generated";
-import { ZERO_BI, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress } from "../utils/helpers";
+import { ZERO_BI, BUNDLE_ID, ZERO_ADDRESS } from "../utils/constants";
+import { normalizeAddress, concatBytes, concatI32 } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 import { FLETH } from "../addresses/base";
 
@@ -22,9 +22,9 @@ ReferralEscrow.TokensAssigned.handler(async ({ event, context }) => {
   // Ensure user exists
   if (!(await context.User.get(userId))) context.User.set({ id: userId });
 
-  // Create ReferralEscrowAssigned entity
+  // Create ReferralEscrowAssigned entity (subgraph: txHash.concatI32(logIndex))
   context.ReferralEscrowAssigned.set({
-    id: `${txHash}-${event.logIndex}`,
+    id: concatI32(txHash, event.logIndex),
     amount: event.params.amount,
     receiver_id: userId,
     token_id: tokenAddress === FLETH ? "fleth" : tokenAddress,
@@ -33,10 +33,12 @@ ReferralEscrow.TokensAssigned.handler(async ({ event, context }) => {
   });
 
   // Create or update TokenReferralFee
+  // Subgraph uses collectionToken.concat(user) - for fleth, uses Address.zero()
   const isFleth =
     tokenAddress === FLETH ||
-    tokenAddress === "0x0000000000000000000000000000000000000000";
-  const tokenRefFeeId = `${userId}-${isFleth ? "fleth" : tokenAddress}`;
+    tokenAddress === ZERO_ADDRESS;
+  // Subgraph: collectionToken.concat(user) - token is zero address for fleth
+  const tokenRefFeeId = concatBytes(isFleth ? ZERO_ADDRESS : tokenAddress, userId);
   const existingFee = await context.TokenReferralFee.get(tokenRefFeeId);
 
   if (existingFee) {
@@ -102,10 +104,10 @@ ReferralEscrow.TokensClaimed.handler(async ({ event, context }) => {
     });
   }
 
-  // Create ReferralEscrowClaimed entity
+  // Create ReferralEscrowClaimed entity (subgraph: txHash.concatI32(logIndex))
   const bundle = await context.Bundle.get(BUNDLE_ID);
   context.ReferralEscrowClaimed.set({
-    id: `${txHash}-${event.logIndex}`,
+    id: concatI32(txHash, event.logIndex),
     amount: event.params.amount,
     amountUSDC: convertETHtoUSDCWithBundle(totalTokensInETH, bundle),
     receiver_id: recipientId,
@@ -114,8 +116,8 @@ ReferralEscrow.TokensClaimed.handler(async ({ event, context }) => {
     txHash,
   });
 
-  // Reset TokenReferralFee
-  const tokenRefFeeId = `${userId}-${isFleth ? "fleth" : tokenAddress}`;
+  // Reset TokenReferralFee (subgraph: collectionToken.concat(user))
+  const tokenRefFeeId = concatBytes(isFleth ? ZERO_ADDRESS : tokenAddress, userId);
   const existingFee = await context.TokenReferralFee.get(tokenRefFeeId);
   if (existingFee) {
     context.TokenReferralFee.set({
@@ -134,8 +136,9 @@ ReferralEscrow.TokensSwapped.handler(async ({ event, context }) => {
   // Ensure user exists
   if (!(await context.User.get(userId))) context.User.set({ id: userId });
 
+  // Subgraph: txHash.concatI32(logIndex)
   context.ReferralEscrowSwapped.set({
-    id: `${txHash}-${event.logIndex}`,
+    id: concatI32(txHash, event.logIndex),
     ethOut: event.params.ethOut,
     tokensIn: event.params.tokensIn,
     receiver_id: userId,
@@ -144,6 +147,7 @@ ReferralEscrow.TokensSwapped.handler(async ({ event, context }) => {
     txHash,
   });
 });
+
 
 
 

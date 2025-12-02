@@ -5,7 +5,7 @@
 
 import { AddressFeeSplitManager } from "generated";
 import { BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, generateCollectionId } from "../utils/helpers";
+import { normalizeAddress, generateCollectionId, concatBytes, concatI32 } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 
 // =============================================================================
@@ -55,8 +55,9 @@ AddressFeeSplitManager.ManagerInitialized.handler(
       if (!(await context.User.get(recipientAddr)))
         context.User.set({ id: recipientAddr });
 
+      // Subgraph: manager.concat(recipient)
       context.AddressFeeSplitManagerRecipient.set({
-        id: `${managerAddress}-${recipientAddr}`,
+        id: concatBytes(managerAddress, recipientAddr),
         manager_id: managerAddress,
         recipient: recipientAddr,
         recipientShare: share,
@@ -73,8 +74,9 @@ AddressFeeSplitManager.RecipientAdded.handler(async ({ event, context }) => {
   if (!(await context.User.get(recipientAddr)))
     context.User.set({ id: recipientAddr });
 
+  // Subgraph: manager.concat(recipient)
   context.AddressFeeSplitManagerRecipient.set({
-    id: `${managerAddress}-${recipientAddr}`,
+    id: concatBytes(managerAddress, recipientAddr),
     manager_id: managerAddress,
     recipient: recipientAddr,
     recipientShare: share,
@@ -110,8 +112,9 @@ AddressFeeSplitManager.RevenueClaimed.handler(async ({ event, context }) => {
 
   const bundle = await context.Bundle.get(BUNDLE_ID);
 
+  // Subgraph: address.concat(txHash).concatI32(logIndex)
   context.AddressFeeSplitManagerClaim.set({
-    id: `${managerAddress}-${txHash}-${event.logIndex}`,
+    id: concatI32(concatBytes(managerAddress, txHash), event.logIndex),
     manager_id: managerAddress,
     amount,
     amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
@@ -179,9 +182,9 @@ AddressFeeSplitManager.RecipientShareTransferred.handler(
     if (!(await context.User.get(newRecipient)))
       context.User.set({ id: newRecipient });
 
-    // Get old recipient share entity
+    // Get old recipient share entity (subgraph: manager.concat(recipient))
     const oldRecipientShare = await context.AddressFeeSplitManagerRecipient.get(
-      `${managerAddress}-${oldRecipient}`
+      concatBytes(managerAddress, oldRecipient)
     );
 
     // Reset old recipient share
@@ -193,8 +196,9 @@ AddressFeeSplitManager.RecipientShareTransferred.handler(
     }
 
     // Update or create new recipient share using the event's share value
+    const newRecipientId = concatBytes(managerAddress, newRecipient);
     let newRecipientShareEntity = await context.AddressFeeSplitManagerRecipient.get(
-      `${managerAddress}-${newRecipient}`
+      newRecipientId
     );
     if (newRecipientShareEntity) {
       context.AddressFeeSplitManagerRecipient.set({
@@ -203,7 +207,7 @@ AddressFeeSplitManager.RecipientShareTransferred.handler(
       });
     } else {
       context.AddressFeeSplitManagerRecipient.set({
-        id: `${managerAddress}-${newRecipient}`,
+        id: newRecipientId,
         manager_id: managerAddress,
         recipient: newRecipient,
         recipientShare: shareTransferred,
@@ -237,8 +241,9 @@ AddressFeeSplitManager.ETHReceivedFromUnknownSource.handler(
 
     const bundle = await context.Bundle.get(BUNDLE_ID);
 
+    // Subgraph: address.concat(txHash).concatI32(logIndex)
     context.AddressFeeSplitManagerExternalETH.set({
-      id: `${managerAddress}-${txHash}-${event.logIndex}`,
+      id: concatI32(concatBytes(managerAddress, txHash), event.logIndex),
       manager_id: managerAddress,
       user_id: senderAddr,
       amount,
@@ -256,6 +261,7 @@ AddressFeeSplitManager.ETHReceivedFromUnknownSource.handler(
     }
   }
 );
+
 
 
 

@@ -4,10 +4,8 @@
  */
 
 import { FlayBurner, BuyBackAndBurnFlay } from "generated";
-import { ZERO_BI } from "../utils/constants";
+import { ZERO_BI, BURNER_ID } from "../utils/constants";
 import { normalizeAddress } from "../utils/helpers";
-
-const BURNER_ID = "flay-burner";
 
 // =============================================================================
 // FLAY BURNER HANDLERS
@@ -58,6 +56,7 @@ BuyBackAndBurnFlay.EthBalanceUpdated.handler(async ({ event, context }) => {
     });
   }
 });
+
 
 
 

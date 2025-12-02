@@ -5,7 +5,7 @@
 
 import { StakingManager } from "generated";
 import { BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, generateCollectionId } from "../utils/helpers";
+import { normalizeAddress, generateCollectionId, concatBytes, concatI32 } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 import { fetchAllTokenMetadata } from "../effects/token-metadata";
 
@@ -172,8 +172,9 @@ StakingManager.Claim.handler(async ({ event, context }) => {
 
   const bundle = await context.Bundle.get(BUNDLE_ID);
 
+  // Subgraph: address.concat(txHash).concatI32(logIndex)
   context.StakingManagerClaim.set({
-    id: `${managerAddress}-${txHash}-${event.logIndex}`,
+    id: concatI32(concatBytes(managerAddress, txHash), event.logIndex),
     manager_id: managerAddress,
     amount,
     amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
@@ -231,7 +232,8 @@ StakingManager.Stake.handler(async ({ event, context }) => {
   const manager = await context.StakingManager.get(managerAddress);
   if (!manager) return;
 
-  const stakeId = `${managerAddress}-${stakerAddr}`;
+  // Subgraph: address.concat(staker.id)
+  const stakeId = concatBytes(managerAddress, stakerAddr);
   let stake = await context.StakingManagerStake.get(stakeId);
 
   if (!stake) {
@@ -267,8 +269,9 @@ StakingManager.Stake.handler(async ({ event, context }) => {
   });
 
   // Create stake delta
+  // Subgraph: address.concat(staker.id).concat(txHash).concatI32(logIndex)
   context.StakingManagerStakeDelta.set({
-    id: `${stakeId}-${txHash}-${event.logIndex}`,
+    id: concatI32(concatBytes(stakeId, txHash), event.logIndex),
     manager_id: managerAddress,
     user_id: stakerAddr,
     stake_id: stakeId,
@@ -288,7 +291,8 @@ StakingManager.Unstake.handler(async ({ event, context }) => {
   if (!(await context.User.get(stakerAddr)))
     context.User.set({ id: stakerAddr });
 
-  const stakeId = `${managerAddress}-${stakerAddr}`;
+  // Subgraph: address.concat(staker.id)
+  const stakeId = concatBytes(managerAddress, stakerAddr);
   const stake = await context.StakingManagerStake.get(stakeId);
   if (!stake) return;
 
@@ -301,8 +305,9 @@ StakingManager.Unstake.handler(async ({ event, context }) => {
   });
 
   // Create stake delta (negative)
+  // Subgraph: address.concat(staker.id).concat(txHash).concatI32(logIndex)
   context.StakingManagerStakeDelta.set({
-    id: `${stakeId}-${txHash}-${event.logIndex}`,
+    id: concatI32(concatBytes(stakeId, txHash), event.logIndex),
     manager_id: managerAddress,
     user_id: stakerAddr,
     stake_id: stakeId,
@@ -352,8 +357,9 @@ StakingManager.ETHReceivedFromUnknownSource.handler(
 
     const bundle = await context.Bundle.get(BUNDLE_ID);
 
+    // Subgraph: address.concat(txHash).concatI32(logIndex)
     context.StakingManagerExternalETH.set({
-      id: `${managerAddress}-${txHash}-${event.logIndex}`,
+      id: concatI32(concatBytes(managerAddress, txHash), event.logIndex),
       manager_id: managerAddress,
       user_id: senderAddr,
       amount,
@@ -371,6 +377,7 @@ StakingManager.ETHReceivedFromUnknownSource.handler(
     }
   }
 );
+
 
 
 

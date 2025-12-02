@@ -5,7 +5,7 @@
 
 import { CollectionToken } from "generated";
 import { ZERO_BI, ZERO_ADDRESS } from "../utils/constants";
-import { normalizeAddress } from "../utils/helpers";
+import { normalizeAddress, concatBytes, concatI32 } from "../utils/helpers";
 
 // =============================================================================
 // COLLECTION TOKEN HANDLERS (Dynamic - ERC20 Transfers)
@@ -27,7 +27,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
 
   // Handle sender's holdings (if not minting)
   if (!isZeroAddress(from)) {
-    const fromHoldingId = `${from}-${tokenAddress}`;
+    // Subgraph: address.concat(collection)
+    const fromHoldingId = concatBytes(from, tokenAddress);
     let fromHolding = await context.CollectionTokenHolding.get(fromHoldingId);
 
     if (fromHolding) {
@@ -44,7 +45,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
       });
 
       // Create CollectionTokenHoldingChange for sender (decrement)
-      const changeId = `${txHash}-${event.logIndex}-from`;
+      // Subgraph: address.concat(txHash).concatI32(logIndex)
+      const changeId = concatI32(concatBytes(from, txHash), event.logIndex);
       context.CollectionTokenHoldingChange.set({
         id: changeId,
         collectionToken_id: tokenAddress,
@@ -83,7 +85,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
     }
 
     // Track burned tokens in zero address holding
-    const zeroHoldingId = `${ZERO_ADDRESS}-${tokenAddress}`;
+    // Subgraph: address.concat(collection)
+    const zeroHoldingId = concatBytes(ZERO_ADDRESS, tokenAddress);
     let zeroHolding = await context.CollectionTokenHolding.get(zeroHoldingId);
 
     if (zeroHolding) {
@@ -114,7 +117,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
 
   // Handle receiver's holdings (if not burning)
   if (!isZeroAddress(to)) {
-    const toHoldingId = `${to}-${tokenAddress}`;
+    // Subgraph: address.concat(collection)
+    const toHoldingId = concatBytes(to, tokenAddress);
     let toHolding = await context.CollectionTokenHolding.get(toHoldingId);
 
     // Get or create user
@@ -138,7 +142,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
       });
 
       // Create CollectionTokenHoldingChange for receiver (increment)
-      const changeId = `${txHash}-${event.logIndex}-to`;
+      // Subgraph: address.concat(txHash).concatI32(logIndex)
+      const changeId = concatI32(concatBytes(to, txHash), event.logIndex);
       context.CollectionTokenHoldingChange.set({
         id: changeId,
         collectionToken_id: tokenAddress,
@@ -180,7 +185,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
       });
 
       // Create CollectionTokenHoldingChange for new holder (increment)
-      const changeId = `${txHash}-${event.logIndex}-to`;
+      // Subgraph: address.concat(txHash).concatI32(logIndex)
+      const changeId = concatI32(concatBytes(to, txHash), event.logIndex);
       context.CollectionTokenHoldingChange.set({
         id: changeId,
         collectionToken_id: tokenAddress,
@@ -219,6 +225,7 @@ CollectionToken.MetadataUpdated.handler(async ({ event, context }) => {
     });
   }
 });
+
 
 
 

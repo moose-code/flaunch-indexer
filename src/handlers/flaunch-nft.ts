@@ -4,7 +4,7 @@
  */
 
 import { FlaunchNFT1, FlaunchNFT2, FlaunchNFT3, FlaunchNFT4, AnyFlaunchNFT } from "generated";
-import { normalizeAddress, generateCollectionId } from "../utils/helpers";
+import { normalizeAddress, generateCollectionId, concatBytes, concatI32 } from "../utils/helpers";
 import { ZERO_ADDRESS } from "../utils/constants";
 
 // =============================================================================
@@ -73,7 +73,8 @@ async function handleNFTTransfer(
     }
 
     // Create/update CollectionHolding for burn
-    const holdingId = `${to}-${tokenId.toString()}`;
+    // Subgraph: owner.concatI32(tokenId)
+    const holdingId = concatI32(to, Number(tokenId));
     context.CollectionHolding.set({
       id: holdingId,
       nftAddress: contractAddr,
@@ -102,7 +103,8 @@ async function handleNFTTransfer(
     }
 
     // Update CollectionHolding - transfer from old owner to new owner
-    const fromHoldingId = `${from}-${tokenId.toString()}`;
+    // Subgraph: owner.concatI32(tokenId)
+    const fromHoldingId = concatI32(from, Number(tokenId));
     const fromHolding = await context.CollectionHolding.get(fromHoldingId);
     if (fromHolding) {
       context.CollectionHolding.set({
@@ -144,8 +146,10 @@ async function handleNFTApproval(
   if (!(await context.User.get(owner))) context.User.set({ id: owner });
   if (!(await context.User.get(account))) context.User.set({ id: account });
 
-  const flaunchApprovalId = `${contractAddr}-${owner}-${account}`;
-  const flaunchApprovalTokenId = `${contractAddr}-${owner}-${tokenId.toString()}`;
+  // Subgraph: address.concat(owner).concat(operator)
+  const flaunchApprovalId = concatBytes(concatBytes(contractAddr, owner), account);
+  // Subgraph: address.concat(owner).concatI32(tokenId)
+  const flaunchApprovalTokenId = concatI32(concatBytes(contractAddr, owner), Number(tokenId));
 
   // When approval is NOT to zero address, create/update approval
   if (account !== ZERO_ADDRESS) {
@@ -202,7 +206,8 @@ async function handleNFTApprovalForAll(
   if (!(await context.User.get(owner))) context.User.set({ id: owner });
   if (!(await context.User.get(operator))) context.User.set({ id: operator });
 
-  const flaunchApprovalId = `${contractAddr}-${owner}-${operator}`;
+  // Subgraph: address.concat(owner).concat(operator)
+  const flaunchApprovalId = concatBytes(concatBytes(contractAddr, owner), operator);
 
   // Get or create FlaunchApproval with global flag
   let flaunchApproval = await context.FlaunchApproval.get(flaunchApprovalId);
@@ -302,6 +307,7 @@ AnyFlaunchNFT.Approval.handler(async ({ event, context }) => {
 AnyFlaunchNFT.ApprovalForAll.handler(async ({ event, context }) => {
   await handleNFTApprovalForAll(event, context);
 });
+
 
 
 

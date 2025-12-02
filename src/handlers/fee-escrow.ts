@@ -4,7 +4,7 @@
  */
 
 import { FeeEscrow, BigDecimal } from "generated";
-import { normalizeAddress } from "../utils/helpers";
+import { normalizeAddress, concatBytes, concatI32 } from "../utils/helpers";
 import { ZERO_BI, ZERO_BD, BUNDLE_ID } from "../utils/constants";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 
@@ -59,7 +59,8 @@ FeeEscrow.Deposit.handler(async ({ event, context }) => {
   const collectionTokenId = poolLookup.collectionToken_id;
 
   // 3. Create or update UserCollectionFee
-  const userCollectionFeeId = `${sender}-${collectionTokenId}`;
+  // Subgraph: user.concat(collectionToken)
+  const userCollectionFeeId = concatBytes(sender, collectionTokenId);
   let userCollectionFee = await context.UserCollectionFee.get(userCollectionFeeId);
   if (!userCollectionFee) {
     userCollectionFee = {
@@ -140,10 +141,9 @@ FeeEscrow.Withdrawal.handler(async ({ event, context }) => {
     updatedAt: timestamp,
   });
 
-  // Create UserFeeClaimed record
-  const userFeeClaimedId = `${txHash}-${event.logIndex}`;
+  // Create UserFeeClaimed record (subgraph: txHash.concatI32(logIndex))
   context.UserFeeClaimed.set({
-    id: userFeeClaimedId,
+    id: concatI32(txHash, event.logIndex),
     payee_id: recipient,
     amount,
     amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
@@ -151,6 +151,7 @@ FeeEscrow.Withdrawal.handler(async ({ event, context }) => {
     txHash,
   });
 });
+
 
 
 

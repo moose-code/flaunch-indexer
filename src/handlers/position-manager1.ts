@@ -4,7 +4,7 @@
 
 import { PositionManager1 } from "generated";
 import { CONFIG_ID, ZERO_BI, ZERO_BD, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, getBigIntFromBytes } from "../utils/helpers";
+import { normalizeAddress, getBigIntFromBytes, concatBytes, concatI32 } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 import {
   createPoolEntities,
@@ -258,7 +258,8 @@ PositionManager1.Deposit.handler(async ({ event, context }) => {
   const collectionTokenId = poolLookup.collectionToken_id;
 
   // 3. Create or update UserCollectionFee
-  const userCollectionFeeId = `${payee}-${collectionTokenId}`;
+  // Subgraph: user.concat(collectionToken)
+  const userCollectionFeeId = concatBytes(payee, collectionTokenId);
   let userCollectionFee = await context.UserCollectionFee.get(userCollectionFeeId);
   if (!userCollectionFee) {
     userCollectionFee = {
@@ -339,10 +340,9 @@ PositionManager1.Withdrawal.handler(async ({ event, context }) => {
     updatedAt: timestamp,
   });
 
-  // Create UserFeeClaimed record
-  const userFeeClaimedId = `${txHash}-${event.logIndex}`;
+  // Create UserFeeClaimed record (subgraph: txHash.concatI32(logIndex))
   context.UserFeeClaimed.set({
-    id: userFeeClaimedId,
+    id: concatI32(txHash, event.logIndex),
     payee_id: recipient,
     amount,
     amountUSDC: convertETHtoUSDCWithBundle(amount, bundle),
@@ -354,7 +354,6 @@ PositionManager1.Withdrawal.handler(async ({ event, context }) => {
 PositionManager1.PoolPremine.handler(async ({ event, context }) => {
   const poolId = event.params._poolId;
   const premineAmount = event.params._premineAmount;
-  const txHash = event.transaction.hash || "";
 
   const pool = await context.Pool.get(poolId);
   if (!pool) return;
@@ -364,8 +363,9 @@ PositionManager1.PoolPremine.handler(async ({ event, context }) => {
   );
   if (!collectionToken) return;
 
+  // Subgraph uses poolId as the ID (not txHash)
   context.PoolPremine.set({
-    id: `${txHash}-${event.logIndex}`,
+    id: poolId,
     pool_id: poolId,
     receiver_id: collectionToken.creator_id,
     amount: premineAmount,
@@ -389,6 +389,7 @@ PositionManager1.OwnershipHandoverRequested.handler(
 PositionManager1.OwnershipHandoverCanceled.handler(
   async ({ event, context }) => {}
 );
+
 
 
 

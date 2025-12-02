@@ -5,7 +5,7 @@
 
 import { BigDecimal } from "generated";
 import { ZERO_BI, ZERO_BD, CONFIG_ID, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, absBigInt, generateCollectionId } from "../utils/helpers";
+import { normalizeAddress, absBigInt, generateCollectionId, concatI32 } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle, sqrtPriceX96ToTokenPrices } from "../utils/pricing";
 import {
   getBidWallAddressForPositionManager,
@@ -485,9 +485,10 @@ export async function processPoolSwap(
     }
   }
 
-  // Create PoolSwap entity
+  // Create PoolSwap entity (subgraph: txHash.concatI32(logIndex))
+  const swapId = concatI32(txHash, event.logIndex);
   context.PoolSwap.set({
-    id: `${txHash}-${event.logIndex}`,
+    id: swapId,
     maker_id: maker,
     timestamp,
     txHash,
@@ -512,9 +513,9 @@ export async function processPoolSwap(
     userHolding_id: undefined,
   });
 
-  // Create Activity entity
+  // Create Activity entity (same ID as PoolSwap - subgraph uses same txHash.concatI32(logIndex))
   context.Activity.set({
-    id: `${txHash}-${event.logIndex}-activity`,
+    id: swapId,
     maker_id: maker,
     timestamp,
     txHash,
@@ -685,8 +686,9 @@ export async function processPoolFeesDistributed(
     });
   }
 
+  // Subgraph: just uses txHash as ID
   context.PoolFeeDistribution.set({
-    id: `${txHash}-${event.logIndex}`,
+    id: txHash,
     pool_id: poolId,
     timestamp,
     amount: feesETH,
@@ -696,6 +698,7 @@ export async function processPoolFeesDistributed(
     protocolAmount,
   });
 }
+
 
 
 

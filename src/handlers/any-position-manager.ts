@@ -5,7 +5,7 @@
 
 import { AnyPositionManager, BigDecimal } from "generated";
 import { ZERO_BI, ZERO_BD, CONFIG_ID, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, absBigInt, generateCollectionId, getBigIntFromBytes } from "../utils/helpers";
+import { normalizeAddress, absBigInt, generateCollectionId, getBigIntFromBytes, concatI32 } from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 import {
   getBidWallAddressForPositionManager,
@@ -452,8 +452,10 @@ AnyPositionManager.PoolSwap.handler(async ({ event, context }) => {
       });
     }
   }
+  // Subgraph: txHash.concatI32(logIndex)
+  const swapId = concatI32(txHash, event.logIndex);
   context.PoolSwap.set({
-    id: `${txHash}-${event.logIndex}`,
+    id: swapId,
     maker_id: maker,
     timestamp,
     txHash,
@@ -477,8 +479,9 @@ AnyPositionManager.PoolSwap.handler(async ({ event, context }) => {
     swapType: isBuy ? "Buy" : "Sell",
     userHolding_id: undefined,
   });
+  // Activity uses same ID as PoolSwap (subgraph: same txHash.concatI32(logIndex))
   context.Activity.set({
-    id: `${txHash}-${event.logIndex}-activity`,
+    id: swapId,
     maker_id: maker,
     timestamp,
     txHash,
@@ -588,8 +591,9 @@ AnyPositionManager.PoolFeesDistributed.handler(async ({ event, context }) => {
       bundle
     ),
   });
+  // Subgraph: just uses txHash as ID
   context.PoolFeeDistribution.set({
-    id: `${txHash}-${event.logIndex}`,
+    id: txHash,
     pool_id: poolId,
     timestamp,
     amount: feesETH,
@@ -723,6 +727,7 @@ AnyPositionManager.CreatorFeeAllocationUpdated.handler(
     });
   }
 );
+
 
 
 
