@@ -61,7 +61,9 @@ FeeEscrow.Deposit.handler(async ({ event, context }) => {
   // 3. Create or update UserCollectionFee
   // Subgraph: user.concat(collectionToken)
   const userCollectionFeeId = concatBytes(sender, collectionTokenId);
-  let userCollectionFee = await context.UserCollectionFee.get(userCollectionFeeId);
+  let userCollectionFee = await context.UserCollectionFee.get(
+    userCollectionFeeId
+  );
   if (!userCollectionFee) {
     userCollectionFee = {
       id: userCollectionFeeId,
@@ -151,10 +153,3 @@ FeeEscrow.Withdrawal.handler(async ({ event, context }) => {
     txHash,
   });
 });
-
-
-
-
-
-
-

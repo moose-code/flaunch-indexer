@@ -34,11 +34,12 @@ ReferralEscrow.TokensAssigned.handler(async ({ event, context }) => {
 
   // Create or update TokenReferralFee
   // Subgraph uses collectionToken.concat(user) - for fleth, uses Address.zero()
-  const isFleth =
-    tokenAddress === FLETH ||
-    tokenAddress === ZERO_ADDRESS;
+  const isFleth = tokenAddress === FLETH || tokenAddress === ZERO_ADDRESS;
   // Subgraph: collectionToken.concat(user) - token is zero address for fleth
-  const tokenRefFeeId = concatBytes(isFleth ? ZERO_ADDRESS : tokenAddress, userId);
+  const tokenRefFeeId = concatBytes(
+    isFleth ? ZERO_ADDRESS : tokenAddress,
+    userId
+  );
   const existingFee = await context.TokenReferralFee.get(tokenRefFeeId);
 
   if (existingFee) {
@@ -117,7 +118,10 @@ ReferralEscrow.TokensClaimed.handler(async ({ event, context }) => {
   });
 
   // Reset TokenReferralFee (subgraph: collectionToken.concat(user))
-  const tokenRefFeeId = concatBytes(isFleth ? ZERO_ADDRESS : tokenAddress, userId);
+  const tokenRefFeeId = concatBytes(
+    isFleth ? ZERO_ADDRESS : tokenAddress,
+    userId
+  );
   const existingFee = await context.TokenReferralFee.get(tokenRefFeeId);
   if (existingFee) {
     context.TokenReferralFee.set({
@@ -147,10 +151,3 @@ ReferralEscrow.TokensSwapped.handler(async ({ event, context }) => {
     txHash,
   });
 });
-
-
-
-
-
-
-

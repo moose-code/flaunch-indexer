@@ -5,7 +5,13 @@
 
 import { AnyPositionManager, BigDecimal } from "generated";
 import { ZERO_BI, ZERO_BD, CONFIG_ID, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, absBigInt, generateCollectionId, getBigIntFromBytes, concatI32 } from "../utils/helpers";
+import {
+  normalizeAddress,
+  absBigInt,
+  generateCollectionId,
+  getBigIntFromBytes,
+  concatI32,
+} from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 import {
   getBidWallAddressForPositionManager,
@@ -98,9 +104,12 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
   // Indices:                         0              1       2              3                      4
   const paramsData = event.params._params;
   const creator = normalizeAddress(paramsData[0]);
+  const creatorFeeAllocation = Number(paramsData[2] || "10000"); // uint24 at index 2
   // Parse startingMarketCap from initialPriceParams (index 3, second-to-last)
   const initialPriceParams = paramsData[3] as string;
-  const startingMarketCap = initialPriceParams ? getBigIntFromBytes(initialPriceParams) : ZERO_BI;
+  const startingMarketCap = initialPriceParams
+    ? getBigIntFromBytes(initialPriceParams)
+    : ZERO_BI;
 
   // Ensure Bundle exists for ETH price
   let bundle = await context.Bundle.get(BUNDLE_ID);
@@ -218,6 +227,15 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     creator: 0,
   });
 
+  // Create default FeeAllocation (matches subgraph behavior)
+  // allocation is the creator's share in basis points (out of 10000)
+  const communityShare = 10000 - creatorFeeAllocation;
+  context.FeeAllocation.set({
+    id: poolId,
+    creator: creatorFeeAllocation,
+    community: communityShare,
+  });
+
   // Create Pool
   context.Pool.set({
     id: poolId,
@@ -229,8 +247,8 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     liquidity: ZERO_BI,
     liveAtTimestamp: timestamp,
     flipped,
-    startingMarketCap,  // Parsed from initialPriceParams
-    startingMarketCapETH: ZERO_BI,  // Calculated on first swap
+    startingMarketCap, // Parsed from initialPriceParams
+    startingMarketCapETH: ZERO_BI, // Calculated on first swap
     volumeETH: ZERO_BI,
     volumeUSDC: ZERO_BD,
     totalFeesETH: ZERO_BI,
@@ -244,8 +262,8 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     bidWall_id: poolId,
     poolFees_id: poolId,
     memecoinTreasury_id: memecoinTreasury,
-    feeAllocation_id: undefined,
-    feeDistribution_id: poolId,  // Link to FeeDistribution
+    feeAllocation_id: poolId, // Link to FeeAllocation created above
+    feeDistribution_id: poolId, // Link to FeeDistribution
     positionManager,
   });
 
@@ -334,6 +352,7 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
 // Contract registration
 AnyPositionManager.PoolCreated.contractRegister(({ event, context }) => {
   context.addCollectionToken(event.params._memecoin);
+  context.addMemecoinTreasuryContract(event.params._memecoinTreasury);
 });
 
 AnyPositionManager.PoolSwap.handler(async ({ event, context }) => {
@@ -407,48 +426,59 @@ AnyPositionManager.PoolSwap.handler(async ({ event, context }) => {
     context.CollectionToken.set(updatedToken);
 
     // Update time series data
-    const [dayData, hourData, minuteData, fifteenMinData, fourHourData] = await Promise.all([
-      updateTokenDayData(context, updatedToken, timestamp, openPrice),
-      updateTokenHourData(context, updatedToken, timestamp, openPrice),
-      updateTokenMinuteData(context, updatedToken, timestamp, openPrice),
-      updateToken15MinuteData(context, updatedToken, timestamp, openPrice),
-      updateToken4HourData(context, updatedToken, timestamp, openPrice),
-    ]);
+    const [dayData, hourData, minuteData, fifteenMinData, fourHourData] =
+      await Promise.all([
+        updateTokenDayData(context, updatedToken, timestamp, openPrice),
+        updateTokenHourData(context, updatedToken, timestamp, openPrice),
+        updateTokenMinuteData(context, updatedToken, timestamp, openPrice),
+        updateToken15MinuteData(context, updatedToken, timestamp, openPrice),
+        updateToken4HourData(context, updatedToken, timestamp, openPrice),
+      ]);
 
     // Update volume on time series data
     if (dayData) {
       context.TokenDayData.set({
         ...dayData,
         volumeETH: dayData.volumeETH + totalETHAmount,
-        volumeUSDC: dayData.volumeUSDC.plus(convertETHtoUSDCWithBundle(totalETHAmount, bundle)),
+        volumeUSDC: dayData.volumeUSDC.plus(
+          convertETHtoUSDCWithBundle(totalETHAmount, bundle)
+        ),
       });
     }
     if (hourData) {
       context.TokenHourData.set({
         ...hourData,
         volumeETH: hourData.volumeETH + totalETHAmount,
-        volumeUSDC: hourData.volumeUSDC.plus(convertETHtoUSDCWithBundle(totalETHAmount, bundle)),
+        volumeUSDC: hourData.volumeUSDC.plus(
+          convertETHtoUSDCWithBundle(totalETHAmount, bundle)
+        ),
       });
     }
     if (minuteData) {
       context.TokenMinuteData.set({
         ...minuteData,
         volumeETH: minuteData.volumeETH + totalETHAmount,
-        volumeUSDC: minuteData.volumeUSDC.plus(convertETHtoUSDCWithBundle(totalETHAmount, bundle)),
+        volumeUSDC: minuteData.volumeUSDC.plus(
+          convertETHtoUSDCWithBundle(totalETHAmount, bundle)
+        ),
       });
     }
     if (fifteenMinData) {
       context.Token15MinuteData.set({
         ...fifteenMinData,
         volumeETH: fifteenMinData.volumeETH + totalETHAmount,
-        volumeUSDC: fifteenMinData.volumeUSDC.plus(convertETHtoUSDCWithBundle(totalETHAmount, bundle)),
+        volumeUSDC: fifteenMinData.volumeUSDC.plus(
+          convertETHtoUSDCWithBundle(totalETHAmount, bundle)
+        ),
       });
     }
     if (fourHourData) {
       context.Token4HourData.set({
         ...fourHourData,
         volumeETH: fourHourData.volumeETH + totalETHAmount,
-        volumeUSDC: fourHourData.volumeUSDC.plus(convertETHtoUSDCWithBundle(totalETHAmount, bundle)),
+        volumeUSDC: fourHourData.volumeUSDC.plus(
+          convertETHtoUSDCWithBundle(totalETHAmount, bundle)
+        ),
       });
     }
   }
@@ -728,10 +758,3 @@ AnyPositionManager.CreatorFeeAllocationUpdated.handler(
     });
   }
 );
-
-
-
-
-
-
-

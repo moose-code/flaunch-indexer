@@ -19,6 +19,7 @@ import {
 
 PositionManager2.PoolCreated.contractRegister(({ event, context }) => {
   context.addCollectionToken(event.params._memecoin);
+  context.addMemecoinTreasuryContract(event.params._memecoinTreasury);
 });
 
 PositionManager2.PoolCreated.handler(async ({ event, context }) => {
@@ -38,9 +39,12 @@ PositionManager2.PoolCreated.handler(async ({ event, context }) => {
   const symbol = paramsData[1] || "UNKNOWN";
   const initialSupply = BigInt(paramsData[3] || "0");
   const creator = normalizeAddress(paramsData[6]); // Different index for PM2
+  const creatorFeeAllocation = Number(paramsData[7] || "10000"); // uint24 at index 7
   // Parse startingMarketCap from initialPriceParams (index 9, second-to-last)
   const initialPriceParams = paramsData[9] as string;
-  const startingMarketCap = initialPriceParams ? getBigIntFromBytes(initialPriceParams) : ZERO_BI;
+  const startingMarketCap = initialPriceParams
+    ? getBigIntFromBytes(initialPriceParams)
+    : ZERO_BI;
 
   await createPoolEntities(
     context,
@@ -56,7 +60,8 @@ PositionManager2.PoolCreated.handler(async ({ event, context }) => {
     symbol,
     creator,
     initialSupply,
-    startingMarketCap
+    startingMarketCap,
+    creatorFeeAllocation
   );
 });
 
@@ -112,8 +117,7 @@ PositionManager2.PoolFeeDistributionUpdated.handler(
 
 PositionManager2.ReferrerFeePaid.handler(async ({ event, context }) => {
   const recipient = normalizeAddress(event.params._recipient);
-  if (!(await context.User.get(recipient)))
-    context.User.set({ id: recipient });
+  if (!(await context.User.get(recipient))) context.User.set({ id: recipient });
 });
 
 PositionManager2.ReferralEscrowUpdated.handler(async ({ event, context }) => {
@@ -216,10 +220,3 @@ PositionManager2.CreatorFeeAllocationUpdated.handler(
     });
   }
 );
-
-
-
-
-
-
-

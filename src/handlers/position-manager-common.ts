@@ -5,8 +5,16 @@
 
 import { BigDecimal } from "generated";
 import { ZERO_BI, ZERO_BD, CONFIG_ID, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, absBigInt, generateCollectionId, concatI32 } from "../utils/helpers";
-import { convertETHtoUSDCWithBundle, sqrtPriceX96ToTokenPrices } from "../utils/pricing";
+import {
+  normalizeAddress,
+  absBigInt,
+  generateCollectionId,
+  concatI32,
+} from "../utils/helpers";
+import {
+  convertETHtoUSDCWithBundle,
+  sqrtPriceX96ToTokenPrices,
+} from "../utils/pricing";
 import {
   getBidWallAddressForPositionManager,
   getFlaunchAddressForPositionManager,
@@ -18,7 +26,10 @@ import {
   updateToken15MinuteData,
   updateToken4HourData,
 } from "../utils/timeseries";
-import { fetchTokenTotalSupply, fetchTokenURI } from "../effects/token-metadata";
+import {
+  fetchTokenTotalSupply,
+  fetchTokenURI,
+} from "../effects/token-metadata";
 
 /**
  * Create all entities for a new pool
@@ -37,7 +48,8 @@ export async function createPoolEntities(
   symbol: string,
   creator: string,
   initialSupply: bigint = ZERO_BI,
-  startingMarketCap: bigint = ZERO_BI
+  startingMarketCap: bigint = ZERO_BI,
+  creatorFeeAllocation: number = 10000 // Default to 100% creator (10000 basis points)
 ) {
   // Ensure Bundle exists for ETH price
   let bundle = await context.Bundle.get(BUNDLE_ID);
@@ -152,6 +164,15 @@ export async function createPoolEntities(
     creator: 0,
   });
 
+  // Create default FeeAllocation (matches subgraph behavior)
+  // allocation is the creator's share in basis points (out of 10000)
+  const communityShare = 10000 - creatorFeeAllocation;
+  context.FeeAllocation.set({
+    id: poolId,
+    creator: creatorFeeAllocation,
+    community: communityShare,
+  });
+
   // Create Pool
   context.Pool.set({
     id: poolId,
@@ -163,8 +184,8 @@ export async function createPoolEntities(
     liquidity: ZERO_BI,
     liveAtTimestamp: timestamp,
     flipped,
-    startingMarketCap,  // Parsed from initialPriceParams
-    startingMarketCapETH: ZERO_BI,  // Calculated on first swap
+    startingMarketCap, // Parsed from initialPriceParams
+    startingMarketCapETH: ZERO_BI, // Calculated on first swap
     volumeETH: ZERO_BI,
     volumeUSDC: ZERO_BD,
     totalFeesETH: ZERO_BI,
@@ -178,8 +199,8 @@ export async function createPoolEntities(
     bidWall_id: poolId,
     poolFees_id: poolId,
     memecoinTreasury_id: memecoinTreasury,
-    feeAllocation_id: undefined,
-    feeDistribution_id: poolId,  // Link to FeeDistribution
+    feeAllocation_id: poolId, // Link to FeeAllocation created above
+    feeDistribution_id: poolId, // Link to FeeDistribution
     positionManager,
   });
 
@@ -307,7 +328,9 @@ export async function processPoolStateUpdated(
 
   // Calculate startingMarketCapETH if not yet set (matches subgraph PoolInitialized behavior)
   if (pool.startingMarketCapETH === ZERO_BI) {
-    const collectionToken = await context.CollectionToken.get(pool.collectionToken_id);
+    const collectionToken = await context.CollectionToken.get(
+      pool.collectionToken_id
+    );
     if (collectionToken && collectionToken.totalSupply > ZERO_BI) {
       const decimals = collectionToken.decimals || 18;
 
@@ -331,7 +354,8 @@ export async function processPoolStateUpdated(
         // startingMarketCapETH = (totalSupply / 10^decimals) * price
         // price is already in 18 decimal precision from our pricing function
         const divisor = 10n ** BigInt(decimals);
-        const startingMarketCapETH = (collectionToken.totalSupply * price) / divisor;
+        const startingMarketCapETH =
+          (collectionToken.totalSupply * price) / divisor;
         updatedPool = { ...updatedPool, startingMarketCapETH };
       }
     }
@@ -698,10 +722,3 @@ export async function processPoolFeesDistributed(
     protocolAmount,
   });
 }
-
-
-
-
-
-
-

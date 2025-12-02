@@ -4,7 +4,12 @@
 
 import { PositionManager1 } from "generated";
 import { CONFIG_ID, ZERO_BI, ZERO_BD, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, getBigIntFromBytes, concatBytes, concatI32 } from "../utils/helpers";
+import {
+  normalizeAddress,
+  getBigIntFromBytes,
+  concatBytes,
+  concatI32,
+} from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 import {
   createPoolEntities,
@@ -20,6 +25,7 @@ import {
 
 PositionManager1.PoolCreated.contractRegister(({ event, context }) => {
   context.addCollectionToken(event.params._memecoin);
+  context.addMemecoinTreasuryContract(event.params._memecoinTreasury);
 });
 
 PositionManager1.PoolCreated.handler(async ({ event, context }) => {
@@ -39,9 +45,12 @@ PositionManager1.PoolCreated.handler(async ({ event, context }) => {
   const symbol = paramsData[1] || "UNKNOWN";
   const initialSupply = BigInt(paramsData[3] || "0");
   const creator = normalizeAddress(paramsData[5]);
+  const creatorFeeAllocation = Number(paramsData[6] || "10000"); // uint24 at index 6
   // Parse startingMarketCap from initialPriceParams (index 8, second-to-last)
   const initialPriceParams = paramsData[8] as string;
-  const startingMarketCap = initialPriceParams ? getBigIntFromBytes(initialPriceParams) : ZERO_BI;
+  const startingMarketCap = initialPriceParams
+    ? getBigIntFromBytes(initialPriceParams)
+    : ZERO_BI;
 
   await createPoolEntities(
     context,
@@ -57,7 +66,8 @@ PositionManager1.PoolCreated.handler(async ({ event, context }) => {
     symbol,
     creator,
     initialSupply,
-    startingMarketCap
+    startingMarketCap,
+    creatorFeeAllocation
   );
 });
 
@@ -113,8 +123,7 @@ PositionManager1.PoolFeeDistributionUpdated.handler(
 
 PositionManager1.ReferrerFeePaid.handler(async ({ event, context }) => {
   const recipient = normalizeAddress(event.params._recipient);
-  if (!(await context.User.get(recipient)))
-    context.User.set({ id: recipient });
+  if (!(await context.User.get(recipient))) context.User.set({ id: recipient });
 });
 
 PositionManager1.ReferralEscrowUpdated.handler(async ({ event, context }) => {
@@ -260,7 +269,9 @@ PositionManager1.Deposit.handler(async ({ event, context }) => {
   // 3. Create or update UserCollectionFee
   // Subgraph: user.concat(collectionToken)
   const userCollectionFeeId = concatBytes(payee, collectionTokenId);
-  let userCollectionFee = await context.UserCollectionFee.get(userCollectionFeeId);
+  let userCollectionFee = await context.UserCollectionFee.get(
+    userCollectionFeeId
+  );
   if (!userCollectionFee) {
     userCollectionFee = {
       id: userCollectionFeeId,
@@ -389,10 +400,3 @@ PositionManager1.OwnershipHandoverRequested.handler(
 PositionManager1.OwnershipHandoverCanceled.handler(
   async ({ event, context }) => {}
 );
-
-
-
-
-
-
-

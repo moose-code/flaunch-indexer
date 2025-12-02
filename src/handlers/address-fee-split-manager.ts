@@ -5,7 +5,12 @@
 
 import { AddressFeeSplitManager } from "generated";
 import { BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, generateCollectionId, concatBytes, concatI32 } from "../utils/helpers";
+import {
+  normalizeAddress,
+  generateCollectionId,
+  concatBytes,
+  concatI32,
+} from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 
 // =============================================================================
@@ -33,7 +38,10 @@ AddressFeeSplitManager.ManagerInitialized.handler(
     const managerAddress = normalizeAddress(event.srcAddress);
     const ownerAddr = normalizeAddress(event.params.owner);
     // params is (uint256 creatorShare, (address recipient, uint256 share)[] recipientShares)
-    const params = event.params.params as unknown as [bigint, readonly [string, bigint][]];
+    const params = event.params.params as unknown as [
+      bigint,
+      readonly [string, bigint][]
+    ];
     const creatorShare = params[0];
     const recipientShares = params[1] || [];
 
@@ -90,7 +98,8 @@ AddressFeeSplitManager.ManagerOwnershipTransferred.handler(
     const newOwner = normalizeAddress(event.params.newOwner);
 
     // Ensure both users exist
-    if (!(await context.User.get(previousOwner))) context.User.set({ id: previousOwner });
+    if (!(await context.User.get(previousOwner)))
+      context.User.set({ id: previousOwner });
     if (!(await context.User.get(newOwner))) context.User.set({ id: newOwner });
 
     const manager = await context.AddressFeeSplitManager.get(managerAddress);
@@ -197,13 +206,13 @@ AddressFeeSplitManager.RecipientShareTransferred.handler(
 
     // Update or create new recipient share using the event's share value
     const newRecipientId = concatBytes(managerAddress, newRecipient);
-    let newRecipientShareEntity = await context.AddressFeeSplitManagerRecipient.get(
-      newRecipientId
-    );
+    let newRecipientShareEntity =
+      await context.AddressFeeSplitManagerRecipient.get(newRecipientId);
     if (newRecipientShareEntity) {
       context.AddressFeeSplitManagerRecipient.set({
         ...newRecipientShareEntity,
-        recipientShare: newRecipientShareEntity.recipientShare + shareTransferred,
+        recipientShare:
+          newRecipientShareEntity.recipientShare + shareTransferred,
       });
     } else {
       context.AddressFeeSplitManagerRecipient.set({
@@ -261,10 +270,3 @@ AddressFeeSplitManager.ETHReceivedFromUnknownSource.handler(
     }
   }
 );
-
-
-
-
-
-
-

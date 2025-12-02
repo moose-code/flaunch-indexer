@@ -5,7 +5,12 @@
 
 import { BuyBackManager } from "generated";
 import { ZERO_BD, BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, generateCollectionId, concatBytes, concatI32 } from "../utils/helpers";
+import {
+  normalizeAddress,
+  generateCollectionId,
+  concatBytes,
+  concatI32,
+} from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 
 // =============================================================================
@@ -57,7 +62,8 @@ BuyBackManager.ManagerOwnershipTransferred.handler(
     const newOwner = normalizeAddress(event.params.newOwner);
 
     // Ensure both users exist
-    if (!(await context.User.get(previousOwner))) context.User.set({ id: previousOwner });
+    if (!(await context.User.get(previousOwner)))
+      context.User.set({ id: previousOwner });
     if (!(await context.User.get(newOwner))) context.User.set({ id: newOwner });
 
     const manager = await context.BuyBackManager.get(managerAddress);
@@ -210,10 +216,3 @@ BuyBackManager.ETHReceivedFromUnknownSource.handler(
     }
   }
 );
-
-
-
-
-
-
-

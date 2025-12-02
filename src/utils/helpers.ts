@@ -334,7 +334,7 @@ export function addressesEqual(a: string, b: string): boolean {
 /**
  * Replicate Bytes.fromI32() from AssemblyScript.
  * Creates a 4-byte hex string from an integer in LITTLE-ENDIAN format.
- * 
+ *
  * @example bytesFromI32(1) => "0x01000000"
  * @example bytesFromI32(2) => "0x02000000"
  */
@@ -349,7 +349,7 @@ export function bytesFromI32(num: number): string {
 /**
  * Replicate Bytes.concat() from AssemblyScript.
  * Concatenates two hex strings by removing the 0x prefix from the second.
- * 
+ *
  * @example concatBytes("0xabc123", "0xdef456") => "0xabc123def456"
  */
 export function concatBytes(a: string, b: string): string {
@@ -361,7 +361,7 @@ export function concatBytes(a: string, b: string): string {
 /**
  * Replicate Bytes.concatI32() from AssemblyScript.
  * Appends a 4-byte little-endian integer to a hex string.
- * 
+ *
  * @example concatI32("0xabc123", 5) => "0xabc12305000000"
  */
 export function concatI32(bytes: string, num: number | bigint): string {
@@ -378,7 +378,10 @@ export function concatI32(bytes: string, num: number | bigint): string {
  * Generate a subgraph-compatible ID from txHash and logIndex.
  * Matches: txHash.concatI32(logIndex.toI32())
  */
-export function generateTxLogId(txHash: string, logIndex: number | bigint): string {
+export function generateTxLogId(
+  txHash: string,
+  logIndex: number | bigint
+): string {
   return concatI32(txHash, logIndex);
 }
 
@@ -393,5 +396,3 @@ export function generateAddressTxLogId(
 ): string {
   return concatI32(concatBytes(address, txHash), logIndex);
 }
-
-

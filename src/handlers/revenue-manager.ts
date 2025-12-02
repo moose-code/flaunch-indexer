@@ -5,7 +5,12 @@
 
 import { RevenueManager } from "generated";
 import { BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, generateCollectionId, concatBytes, concatI32 } from "../utils/helpers";
+import {
+  normalizeAddress,
+  generateCollectionId,
+  concatBytes,
+  concatI32,
+} from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 
 // =============================================================================
@@ -59,7 +64,8 @@ RevenueManager.ManagerOwnershipTransferred.handler(
     const newOwner = normalizeAddress(event.params.newOwner);
 
     // Ensure both users exist
-    if (!(await context.User.get(previousOwner))) context.User.set({ id: previousOwner });
+    if (!(await context.User.get(previousOwner)))
+      context.User.set({ id: previousOwner });
     if (!(await context.User.get(newOwner))) context.User.set({ id: newOwner });
 
     const manager = await context.RevenueManager.get(managerAddress);
@@ -197,10 +203,3 @@ RevenueManager.PermissionsUpdated.handler(async ({ event, context }) => {
     context.RevenueManager.set({ ...manager, permissions });
   }
 });
-
-
-
-
-
-
-

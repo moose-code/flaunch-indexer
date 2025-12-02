@@ -5,7 +5,12 @@
 
 import { StakingManager } from "generated";
 import { BUNDLE_ID } from "../utils/constants";
-import { normalizeAddress, generateCollectionId, concatBytes, concatI32 } from "../utils/helpers";
+import {
+  normalizeAddress,
+  generateCollectionId,
+  concatBytes,
+  concatI32,
+} from "../utils/helpers";
 import { convertETHtoUSDCWithBundle } from "../utils/pricing";
 import { fetchAllTokenMetadata } from "../effects/token-metadata";
 
@@ -44,7 +49,9 @@ StakingManager.ManagerInitialized.handler(async ({ event, context }) => {
     let token = await context.Token.get(stakingTokenAddr);
     if (!token) {
       // Fetch actual token metadata from chain
-      const metadata = await context.effect(fetchAllTokenMetadata, { address: stakingTokenAddr });
+      const metadata = await context.effect(fetchAllTokenMetadata, {
+        address: stakingTokenAddr,
+      });
       context.Token.set({
         id: stakingTokenAddr,
         name: metadata.name || "Unknown",
@@ -73,7 +80,8 @@ StakingManager.ManagerOwnershipTransferred.handler(
     const newOwner = normalizeAddress(event.params.newOwner);
 
     // Ensure both users exist
-    if (!(await context.User.get(previousOwner))) context.User.set({ id: previousOwner });
+    if (!(await context.User.get(previousOwner)))
+      context.User.set({ id: previousOwner });
     if (!(await context.User.get(newOwner))) context.User.set({ id: newOwner });
 
     const manager = await context.StakingManager.get(managerAddress);
@@ -107,7 +115,9 @@ StakingManager.TreasuryEscrowed.handler(async ({ event, context }) => {
 
     // Create StakingManagerEscrow entity on escrow
     const manager = await context.StakingManager.get(managerAddress);
-    const timelockedUntil = manager ? timestamp + manager.minEscrowDuration : timestamp;
+    const timelockedUntil = manager
+      ? timestamp + manager.minEscrowDuration
+      : timestamp;
 
     let escrow = await context.StakingManagerEscrow.get(collectionId);
     if (!escrow) {
@@ -377,10 +387,3 @@ StakingManager.ETHReceivedFromUnknownSource.handler(
     }
   }
 );
-
-
-
-
-
-
-

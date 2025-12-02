@@ -221,10 +221,3 @@ BidWall2.StaleTimeWindowUpdated.handler(async ({ event, context }) => {
     });
   }
 });
-
-
-
-
-
-
-
