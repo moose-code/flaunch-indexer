@@ -153,15 +153,15 @@ export async function createPoolEntities(
     fourHourArray: [],
   });
 
-  // Create FeeDistribution (subgraph creates this per pool)
+  // Create FeeDistribution (subgraph creates this per pool with null values initially)
   context.FeeDistribution.set({
     id: poolId,
-    swapFee: 0,
-    referrer: 0,
-    protocol: 0,
-    community: 0,
-    active: true,
-    creator: 0,
+    swapFee: undefined,  // Null until FeeDistributionUpdated event
+    referrer: undefined,
+    protocol: undefined,
+    community: undefined,
+    active: undefined,  // Null until FeeDistributionUpdated event
+    creator: undefined,
   });
 
   // Create default FeeAllocation (matches subgraph behavior)
@@ -219,16 +219,17 @@ export async function createPoolEntities(
     closed: false,
   });
 
-  // Create FairLaunch
+  // Create FairLaunch - subgraph sets active=false and starts_at=0 initially
+  // FairLaunchCreated event will set the actual values
   context.FairLaunch.set({
     id: poolId,
-    active: true,
+    active: false,  // Subgraph: false until FairLaunchCreated
     collectionToken_id: memecoin,
     tick: 0,
     initialSupply: initialSupply,
     soldInitialSupply: ZERO_BI,
     ethEarned: ZERO_BI,
-    starts_at: timestamp,
+    starts_at: ZERO_BI,  // Subgraph: 0 until FairLaunchCreated
     ends_at: ZERO_BI,
   });
 
@@ -568,6 +569,29 @@ export async function processPoolSwap(
             fairLaunch.soldInitialSupply + absBigInt(event.params.flAmount0),
         });
       }
+    }
+  }
+
+  // Update Pool ISP tracking (Issue #18)
+  if (
+    absBigInt(event.params.ispAmount0) > 0n ||
+    absBigInt(event.params.ispAmount1) > 0n
+  ) {
+    const currentPool = await context.Pool.get(poolId);
+    if (currentPool) {
+      // Track ISP ETH in and token out
+      const ispEthIn = !currentPool.flipped
+        ? absBigInt(event.params.ispAmount0)
+        : absBigInt(event.params.ispAmount1);
+      const ispTokenOut = !currentPool.flipped
+        ? absBigInt(event.params.ispAmount1)
+        : absBigInt(event.params.ispAmount0);
+
+      context.Pool.set({
+        ...currentPool,
+        ispEthIn: currentPool.ispEthIn + ispEthIn,
+        ispTokenOut: currentPool.ispTokenOut + ispTokenOut,
+      });
     }
   }
 }

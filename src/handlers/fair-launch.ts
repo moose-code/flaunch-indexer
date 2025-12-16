@@ -20,6 +20,7 @@ FairLaunch1.FairLaunchCreated.handler(async ({ event, context }) => {
   if (fairLaunch) {
     context.FairLaunch.set({
       ...fairLaunch,
+      active: true,  // Now active when FairLaunchCreated event fires
       initialSupply: tokens,
       starts_at: startsAt,
       ends_at: endsAt,
@@ -62,6 +63,7 @@ FairLaunch2.FairLaunchCreated.handler(async ({ event, context }) => {
   if (fairLaunch) {
     context.FairLaunch.set({
       ...fairLaunch,
+      active: true,  // Now active when FairLaunchCreated event fires
       initialSupply: tokens,
       starts_at: startsAt,
       ends_at: endsAt,

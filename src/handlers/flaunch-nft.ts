@@ -89,10 +89,11 @@ async function handleNFTTransfer(
 
     // Create/update CollectionHolding for burn
     // Subgraph: owner.concatI32(tokenId)
+    // Note: Subgraph stores ZERO_ADDRESS for nftAddress
     const holdingId = concatI32(to, Number(tokenId));
     context.CollectionHolding.set({
       id: holdingId,
-      nftAddress: contractAddr,
+      nftAddress: ZERO_ADDRESS,  // Match subgraph behavior
       tokenId,
       owner_id: ZERO_ADDRESS,
     });
@@ -135,9 +136,10 @@ async function handleNFTTransfer(
       });
     } else {
       // Create holding if doesn't exist
+      // Note: Subgraph stores ZERO_ADDRESS for nftAddress
       context.CollectionHolding.set({
         id: fromHoldingId,
-        nftAddress: contractAddr,
+        nftAddress: ZERO_ADDRESS,  // Match subgraph behavior
         tokenId,
         owner_id: to,
       });

@@ -96,14 +96,15 @@ BidWall1.BidWallRewardsTransferred.handler(async ({ event, context }) => {
 
 BidWall1.BidWallDeposit.handler(async ({ event, context }) => {
   const poolId = event.params.poolId;
-  // Subgraph only updates balance, not amount (using _added parameter)
+  // Subgraph includes both added AND pending in the balance calculation
   const addedAmount = event.params.added;
+  const pendingAmount = event.params.pending;
 
   const bidWall = await context.BidWall.get(poolId);
   if (bidWall) {
     context.BidWall.set({
       ...bidWall,
-      balance: bidWall.balance + addedAmount,
+      balance: bidWall.balance + addedAmount + pendingAmount,
     });
   }
 });
@@ -192,14 +193,15 @@ BidWall2.BidWallRewardsTransferred.handler(async ({ event, context }) => {
 
 BidWall2.BidWallDeposit.handler(async ({ event, context }) => {
   const poolId = event.params.poolId;
-  // Subgraph only updates balance, not amount (using _added parameter)
+  // Subgraph includes both added AND pending in the balance calculation
   const addedAmount = event.params.added;
+  const pendingAmount = event.params.pending;
 
   const bidWall = await context.BidWall.get(poolId);
   if (bidWall) {
     context.BidWall.set({
       ...bidWall,
-      balance: bidWall.balance + addedAmount,
+      balance: bidWall.balance + addedAmount + pendingAmount,
     });
   }
 });

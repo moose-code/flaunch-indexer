@@ -155,20 +155,22 @@ PositionManager3.FairLaunchFeeCalculatorUpdated.handler(
 PositionManager3.PoolPremine.handler(async ({ event, context }) => {
   const poolId = event.params._poolId;
   const premineAmount = event.params._premineAmount;
+  // Receiver is the transaction sender (who initiated the premine)
+  const receiver = normalizeAddress(
+    event.transaction.from || "0x0000000000000000000000000000000000000000"
+  );
 
   const pool = await context.Pool.get(poolId);
   if (!pool) return;
 
-  const collectionToken = await context.CollectionToken.get(
-    pool.collectionToken_id
-  );
-  if (!collectionToken) return;
+  // Ensure receiver user exists
+  if (!(await context.User.get(receiver))) context.User.set({ id: receiver });
 
   // Subgraph uses poolId as the ID (not txHash)
   context.PoolPremine.set({
     id: poolId,
     pool_id: poolId,
-    receiver_id: collectionToken.creator_id,
+    receiver_id: receiver,  // Use tx sender as receiver
     amount: premineAmount,
   });
 });
