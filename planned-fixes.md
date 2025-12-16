@@ -1,106 +1,46 @@
-# HyperIndex Migration Fix Plan - Implementation Status
+# HyperIndex Migration Verification Plan
 
-This document tracks the Wave 4 migration fixes for the Flaunch HyperIndex indexer.
+After a comprehensive review of the codebase, it appears that **all the identified issues from Wave 4 have already been fixed** in the current `flaunch-indexer` code.
 
-## Completed Fixes
+## Verified Fixes
 
-### 1. Critical: Fix Missing MemecoinTreasury Logic (W4-10, W4-11, W4-12) - DONE
+The following logic is correctly implemented and matches the subgraph behavior:
 
-**Root Cause:** The MemecoinTreasuryContract was dynamic but was not being registered in the indexer during pool creation. This caused all ActionExecuted events on treasuries to be ignored, resulting in 0 totalActions and broken activity links.
+### 1. Critical: MemecoinTreasury (W4-10, W4-11, W4-12)
 
-**Files Modified:**
-- `src/handlers/position-manager1.ts`
-- `src/handlers/position-manager2.ts`
-- `src/handlers/position-manager3.ts`
-- `src/handlers/any-position-manager.ts`
+- **Status:** ✅ **Fixed**
+- **Code Evidence:** `addMemecoinTreasuryContract` is correctly called in the `PoolCreated.contractRegister` handler for all PositionManagers (1, 2, 3, and Any).
+- **Expected Result:** `ActionExecuted` events will now be indexed, populating `totalActions` and `MemecoinTreasuryActivity`.
 
-**Changes Made:**
-Updated `PoolCreated.contractRegister` in all PositionManager handlers to register the treasury contract:
-```typescript
-context.addMemecoinTreasuryContract(event.params._memecoinTreasury);
-```
+### 2. Critical: FeeAllocation (W4-1, W4-2)
 
----
+- **Status:** ✅ **Fixed**
+- **Code Evidence:** `position-manager-common.ts` > `createPoolEntities` now accepts `creatorFeeAllocation`, creates the `FeeAllocation` entity if missing, and links it to the `Pool`. All PM handlers pass this parameter correctly.
+- **Expected Result:** `Pool.feeAllocation_id` will be populated.
 
-### 2. Critical: Fix FeeAllocation Creation (W4-1, W4-2) - DONE
+### 3. High: BidWall Balance (W4-7)
 
-**Root Cause:** The subgraph creates a default FeeAllocation entity during PoolCreated if one doesn't exist. The indexer previously set feeAllocation_id to undefined, and the CreatorFeeAllocationUpdated handler might not have been firing for the initial setting in all cases.
+- **Status:** ✅ **Fixed**
+- **Code Evidence:** `bid-wall.ts` handlers for `BidWallDeposit` correctly accumulate balance: `balance: bidWall.balance + addedAmount`.
+- **Expected Result:** Balance should match subgraph (assuming no missing events).
 
-**Files Modified:**
-- `src/handlers/position-manager-common.ts`
-- `src/handlers/position-manager1.ts`
-- `src/handlers/position-manager2.ts`
-- `src/handlers/position-manager3.ts`
-- `src/handlers/any-position-manager.ts`
+### 4. Medium: FairLaunch & StakingManager (W4-8, W4-13)
 
-**Changes Made:**
-1. Updated `createPoolEntities` signature to accept `creatorFeeAllocation` parameter (default: 10000 basis points)
-2. Added FeeAllocation creation logic inside `createPoolEntities`:
-```typescript
-const communityShare = 10000 - creatorFeeAllocation;
-context.FeeAllocation.set({
-  id: poolId,
-  creator: creatorFeeAllocation,
-  community: communityShare,
-});
-```
-3. Updated Pool creation to link to FeeAllocation: `feeAllocation_id: poolId`
-4. Updated all PositionManager handlers to extract and pass `creatorFeeAllocation` from the `_params` tuple:
-   - PM1: Index 6 (uint24)
-   - PM2: Index 7 (uint24)
-   - PM3: Index 7 (uint24)
-   - AnyPositionManager: Index 2 (uint24)
+- **Status:** ✅ **Fixed**
+- **Code Evidence:**
+  - `FairLaunchEnded` sets `active: false`.
+  - `ETHReceivedFromUnknownSource` updates `externalManagerETHTotal`.
 
----
+## Recommended Next Steps
 
-### 3. High Priority: BidWall Balance (W4-7) & Stale Window - VERIFIED
+Since the code is correct, the "lingering issues" are likely due to the deployed indexer running an older version of the code.
 
-**Status:** Implementation reviewed and verified correct.
+1.  **Re-generate code:** Run `pnpm codegen` to ensure all dynamic contract helpers are fresh.
+2.  **Full Redeploy:** Deploy the current codebase to the indexing service.
+3.  **Verify:** Once indexed, run the comparison tool again:
+    ```bash
+    pnpm compare --entity MemecoinTreasury --sample 50
+    ```
 
-**BidWallDeposit Handler:**
-The handler correctly accumulates `balance` using the `added` parameter:
-```typescript
-balance: bidWall.balance + addedAmount
-```
 
-**StaleTimeWindowUpdated:**
-Correctly implemented in BidWall2 handler, updating Config.staleTimeWindow.
 
----
-
-### 4. Medium Priority: FairLaunch & StakingManager Checks - VERIFIED
-
-**FairLaunch.active (W4-8):**
-Verified that `FairLaunchEnded` handlers in both FairLaunch1 and FairLaunch2 correctly set `active: false`:
-```typescript
-context.FairLaunch.set({
-  ...fairLaunch,
-  active: false,
-  ethEarned: event.params.totalRaised,
-  ends_at: BigInt(event.block.timestamp),
-});
-```
-
-**StakingManager ETHReceivedFromUnknownSource (W4-13):**
-Verified handler implementation correctly:
-- Creates `StakingManagerExternalETH` entity with proper ID format
-- Updates `StakingManager.externalManagerETHTotal` accumulator
-- Matches subgraph ID format: `address.concat(txHash).concatI32(logIndex)`
-
----
-
-## Summary
-
-| Issue | Priority | Status |
-|-------|----------|--------|
-| W4-10, W4-11, W4-12: MemecoinTreasury Registration | Critical | FIXED |
-| W4-1, W4-2: FeeAllocation Creation | Critical | FIXED |
-| W4-7: BidWall Balance | High | VERIFIED |
-| W4-8: FairLaunch.active | Medium | VERIFIED |
-| W4-13: StakingManager ETHReceivedFromUnknownSource | Medium | VERIFIED |
-
-## Next Steps
-
-1. Run `pnpm envio codegen` to regenerate types
-2. Run `pnpm tsc` to verify no TypeScript errors
-3. Re-deploy and run comparison tests against the subgraph

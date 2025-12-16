@@ -302,7 +302,6 @@ PositionManager1.Deposit.handler(async ({ event, context }) => {
   context.CollectionFee.set({
     ...collectionFee,
     lifetimeFees: collectionFee.lifetimeFees + amount,
-    updatedAt: timestamp,
   });
 });
 

@@ -265,7 +265,7 @@ export function createCollectionToken(
     marketCapETH,
     marketCapUSDC: ZERO_BD,
     totalHolders: 1n, // Creator gets initial supply
-    isNative: flipped,
+    isNative: !flipped,  // Subgraph: native = !flipped
     createdAt: timestamp,
     baseURI: "",
     creationFee,

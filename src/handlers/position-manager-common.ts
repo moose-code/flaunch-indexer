@@ -93,7 +93,7 @@ export async function createPoolEntities(
   const bidWallAddr =
     getBidWallAddressForPositionManager(positionManager) || positionManager;
 
-  // Create Collection
+  // Create Collection - note: subgraph uses empty name/symbol and managerUpdatedAt=0 at creation
   context.Collection.set({
     id: collectionId,
     tokenID: tokenId,
@@ -101,9 +101,9 @@ export async function createPoolEntities(
     creator_id: creator,
     owner_id: creator,
     collectionToken_id: memecoin,
-    name,
-    symbol,
-    managerUpdatedAt: timestamp,
+    name: "",  // Subgraph leaves empty at creation
+    symbol: "",  // Subgraph leaves empty at creation
+    managerUpdatedAt: ZERO_BI,  // Subgraph sets to 0 at creation
     managerType: undefined,
     revenueManager_id: undefined,
     stakingManager_id: undefined,
@@ -133,7 +133,7 @@ export async function createPoolEntities(
     marketCapETH: ZERO_BI,
     marketCapUSDC: ZERO_BD,
     totalHolders: 1n, // Creator gets initial supply
-    isNative: flipped,
+    isNative: !flipped,  // Subgraph: native = !flipped (when not flipped, token IS native/ETH-paired)
     createdAt: timestamp,
     baseURI: "",
     creationFee: flaunchFee,
@@ -276,11 +276,8 @@ export async function createPoolEntities(
     context.effect(fetchTokenURI, { address: memecoin }),
   ]);
 
-  // Extract baseURI from tokenURI (strip ipfs:// prefix if present)
-  let baseURI = tokenURI || "";
-  if (baseURI.startsWith("ipfs://")) {
-    baseURI = baseURI.replace("ipfs://", "");
-  }
+  // Keep baseURI as-is (including ipfs:// prefix) to match subgraph behavior
+  const baseURI = tokenURI || "";
 
   // Update the CollectionToken with the fetched data
   const token = await context.CollectionToken.get(memecoin);

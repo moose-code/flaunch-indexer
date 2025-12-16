@@ -100,6 +100,11 @@ async function handleNFTTransfer(
     return;
   }
 
+  // Remove any existing approvals for this token (matching subgraph logic)
+  // Subgraph: address.concat(from).concat(to)
+  const flaunchApprovalId = concatBytes(concatBytes(contractAddr, from), to);
+  context.FlaunchApproval.deleteUnsafe(flaunchApprovalId);
+
   // Handle regular transfer (not from zero address - i.e., not a mint)
   if (from !== ZERO_ADDRESS) {
     // Update CollectionToken owner
@@ -204,8 +209,7 @@ async function handleNFTApproval(
     });
   } else {
     // Zero address = revoke approval - delete the token approval
-    // Note: In HyperIndex we can't delete, so we just don't create
-    // The approval token won't be created for zero address approvals
+    context.FlaunchApprovalToken.deleteUnsafe(flaunchApprovalTokenId);
   }
 }
 

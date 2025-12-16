@@ -6,6 +6,7 @@
 import { CollectionToken } from "generated";
 import { ZERO_BI, ZERO_ADDRESS } from "../utils/constants";
 import { normalizeAddress, concatBytes, concatI32 } from "../utils/helpers";
+import { getOrCreateUser } from "../crud/creates";
 
 // =============================================================================
 // COLLECTION TOKEN HANDLERS (Dynamic - ERC20 Transfers)
@@ -16,12 +17,17 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
   const to = normalizeAddress(event.params.to);
   const value = event.params.value;
   const tokenAddress = normalizeAddress(event.srcAddress);
-  const timestamp = BigInt(event.block.timestamp);
+  // Use block.number for timestamps to match subgraph behavior
+  const timestamp = BigInt(event.block.number);
   const txHash = event.transaction.hash || "";
 
   // Get the CollectionToken entity
   const token = await context.CollectionToken.get(tokenAddress);
   if (!token) return;
+
+  // Get sqrtPriceX96 from Pool for price tracking (subgraph stores sqrtPriceX96 as price)
+  const pool = await context.Pool.get(token.pool_id);
+  const sqrtPriceX96 = pool?.sqrtPriceX96 || ZERO_BI;
 
   const isZeroAddress = (addr: string) => addr === ZERO_ADDRESS;
 
@@ -54,8 +60,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
         counterpartEOA: to,
         balanceBefore: balanceBefore,
         balanceAfter: newBalance,
-        priceBefore: token.derivedETH,
-        priceAfter: token.derivedETH,
+        priceBefore: sqrtPriceX96,
+        priceAfter: sqrtPriceX96,
         isIncrement: false,
         createdTx: txHash,
         created: timestamp,
@@ -80,9 +86,7 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
     });
 
     // Ensure zero address User entity exists
-    if (!(await context.User.get(ZERO_ADDRESS))) {
-      context.User.set({ id: ZERO_ADDRESS });
-    }
+    await getOrCreateUser(context, ZERO_ADDRESS);
 
     // Track burned tokens in zero address holding
     // Subgraph: address.concat(collection)
@@ -110,7 +114,7 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
         lastUpdatedTimestamp: timestamp,
         updatedTimestamp: timestamp,
         updatedTx: txHash,
-        price: token.derivedETH,
+        price: sqrtPriceX96,
       });
     }
   }
@@ -121,11 +125,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
     const toHoldingId = concatBytes(to, tokenAddress);
     let toHolding = await context.CollectionTokenHolding.get(toHoldingId);
 
-    // Get or create user
-    let user = await context.User.get(to);
-    if (!user) {
-      context.User.set({ id: to });
-    }
+    // Get or create user (and increment totalUsers if new)
+    await getOrCreateUser(context, to);
 
     if (toHolding) {
       const wasZero = toHolding.balance === 0n;
@@ -151,8 +152,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
         counterpartEOA: from,
         balanceBefore: balanceBefore,
         balanceAfter: newBalance,
-        priceBefore: token.derivedETH,
-        priceAfter: token.derivedETH,
+        priceBefore: sqrtPriceX96,
+        priceAfter: sqrtPriceX96,
         isIncrement: true,
         createdTx: txHash,
         created: timestamp,
@@ -181,7 +182,7 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
         lastUpdatedTimestamp: timestamp,
         updatedTimestamp: timestamp,
         updatedTx: txHash,
-        price: token.derivedETH,
+        price: sqrtPriceX96,
       });
 
       // Create CollectionTokenHoldingChange for new holder (increment)
@@ -194,8 +195,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
         counterpartEOA: from,
         balanceBefore: ZERO_BI,
         balanceAfter: value,
-        priceBefore: token.derivedETH,
-        priceAfter: token.derivedETH,
+        priceBefore: sqrtPriceX96,
+        priceAfter: sqrtPriceX96,
         isIncrement: true,
         createdTx: txHash,
         created: timestamp,
