@@ -17,17 +17,16 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
   const to = normalizeAddress(event.params.to);
   const value = event.params.value;
   const tokenAddress = normalizeAddress(event.srcAddress);
-  // Use block.number for timestamps to match subgraph behavior
-  const timestamp = BigInt(event.block.number);
+  // Use block.timestamp (Unix timestamp) to match subgraph behavior
+  const timestamp = BigInt(event.block.timestamp);
   const txHash = event.transaction.hash || "";
 
   // Get the CollectionToken entity
   const token = await context.CollectionToken.get(tokenAddress);
   if (!token) return;
 
-  // Get sqrtPriceX96 from Pool for price tracking (subgraph stores sqrtPriceX96 as price)
-  const pool = await context.Pool.get(token.pool_id);
-  const sqrtPriceX96 = pool?.sqrtPriceX96 || ZERO_BI;
+  // Get derivedETH from CollectionToken for price tracking
+  const derivedETH = token.derivedETH || ZERO_BI;
 
   const isZeroAddress = (addr: string) => addr === ZERO_ADDRESS;
 
@@ -60,8 +59,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
         counterpartEOA: to,
         balanceBefore: balanceBefore,
         balanceAfter: newBalance,
-        priceBefore: sqrtPriceX96,
-        priceAfter: sqrtPriceX96,
+        priceBefore: derivedETH,
+        priceAfter: derivedETH,
         isIncrement: false,
         createdTx: txHash,
         created: timestamp,
@@ -114,7 +113,7 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
         lastUpdatedTimestamp: timestamp,
         updatedTimestamp: timestamp,
         updatedTx: txHash,
-        price: sqrtPriceX96,
+        price: derivedETH,
       });
     }
   }
@@ -152,8 +151,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
         counterpartEOA: from,
         balanceBefore: balanceBefore,
         balanceAfter: newBalance,
-        priceBefore: sqrtPriceX96,
-        priceAfter: sqrtPriceX96,
+        priceBefore: derivedETH,
+        priceAfter: derivedETH,
         isIncrement: true,
         createdTx: txHash,
         created: timestamp,
@@ -182,7 +181,7 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
         lastUpdatedTimestamp: timestamp,
         updatedTimestamp: timestamp,
         updatedTx: txHash,
-        price: sqrtPriceX96,
+        price: derivedETH,
       });
 
       // Create CollectionTokenHoldingChange for new holder (increment)
@@ -195,8 +194,8 @@ CollectionToken.Transfer.handler(async ({ event, context }) => {
         counterpartEOA: from,
         balanceBefore: ZERO_BI,
         balanceAfter: value,
-        priceBefore: sqrtPriceX96,
-        priceAfter: sqrtPriceX96,
+        priceBefore: derivedETH,
+        priceAfter: derivedETH,
         isIncrement: true,
         createdTx: txHash,
         created: timestamp,
