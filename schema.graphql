@@ -1,764 +1,873 @@
-# AnyPositionManager Events
-type AnyPositionManager_FeeCalculatorUpdated {
-  id: ID!
-  _feeCalculator: String!
-}
-
-type AnyPositionManager_FeeDistributionUpdated {
-  id: ID!
-  _feeDistribution_0: BigInt!
-  _feeDistribution_1: BigInt!
-  _feeDistribution_2: BigInt!
-  _feeDistribution_3: Boolean!
-}
-
-type AnyPositionManager_PoolSwap {
-  id: ID!
-  poolId: String!
-  flAmount0: BigInt!
-  flAmount1: BigInt!
-  flFee0: BigInt!
-  flFee1: BigInt!
-  ispAmount0: BigInt!
-  ispAmount1: BigInt!
-  ispFee0: BigInt!
-  ispFee1: BigInt!
-  uniAmount0: BigInt!
-  uniAmount1: BigInt!
-  uniFee0: BigInt!
-  uniFee1: BigInt!
-}
-
-type AnyPositionManager_PoolCreated {
-  id: ID!
-  _poolId: String!
-  _memecoin: String!
-  _memecoinTreasury: String!
-  _tokenId: BigInt!
-  _currencyFlipped: Boolean!
-  _params_0: String!
-  _params_1: String!
-  _params_2: BigInt!
-  _params_3: String!
-  _params_4: String!
-}
-
-type AnyPositionManager_PoolFeeDistributionUpdated {
-  id: ID!
-  _poolId: String!
-  _feeDistribution_0: BigInt!
-  _feeDistribution_1: BigInt!
-  _feeDistribution_2: BigInt!
-  _feeDistribution_3: Boolean!
-}
-
-type AnyPositionManager_PoolFeesDistributed {
-  id: ID!
-  _poolId: String!
-  _donateAmount: BigInt!
-  _creatorAmount: BigInt!
-  _bidWallAmount: BigInt!
-  _governanceAmount: BigInt!
-  _protocolAmount: BigInt!
-}
-
-type AnyPositionManager_PoolFeesReceived {
-  id: ID!
-  _poolId: String!
-  _amount0: BigInt!
-  _amount1: BigInt!
-}
-
-type AnyPositionManager_PoolFeesSwapped {
-  id: ID!
-  _poolId: String!
-  zeroForOne: Boolean!
-  _amount0: BigInt!
-  _amount1: BigInt!
-}
-
-type AnyPositionManager_PoolStateUpdated {
-  id: ID!
-  _poolId: String!
-  _sqrtPriceX96: BigInt!
-  _tick: BigInt!
-  _protocolFee: BigInt!
-  _swapFee: BigInt!
-  _liquidity: BigInt!
-}
-
-type AnyPositionManager_ReferrerFeePaid {
-  id: ID!
-  _poolId: String!
-  _recipient: String!
-  _token: String!
-  _amount: BigInt!
-}
-
-type AnyPositionManager_ReferralEscrowUpdated {
-  id: ID!
-  _referralEscrow: String!
-}
-
-# PositionManager1 Events
-type PositionManager1_CreatorFeeAllocationUpdated {
-  id: ID!
-  _poolId: String!
-  _allocation: BigInt!
-}
-
-type PositionManager1_Deposit {
-  id: ID!
-  _poolId: String!
-  _payee: String!
-  _token: String!
-  _amount: BigInt!
-}
-
-type PositionManager1_FairLaunchFeeCalculatorUpdated {
-  id: ID!
-  _feeCalculator: String!
-}
-
-type PositionManager1_FeeCalculatorUpdated {
-  id: ID!
-  _feeCalculator: String!
-}
-
-type PositionManager1_FeeDistributionUpdated {
-  id: ID!
-  _feeDistribution_0: BigInt!
-  _feeDistribution_1: BigInt!
-  _feeDistribution_2: BigInt!
-  _feeDistribution_3: Boolean!
-}
-
-type PositionManager1_InitialPriceUpdated {
-  id: ID!
-  _initialPrice: String!
-}
-
-type PositionManager1_OwnershipHandoverCanceled {
-  id: ID!
-  pendingOwner: String!
-}
-
-type PositionManager1_OwnershipHandoverRequested {
-  id: ID!
-  pendingOwner: String!
-}
-
-type PositionManager1_OwnershipTransferred {
-  id: ID!
-  oldOwner: String!
-  newOwner: String!
-}
-
-type PositionManager1_PoolCreated {
-  id: ID!
-  _poolId: String!
-  _memecoin: String!
-  _memecoinTreasury: String!
-  _tokenId: BigInt!
-  _currencyFlipped: Boolean!
-  _flaunchFee: BigInt!
-  _params_0: String!
-  _params_1: String!
-  _params_2: String!
-  _params_3: BigInt!
-  _params_4: BigInt!
-  _params_5: String!
-  _params_6: BigInt!
-  _params_7: BigInt!
-  _params_8: String!
-  _params_9: String!
-}
-
-type PositionManager1_PoolFeeDistributionUpdated {
-  id: ID!
-  _poolId: String!
-  _feeDistribution_0: BigInt!
-  _feeDistribution_1: BigInt!
-  _feeDistribution_2: BigInt!
-  _feeDistribution_3: Boolean!
-}
-
-type PositionManager1_PoolFeesDistributed {
-  id: ID!
-  _poolId: String!
-  _donateAmount: BigInt!
-  _creatorAmount: BigInt!
-  _bidWallAmount: BigInt!
-  _governanceAmount: BigInt!
-  _protocolAmount: BigInt!
-}
-
-type PositionManager1_PoolFeesReceived {
-  id: ID!
-  _poolId: String!
-  _amount0: BigInt!
-  _amount1: BigInt!
-}
-
-type PositionManager1_PoolFeesSwapped {
-  id: ID!
-  _poolId: String!
-  zeroForOne: Boolean!
-  _amount0: BigInt!
-  _amount1: BigInt!
-}
-
-type PositionManager1_PoolPremine {
-  id: ID!
-  _poolId: String!
-  _premineAmount: BigInt!
-}
-
-type PositionManager1_PoolScheduled {
-  id: ID!
-  _poolId: String!
-  _flaunchesAt: BigInt!
-}
-
-type PositionManager1_PoolStateUpdated {
-  id: ID!
-  _poolId: String!
-  _sqrtPriceX96: BigInt!
-  _tick: BigInt!
-  _protocolFee: BigInt!
-  _swapFee: BigInt!
-  _liquidity: BigInt!
-}
-
-type PositionManager1_PoolSwap {
-  id: ID!
-  poolId: String!
-  flAmount0: BigInt!
-  flAmount1: BigInt!
-  flFee0: BigInt!
-  flFee1: BigInt!
-  ispAmount0: BigInt!
-  ispAmount1: BigInt!
-  ispFee0: BigInt!
-  ispFee1: BigInt!
-  uniAmount0: BigInt!
-  uniAmount1: BigInt!
-  uniFee0: BigInt!
-  uniFee1: BigInt!
-}
-
-type PositionManager1_ReferralEscrowUpdated {
-  id: ID!
-  _referralEscrow: String!
-}
-
-type PositionManager1_ReferrerFeePaid {
-  id: ID!
-  _poolId: String!
-  _recipient: String!
-  _token: String!
-  _amount: BigInt!
-}
-
-type PositionManager1_Withdrawal {
-  id: ID!
-  _sender: String!
-  _recipient: String!
-  _token: String!
-  _amount: BigInt!
-}
-
-# PositionManager2 Events
-type PositionManager2_FeeCalculatorUpdated {
-  id: ID!
-  _feeCalculator: String!
-}
-
-type PositionManager2_FeeDistributionUpdated {
-  id: ID!
-  _feeDistribution_0: BigInt!
-  _feeDistribution_1: BigInt!
-  _feeDistribution_2: BigInt!
-  _feeDistribution_3: Boolean!
-}
-
-type PositionManager2_PoolSwap {
-  id: ID!
-  poolId: String!
-  flAmount0: BigInt!
-  flAmount1: BigInt!
-  flFee0: BigInt!
-  flFee1: BigInt!
-  ispAmount0: BigInt!
-  ispAmount1: BigInt!
-  ispFee0: BigInt!
-  ispFee1: BigInt!
-  uniAmount0: BigInt!
-  uniAmount1: BigInt!
-  uniFee0: BigInt!
-  uniFee1: BigInt!
-}
-
-type PositionManager2_PoolPremine {
-  id: ID!
-  _poolId: String!
-  _premineAmount: BigInt!
-}
-
-type PositionManager2_PoolScheduled {
-  id: ID!
-  _poolId: String!
-  _flaunchesAt: BigInt!
-}
-
-type PositionManager2_PoolCreated {
-  id: ID!
-  _poolId: String!
-  _memecoin: String!
-  _memecoinTreasury: String!
-  _tokenId: BigInt!
-  _currencyFlipped: Boolean!
-  _flaunchFee: BigInt!
-  _params_0: String!
-  _params_1: String!
-  _params_2: String!
-  _params_3: BigInt!
-  _params_4: BigInt!
-  _params_5: BigInt!
-  _params_6: String!
-  _params_7: BigInt!
-  _params_8: BigInt!
-  _params_9: String!
-  _params_10: String!
-}
-
-type PositionManager2_PoolFeeDistributionUpdated {
-  id: ID!
-  _poolId: String!
-  _feeDistribution_0: BigInt!
-  _feeDistribution_1: BigInt!
-  _feeDistribution_2: BigInt!
-  _feeDistribution_3: Boolean!
-}
-
-type PositionManager2_PoolFeesDistributed {
-  id: ID!
-  _poolId: String!
-  _donateAmount: BigInt!
-  _creatorAmount: BigInt!
-  _bidWallAmount: BigInt!
-  _governanceAmount: BigInt!
-  _protocolAmount: BigInt!
-}
-
-type PositionManager2_PoolFeesReceived {
-  id: ID!
-  _poolId: String!
-  _amount0: BigInt!
-  _amount1: BigInt!
-}
-
-type PositionManager2_PoolFeesSwapped {
-  id: ID!
-  _poolId: String!
-  zeroForOne: Boolean!
-  _amount0: BigInt!
-  _amount1: BigInt!
-}
-
-type PositionManager2_PoolStateUpdated {
-  id: ID!
-  _poolId: String!
-  _sqrtPriceX96: BigInt!
-  _tick: BigInt!
-  _protocolFee: BigInt!
-  _swapFee: BigInt!
-  _liquidity: BigInt!
-}
-
-type PositionManager2_ReferrerFeePaid {
-  id: ID!
-  _poolId: String!
-  _recipient: String!
-  _token: String!
-  _amount: BigInt!
-}
-
-type PositionManager2_FairLaunchFeeCalculatorUpdated {
-  id: ID!
-  _feeCalculator: String!
-}
-
-type PositionManager2_ReferralEscrowUpdated {
-  id: ID!
-  _referralEscrow: String!
-}
-
-# PositionManager3 Events
-type PositionManager3_FeeCalculatorUpdated {
-  id: ID!
-  _feeCalculator: String!
-}
-
-type PositionManager3_FeeDistributionUpdated {
-  id: ID!
-  _feeDistribution_0: BigInt!
-  _feeDistribution_1: BigInt!
-  _feeDistribution_2: BigInt!
-  _feeDistribution_3: Boolean!
-}
-
-type PositionManager3_PoolSwap {
-  id: ID!
-  poolId: String!
-  flAmount0: BigInt!
-  flAmount1: BigInt!
-  flFee0: BigInt!
-  flFee1: BigInt!
-  ispAmount0: BigInt!
-  ispAmount1: BigInt!
-  ispFee0: BigInt!
-  ispFee1: BigInt!
-  uniAmount0: BigInt!
-  uniAmount1: BigInt!
-  uniFee0: BigInt!
-  uniFee1: BigInt!
-}
-
-type PositionManager3_PoolPremine {
-  id: ID!
-  _poolId: String!
-  _premineAmount: BigInt!
-}
-
-type PositionManager3_PoolScheduled {
-  id: ID!
-  _poolId: String!
-  _flaunchesAt: BigInt!
-}
-
-type PositionManager3_PoolCreated {
-  id: ID!
-  _poolId: String!
-  _memecoin: String!
-  _memecoinTreasury: String!
-  _tokenId: BigInt!
-  _currencyFlipped: Boolean!
-  _flaunchFee: BigInt!
-  _params_0: String!
-  _params_1: String!
-  _params_2: String!
-  _params_3: BigInt!
-  _params_4: BigInt!
-  _params_5: BigInt!
-  _params_6: String!
-  _params_7: BigInt!
-  _params_8: BigInt!
-  _params_9: String!
-  _params_10: String!
-}
-
-type PositionManager3_PoolFeeDistributionUpdated {
-  id: ID!
-  _poolId: String!
-  _feeDistribution_0: BigInt!
-  _feeDistribution_1: BigInt!
-  _feeDistribution_2: BigInt!
-  _feeDistribution_3: Boolean!
-}
-
-type PositionManager3_PoolFeesDistributed {
-  id: ID!
-  _poolId: String!
-  _donateAmount: BigInt!
-  _creatorAmount: BigInt!
-  _bidWallAmount: BigInt!
-  _governanceAmount: BigInt!
-  _protocolAmount: BigInt!
-}
-
-type PositionManager3_PoolFeesReceived {
-  id: ID!
-  _poolId: String!
-  _amount0: BigInt!
-  _amount1: BigInt!
-}
-
-type PositionManager3_PoolFeesSwapped {
-  id: ID!
-  _poolId: String!
-  zeroForOne: Boolean!
-  _amount0: BigInt!
-  _amount1: BigInt!
-}
-
-type PositionManager3_PoolStateUpdated {
-  id: ID!
-  _poolId: String!
-  _sqrtPriceX96: BigInt!
-  _tick: BigInt!
-  _protocolFee: BigInt!
-  _swapFee: BigInt!
-  _liquidity: BigInt!
-}
-
-type PositionManager3_ReferrerFeePaid {
-  id: ID!
-  _poolId: String!
-  _recipient: String!
-  _token: String!
-  _amount: BigInt!
-}
-
-type PositionManager3_FairLaunchFeeCalculatorUpdated {
-  id: ID!
-  _feeCalculator: String!
-}
-
-type PositionManager3_ReferralEscrowUpdated {
-  id: ID!
-  _referralEscrow: String!
-}
-
-# PoolManager Events
-type PoolManager_Swap {
-  id: ID!
-  poolId: String!
-  sender: String!
-  amount0: BigInt!
-  amount1: BigInt!
-  sqrtPriceX96: BigInt!
-  liquidity: BigInt!
-  tick: BigInt!
-  fee: BigInt!
-}
-
-# ActionManager1 Events
-type ActionManager1_ActionApproved {
-  id: ID!
-  actionAddress: String!
-}
-
-type ActionManager1_ActionUnapproved {
-  id: ID!
-  actionAddress: String!
-}
-
-# ActionManager2 Events
-type ActionManager2_ActionApproved {
-  id: ID!
-  actionAddress: String!
-}
-
-type ActionManager2_ActionUnapproved {
-  id: ID!
-  actionAddress: String!
-}
-
-# BidWall1 Events
-type BidWall1_BidWallClosed {
-  id: ID!
-  poolId: String!
-  recipient: String!
-  amount: BigInt!
-}
-
-type BidWall1_BidWallRepositioned {
-  id: ID!
-  poolId: String!
-  liquidity: BigInt!
-  tickLower: BigInt!
-  tickUpper: BigInt!
-}
-
-type BidWall1_BidWallRewardsTransferred {
-  id: ID!
-  poolId: String!
-  recipient: String!
-  amount: BigInt!
-}
-
-type BidWall1_BidWallDeposit {
-  id: ID!
-  poolId: String!
-  amount0: BigInt!
-  amount1: BigInt!
-}
-
-type BidWall1_BidWallDisabledStateUpdated {
-  id: ID!
-  poolId: String!
-  disabled: Boolean!
-}
-
-# BidWall2 Events
-type BidWall2_BidWallClosed {
-  id: ID!
-  poolId: String!
-  recipient: String!
-  amount: BigInt!
-}
-
-type BidWall2_BidWallRepositioned {
-  id: ID!
-  poolId: String!
-  liquidity: BigInt!
-  tickLower: BigInt!
-  tickUpper: BigInt!
-}
-
-type BidWall2_BidWallRewardsTransferred {
-  id: ID!
-  poolId: String!
-  recipient: String!
-  amount: BigInt!
-}
-
-type BidWall2_BidWallDeposit {
-  id: ID!
-  poolId: String!
-  amount0: BigInt!
-  amount1: BigInt!
-}
-
-type BidWall2_BidWallDisabledStateUpdated {
-  id: ID!
-  poolId: String!
-  disabled: Boolean!
-}
-
-# FeeEscrow Events
-type FeeEscrow_Deposit {
-  id: ID!
-  poolId: String!
-  sender: String!
-  token: String!
-  amount: BigInt!
-}
-
-type FeeEscrow_Withdrawal {
-  id: ID!
-  sender: String!
-  recipient: String!
-  token: String!
-  amount: BigInt!
-}
-
-# FeeExemptions Events
-type FeeExemptions_BeneficiaryFeeRemoved {
-  id: ID!
-  beneficiary: String!
-}
-
-type FeeExemptions_BeneficiaryFeeSet {
-  id: ID!
-  beneficiary: String!
-  fee: BigInt!
-}
-
-# FlaunchFeeExemption Events
-type FlaunchFeeExemption_FeeExemptionUpdated {
-  id: ID!
-  user: String!
-  exempt: Boolean!
-}
-
-# FairLaunch1 Events
-type FairLaunch1_FairLaunchEnded {
-  id: ID!
-  poolId: String!
-  totalRaised: BigInt!
-  liquidityAdded: BigInt!
-  refundAmount: BigInt!
-}
-
-type FairLaunch1_FairLaunchCreated {
-  id: ID!
-  poolId: String!
-  targetAmount: BigInt!
-  maxAmount: BigInt!
-  deadline: BigInt!
-}
-
-# FairLaunch2 Events
-type FairLaunch2_FairLaunchEnded {
-  id: ID!
-  poolId: String!
-  totalRaised: BigInt!
-  liquidityAdded: BigInt!
-  refundAmount: BigInt!
-}
-
-type FairLaunch2_FairLaunchCreated {
-  id: ID!
-  poolId: String!
-  targetAmount: BigInt!
-  maxAmount: BigInt!
-  deadline: BigInt!
-}
-
-# FlaunchNFT1 Events
-type FlaunchNFT1_Transfer {
-  id: ID!
-  from: String!
-  to: String!
-  tokenId: BigInt!
-}
-
-# FlaunchNFT2 Events
-type FlaunchNFT2_Transfer {
-  id: ID!
-  from: String!
-  to: String!
-  tokenId: BigInt!
-}
-
-# FlaunchNFT3 Events
-type FlaunchNFT3_Transfer {
-  id: ID!
-  from: String!
-  to: String!
-  tokenId: BigInt!
-}
-
-# AnyFlaunchNFT Events
-type AnyFlaunchNFT_Transfer {
-  id: ID!
-  from: String!
-  to: String!
-  tokenId: BigInt!
-}
-
-# FlayBurner Events
-type FlayBurner_BurnerUpdated {
-  id: ID!
-  burner: String!
-}
-
-# BuyBackAndBurnFlay Events
-type BuyBackAndBurnFlay_BurnBabyBurn {
-  id: ID!
-  amount: BigInt!
-}
-
-type BuyBackAndBurnFlay_EthBalanceUpdated {
-  id: ID!
+# Flaunch Protocol Schema - Envio HyperIndex
+# Converted from TheGraph subgraph format
+
+# Enum for activity types
+enum ActivityType {
+  Buy
+  Sell
+}
+
+# Global configuration
+type Config {
+  id: String!
+  locked: Boolean!
+  lockerPaused: Boolean!
+  collectionCount: BigInt!
+  volumeETH: BigInt!
+  volumeUSDC: BigDecimal!
+  totalUsers: BigInt!
+  totalFeesETH: BigInt!
+  totalFeesUSDC: BigDecimal!
+  feeCalculator: String!
+  protocolFeeRecipient: String!
+  feeDistribution_id: String!
+  latestReferralEscrow: String!
+  staleTimeWindow: BigInt!
+}
+
+# User entity
+type User {
+  id: String!
+  # Virtual fields via @derivedFrom - accessed at query time only
+  # Note: aggregates is 1-to-1 so accessed via UserAggregate.user_id query
+  holdings: [CollectionTokenHolding!]! @derivedFrom(field: "user_id")
+  ownedNFTs: [Collection!]! @derivedFrom(field: "owner_id")
+  createdNFTs: [Collection!]! @derivedFrom(field: "creator_id")
+  referrerFees: [ReferrerFee!]! @derivedFrom(field: "recipient_id")
+}
+
+type UserAggregate {
+  id: String!
+  totalReferrerFeesETH: BigInt!
+  user_id: String!
+}
+
+type TokenReferralFee {
+  id: String!
+  totalAmount: BigInt!
+  collectionToken_id: String
+  isFleth: Boolean!
+  user_id: String!
+}
+
+# ERC20 token holding for a user
+type CollectionTokenHolding {
+  id: String!
+  collectionToken_id: String!
+  user_id: String!
   balance: BigInt!
+  balanceBefore: BigInt!
+  createdTx: String!
+  createdTimestamp: BigInt!
+  updatedTx: String!
+  updatedTimestamp: BigInt!
+  lastUpdatedTimestamp: BigInt!
+  price: BigInt!
+  # poolSwaps derived at query time via PoolSwap.userHolding_id
 }
 
-# TreasuryManagerFactory Events
-type TreasuryManagerFactory_ManagerImplementationUnapproved {
-  id: ID!
-  implementation: String!
+type CollectionTokenHoldingChange {
+  id: String!
+  collectionToken_id: String!
+  owner_id: String!
+  counterpartEOA: String!
+  balanceAfter: BigInt!
+  balanceBefore: BigInt!
+  priceBefore: BigInt!
+  priceAfter: BigInt!
+  isIncrement: Boolean!
+  createdTx: String!
+  created: BigInt!
 }
 
-type TreasuryManagerFactory_ManagerDeployed {
-  id: ID!
-  manager: String!
-  implementation: String!
+# ERC721 holding for a user
+type CollectionHolding {
+  id: String!
+  nftAddress: String!
+  tokenId: BigInt!
+  owner_id: String!
 }
 
-type TreasuryManagerFactory_ManagerImplementationApproved {
-  id: ID!
-  implementation: String!
+# Lookup table: NFT address -> CollectionToken
+type NFTLookup {
+  id: String!
+  collectionToken_id: String!
+}
+
+# Lookup table: PoolId -> CollectionToken
+type PoolCollectionLookup {
+  id: String!
+  collectionToken_id: String!
+}
+
+# Treasury Manager Implementation tracking
+type TreasuryManagerImplementation {
+  id: String!
+  approvedAt: BigInt
+  unapprovedAt: BigInt
+}
+
+# Revenue Manager (implements TreasuryManager interface - flattened)
+type RevenueManager {
+  id: String!
+  deployer: String!
+  managerImplementation: String!
+  permissions: String!
+  createdAt: BigInt!
+  owner_id: String
+  protocolFeeRecipient_id: String
+  protocolFee: BigInt
+  # Virtual derived fields
+  holdings: [Collection!]! @derivedFrom(field: "revenueManager_id")
+  claims: [RevenueManagerClaim!]! @derivedFrom(field: "revenueManager_id")
+}
+
+type RevenueManagerClaim {
+  id: String!
+  revenueManager_id: String!
+  isProtocol: Boolean!
+  collection_id: String
+  amount: BigInt!
+  amountUSDC: BigDecimal!
+  recipient_id: String!
+  timestamp: BigInt!
+  txHash: String!
+}
+
+# Address Fee Split Manager
+type AddressFeeSplitManager {
+  id: String!
+  deployer: String!
+  managerImplementation: String!
+  permissions: String!
+  createdAt: BigInt!
+  owner_id: String
+  creatorShare: BigInt
+  externalManagerETHTotal: BigInt!
+  # Virtual derived fields
+  holdings: [Collection!]! @derivedFrom(field: "addressFeeSplitManager_id")
+  recipients: [AddressFeeSplitManagerRecipient!]!
+    @derivedFrom(field: "manager_id")
+  claims: [AddressFeeSplitManagerClaim!]! @derivedFrom(field: "manager_id")
+  externalManagerETH: [AddressFeeSplitManagerExternalETH!]!
+    @derivedFrom(field: "manager_id")
+}
+
+type AddressFeeSplitManagerRecipient {
+  id: String!
+  manager_id: String!
+  recipient: String!
+  recipientShare: BigInt!
+}
+
+type AddressFeeSplitManagerClaim {
+  id: String!
+  manager_id: String!
+  amount: BigInt!
+  amountUSDC: BigDecimal!
+  recipient_id: String!
+  timestamp: BigInt!
+  txHash: String!
+}
+
+type AddressFeeSplitManagerExternalETH {
+  id: String!
+  manager_id: String!
+  user_id: String!
+  amount: BigInt!
+  amountUSDC: BigDecimal!
+  createdAt: BigInt!
+  txHash: String!
+}
+
+# Staking Manager
+type StakingManager {
+  id: String!
+  deployer: String!
+  managerImplementation: String!
+  permissions: String!
+  createdAt: BigInt!
+  owner_id: String
+  stakingToken_id: String!
+  minEscrowDuration: BigInt!
+  minStakeDuration: BigInt!
+  creatorShare: BigInt!
+  ownerShare: BigInt!
+  totalStaked: BigInt!
+  totalStakers: BigInt!
+  externalManagerETHTotal: BigInt!
+  # Virtual derived fields
+  holdings: [Collection!]! @derivedFrom(field: "stakingManager_id")
+  stakes: [StakingManagerStake!]! @derivedFrom(field: "manager_id")
+  stakesDeltas: [StakingManagerStakeDelta!]! @derivedFrom(field: "manager_id")
+  claims: [StakingManagerClaim!]! @derivedFrom(field: "manager_id")
+  escrows: [StakingManagerEscrow!]! @derivedFrom(field: "manager_id")
+  externalManagerETH: [StakingManagerExternalETH!]!
+    @derivedFrom(field: "manager_id")
+}
+
+type StakingManagerStake {
+  id: String!
+  manager_id: String!
+  user_id: String!
+  amount: BigInt!
+  unlocksAt: BigInt!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+  deltas: [StakingManagerStakeDelta!]! @derivedFrom(field: "stake_id")
+}
+
+type StakingManagerStakeDelta {
+  id: String!
+  manager_id: String!
+  user_id: String!
+  stake_id: String!
+  amount: BigInt!
+  createdAt: BigInt!
+  txHash: String!
+}
+
+type StakingManagerEscrow {
+  id: String!
+  manager_id: String!
+  collection_id: String!
+  timelockedUntil: BigInt!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+  txHash: String!
+}
+
+type StakingManagerClaim {
+  id: String!
+  manager_id: String!
+  amount: BigInt!
+  amountUSDC: BigDecimal!
+  recipient_id: String!
+  createdAt: BigInt!
+  txHash: String!
+}
+
+type StakingManagerExternalETH {
+  id: String!
+  manager_id: String!
+  user_id: String!
+  amount: BigInt!
+  amountUSDC: BigDecimal!
+  createdAt: BigInt!
+  txHash: String!
+}
+
+# BuyBack Manager
+type BuyBackManager {
+  id: String!
+  deployer: String!
+  managerImplementation: String!
+  permissions: String!
+  createdAt: BigInt!
+  owner_id: String
+  creatorShare: BigInt!
+  ownerShare: BigInt!
+  buyBackCurrency0: String!
+  buyBackCurrency1: String!
+  totalDeposits: BigInt!
+  totalDepositsUSDC: BigDecimal!
+  externalManagerETHTotal: BigInt!
+  # Virtual derived fields
+  holdings: [Collection!]! @derivedFrom(field: "buyBackManager_id")
+  deposits: [BuyBackManagerDeposit!]! @derivedFrom(field: "manager_id")
+  claims: [BuyBackManagerClaim!]! @derivedFrom(field: "manager_id")
+  externalManagerETH: [BuyBackManagerExternalETH!]!
+    @derivedFrom(field: "manager_id")
+}
+
+type BuyBackManagerDeposit {
+  id: String!
+  manager_id: String!
+  amount: BigInt!
+  amountUSDC: BigDecimal!
+  createdAt: BigInt!
+  txHash: String!
+}
+
+type BuyBackManagerClaim {
+  id: String!
+  manager_id: String!
+  collection_id: String
+  amount: BigInt!
+  amountUSDC: BigDecimal!
+  recipient_id: String!
+  createdAt: BigInt!
+  txHash: String!
+}
+
+type BuyBackManagerExternalETH {
+  id: String!
+  manager_id: String!
+  user_id: String!
+  amount: BigInt!
+  amountUSDC: BigDecimal!
+  createdAt: BigInt!
+  txHash: String!
+}
+
+# ERC721 Collection (NFT representing token ownership)
+type Collection {
+  id: String!
+  creator_id: String!
+  owner_id: String!
+  contract: String!
+  collectionToken_id: String
+  tokenID: BigInt!
+  name: String!
+  symbol: String!
+  # Manager references - only one will be set
+  managerType: String
+  managerUpdatedAt: BigInt!
+  revenueManager_id: String
+  addressFeeSplitManager_id: String
+  stakingManager_id: String
+  buyBackManager_id: String
+}
+
+# Metadata for collection token (from IPFS)
+type CollectionMetadata {
+  id: String!
+  name: String!
+  description: String!
+  logoHash: String!
+  symbol: String!
+  collectionToken_id: String
+  website: String
+  discord: String
+  twitter: String
+  telegram: String
+}
+
+# ERC20 Collection Token
+type CollectionToken {
+  id: String!
+  collection_id: String!
+  totalSupply: BigInt!
+  pool_id: String!
+  name: String!
+  symbol: String!
+  decimals: Int!
+  baseURI: String!
+  metadata_id: String
+  createdAt: BigInt!
+  creator_id: String!
+  isNative: Boolean!
+  owner_id: String!
+  marketCapETH: BigInt!
+  volumeETH: BigInt!
+  marketCapUSDC: BigDecimal!
+  volumeUSDC: BigDecimal!
+  totalFeesETH: BigInt!
+  totalFeesUSDC: BigDecimal!
+  derivedETH: BigInt!
+  totalCommunityFeesETH: BigDecimal!
+  totalCreatorFeesETH: BigDecimal!
+  tokenPrice: BigInt!
+  totalHolders: BigInt!
+  creationFee: BigInt!
+  fairLaunch_id: String
+  # Archive helper fields
+  lastMinuteArchived: BigInt!
+  lastHourArchived: BigInt!
+  lastFifteenMinuteArchived: BigInt!
+  lastFourHourArchived: BigInt!
+  lastMinuteRecorded: BigInt!
+  lastHourRecorded: BigInt!
+  lastFifteenMinuteRecorded: BigInt!
+  lastFourHourRecorded: BigInt!
+  # Archive arrays
+  minuteArray: [Int!]!
+  hourArray: [Int!]!
+  fifteenMinuteArray: [Int!]!
+  fourHourArray: [Int!]!
+  # Virtual derived fields
+  dayData: [TokenDayData!]! @derivedFrom(field: "token_id")
+  hourData: [TokenHourData!]! @derivedFrom(field: "token_id")
+  minuteData: [TokenMinuteData!]! @derivedFrom(field: "token_id")
+  fifteenMinuteData: [Token15MinuteData!]! @derivedFrom(field: "token_id")
+  fourHourData: [Token4HourData!]! @derivedFrom(field: "token_id")
+  holdings: [CollectionTokenHolding!]! @derivedFrom(field: "collectionToken_id")
+  # Note: importedToken is 1-to-1 so accessed via ImportedToken.collectionToken_id query
+}
+
+# BidWall entity
+type BidWall {
+  id: String!
+  contract: String!
+  collectionToken_id: String!
+  pool_id: String!
+  initialized: Boolean!
+  tickLower: BigInt!
+  tickUpper: BigInt!
+  amount: BigInt!
+  balance: BigInt!
+  deployedETH: BigInt!
+  closed: Boolean!
+  distributions: [BidWallDistribution!]! @derivedFrom(field: "bidWall_id")
+}
+
+type BidWallDistribution {
+  id: String!
+  bidWall_id: String!
+  collectionToken_id: String!
+  amount: BigInt!
+  recipient_id: String!
+}
+
+type BidWallRepositioned {
+  id: String!
+  pool_id: String!
+  _eth: BigInt!
+  _tickLower: Int!
+  _tickUpper: Int!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# Fair Launch
+type FairLaunch {
+  id: String!
+  active: Boolean!
+  collectionToken_id: String!
+  tick: Int!
+  initialSupply: BigInt!
+  ethEarned: BigInt!
+  soldInitialSupply: BigInt!
+  starts_at: BigInt!
+  ends_at: BigInt!
+}
+
+# Fee Distribution configuration
+type FeeDistribution {
+  id: String!
+  swapFee: Int
+  referrer: Int
+  protocol: Int
+  community: Int
+  active: Boolean
+  creator: Int
+}
+
+type FeeExemption {
+  id: String!
+  flatFee: Int!
+}
+
+type FlaunchFeeExemption {
+  id: String!
+  createdAt: BigInt!
+}
+
+type PoolPremine {
+  id: String!
+  receiver_id: String!
+  pool_id: String!
+  amount: BigInt!
+}
+
+type FlayBurner {
+  id: String!
+  address: String!
+  pendingETH: BigInt!
+  totalBurned: BigInt!
+  createdAt: BigInt!
+}
+
+# Referral Escrow entities
+type ReferralEscrowAssigned {
+  id: String!
+  amount: BigInt!
+  receiver_id: String!
+  token_id: String!
+  timestamp: BigInt!
+  txHash: String!
+}
+
+type ReferralEscrowClaimed {
+  id: String!
+  amount: BigInt!
+  amountUSDC: BigDecimal!
+  receiver_id: String!
+  token_id: String!
+  timestamp: BigInt!
+  txHash: String!
+}
+
+type ReferralEscrowSwapped {
+  id: String!
+  ethOut: BigInt!
+  tokensIn: BigInt!
+  receiver_id: String!
+  token_id: String!
+  timestamp: BigInt!
+  txHash: String!
+}
+
+# Pool entity
+type Pool {
+  id: String!
+  collectionToken_id: String!
+  sqrtPriceX96: BigInt!
+  tick: Int!
+  liveAtTimestamp: BigInt!
+  startingMarketCap: BigInt!
+  startingMarketCapETH: BigInt!
+  poolFees_id: String
+  bidWall_id: String
+  feeDistribution_id: String
+  volumeETH: BigInt!
+  volumeUSDC: BigDecimal!
+  totalFeesETH: BigInt!
+  totalFeesToken: BigInt!
+  totalFeesUSDC: BigDecimal!
+  totalFeesTokenConverted: BigInt!
+  memecoinTreasury_id: String
+  totalCommunityFeesETH: BigDecimal!
+  totalCreatorFeesETH: BigDecimal!
+  ispEthIn: BigInt!
+  ispTokenOut: BigInt!
+  liquidity: BigInt!
+  tickSpacing: Int!
+  fairLaunchedEnded: Boolean!
+  feeAllocation_id: String
+  flipped: Boolean!
+  positionManager: String!
+  swaps: [PoolSwap!]! @derivedFrom(field: "pool_id")
+}
+
+type FeeAllocation {
+  id: String!
+  community: Int!
+  creator: Int!
+}
+
+type PoolSwap {
+  id: String!
+  maker_id: String!
+  timestamp: BigInt!
+  txHash: String!
+  pool_id: String!
+  fairLaunchAmount0: BigInt
+  fairLaunchAmount1: BigInt
+  ispAmount0: BigInt
+  ispAmount1: BigInt
+  uniswapAmount0: BigInt
+  uniswapAmount1: BigInt
+  fairLaunchFee0: BigInt
+  fairLaunchFee1: BigInt
+  ispFee0: BigInt
+  ispFee1: BigInt
+  uniswapFee0: BigInt
+  uniswapFee1: BigInt
+  flAmountUSDC: BigDecimal
+  ispAmountUSDC: BigDecimal
+  uniAmountUSDC: BigDecimal
+  totalAmountUSDC: BigDecimal
+  swapType: ActivityType!
+  userHolding_id: String
+}
+
+type PoolFees {
+  id: String!
+  ethAvailable: BigInt!
+  tokenAvailable: BigInt!
+  totalTokenIn: BigInt!
+  totalEthIn: BigInt!
+}
+
+type PoolFeeDistribution {
+  id: String!
+  timestamp: BigInt!
+  pool_id: String!
+  amount: BigInt!
+  creatorAmount: BigInt!
+  bidWallAmount: BigInt!
+  governanceAmount: BigInt!
+  protocolAmount: BigInt!
+}
+
+type UserFee {
+  id: String!
+  payee_id: String!
+  claimableAmount: BigInt!
+  claimableAmountUSDC: BigDecimal!
+  lifetimeFees: BigInt!
+  totalClaimed: BigInt!
+  totalClaimedUSDC: BigDecimal!
+  updatedAt: BigInt!
+  claims: [UserFeeClaimed!]! @derivedFrom(field: "payee_id")
+}
+
+type UserFeeClaimed {
+  id: String!
+  payee_id: String!
+  amount: BigInt!
+  amountUSDC: BigDecimal!
+  date: BigInt!
+  txHash: String!
+}
+
+type UserCollectionFee {
+  id: String!
+  user_id: String!
+  collectionToken_id: String!
+  lifetimeFees: BigInt!
+  updatedAt: BigInt!
+}
+
+type CollectionFee {
+  id: String!
+  lifetimeFees: BigInt!
+  updatedAt: BigInt!
+}
+
+type ReferrerFee {
+  id: String!
+  pool_id: String!
+  recipient_id: String!
+  txHash: String!
+  isETH: Boolean!
+  token_id: String
+  amount: BigInt!
+  amountInETH: BigInt!
+  timestamp: BigInt!
+}
+
+# Time Series Data - Day
+type TokenDayData {
+  id: String!
+  date: Int!
+  periodStartUnix: Int!
+  token_id: String!
+  pool_id: String!
+  volumeETH: BigInt!
+  volumeUSDC: BigDecimal!
+  totalVolumeETH: BigInt!
+  totalVolumeUSDC: BigDecimal!
+  marketCapETH: BigInt!
+  marketCapUSDC: BigDecimal!
+  priceETH: BigInt!
+  priceUSDC: BigDecimal!
+  feesETH: BigInt!
+  feesUSDC: BigDecimal!
+  totalFeesETH: BigInt!
+  totalFeesUSDC: BigDecimal!
+  priceOpen: BigInt!
+  priceOpenUSDC: BigDecimal!
+  priceHigh: BigInt!
+  priceHighUSDC: BigDecimal!
+  priceLow: BigInt!
+  priceLowUSDC: BigDecimal!
+  priceClose: BigInt!
+  priceCloseUSDC: BigDecimal!
+}
+
+# Time Series Data - Hour
+type TokenHourData {
+  id: String!
+  periodStartUnix: Int!
+  token_id: String!
+  pool_id: String!
+  volumeETH: BigInt!
+  volumeUSDC: BigDecimal!
+  totalVolumeETH: BigInt!
+  totalVolumeUSDC: BigDecimal!
+  marketCapETH: BigInt!
+  marketCapUSDC: BigDecimal!
+  priceETH: BigInt!
+  priceUSDC: BigDecimal!
+  feesETH: BigInt!
+  feesUSDC: BigDecimal!
+  totalFeesETH: BigInt!
+  totalFeesUSDC: BigDecimal!
+  priceOpen: BigInt!
+  priceOpenUSDC: BigDecimal!
+  priceHigh: BigInt!
+  priceHighUSDC: BigDecimal!
+  priceLow: BigInt!
+  priceLowUSDC: BigDecimal!
+  priceClose: BigInt!
+  priceCloseUSDC: BigDecimal!
+}
+
+# Time Series Data - Minute
+type TokenMinuteData {
+  id: String!
+  periodStartUnix: Int!
+  token_id: String!
+  volumeETH: BigInt!
+  volumeUSDC: BigDecimal!
+  totalVolumeETH: BigInt!
+  totalVolumeUSDC: BigDecimal!
+  marketCapETH: BigInt!
+  marketCapUSDC: BigDecimal!
+  priceETH: BigInt!
+  priceUSDC: BigDecimal!
+  feesETH: BigInt!
+  feesUSDC: BigDecimal!
+  totalFeesETH: BigInt!
+  totalFeesUSDC: BigDecimal!
+  priceOpen: BigInt!
+  priceOpenUSDC: BigDecimal!
+  priceHigh: BigInt!
+  priceHighUSDC: BigDecimal!
+  priceLow: BigInt!
+  priceLowUSDC: BigDecimal!
+  priceClose: BigInt!
+  priceCloseUSDC: BigDecimal!
+}
+
+# Time Series Data - 15 Minute
+type Token15MinuteData {
+  id: String!
+  periodStartUnix: Int!
+  token_id: String!
+  volumeETH: BigInt!
+  volumeUSDC: BigDecimal!
+  totalVolumeETH: BigInt!
+  totalVolumeUSDC: BigDecimal!
+  marketCapETH: BigInt!
+  marketCapUSDC: BigDecimal!
+  priceETH: BigInt!
+  priceUSDC: BigDecimal!
+  feesETH: BigInt!
+  feesUSDC: BigDecimal!
+  totalFeesETH: BigInt!
+  totalFeesUSDC: BigDecimal!
+  priceOpen: BigInt!
+  priceOpenUSDC: BigDecimal!
+  priceHigh: BigInt!
+  priceHighUSDC: BigDecimal!
+  priceLow: BigInt!
+  priceLowUSDC: BigDecimal!
+  priceClose: BigInt!
+  priceCloseUSDC: BigDecimal!
+}
+
+# Time Series Data - 4 Hour
+type Token4HourData {
+  id: String!
+  periodStartUnix: Int!
+  token_id: String!
+  volumeETH: BigInt!
+  volumeUSDC: BigDecimal!
+  totalVolumeETH: BigInt!
+  totalVolumeUSDC: BigDecimal!
+  marketCapETH: BigInt!
+  marketCapUSDC: BigDecimal!
+  priceETH: BigInt!
+  priceUSDC: BigDecimal!
+  feesETH: BigInt!
+  feesUSDC: BigDecimal!
+  totalFeesETH: BigInt!
+  totalFeesUSDC: BigDecimal!
+  priceOpen: BigInt!
+  priceOpenUSDC: BigDecimal!
+  priceHigh: BigInt!
+  priceHighUSDC: BigDecimal!
+  priceLow: BigInt!
+  priceLowUSDC: BigDecimal!
+  priceClose: BigInt!
+  priceCloseUSDC: BigDecimal!
+}
+
+# Bundle for ETH price tracking
+type Bundle {
+  id: String!
+  ethPriceUSDC: BigDecimal!
+}
+
+# Activity log
+type Activity {
+  id: String!
+  maker_id: String!
+  timestamp: BigInt!
+  txHash: String!
+  token_id: String!
+  amountETH: BigInt!
+  amountToken: BigInt!
+  activityType: ActivityType!
+}
+
+# Memecoin Treasury
+type MemecoinTreasury {
+  id: String!
+  pool_id: String!
+  createdAt: BigInt!
+  totalActions: BigInt!
+  lastActionTimestamp: BigInt!
+  totalETH: BigInt!
+  totalToken: BigInt!
+  activities: [MemecoinTreasuryActivity!]! @derivedFrom(field: "treasury_id")
+}
+
+type MemecoinTreasuryActivity {
+  id: String!
+  pool_id: String
+  treasury_id: String
+  action_id: String!
+  tokenDelta0: BigInt!
+  tokenDelta1: BigInt!
+  timestamp: BigInt!
+  transactionHash: String!
+  blockNumber: BigInt!
+}
+
+type MemecoinAction {
+  id: String!
+  approved: Boolean!
+  approvedAt: BigInt
+  unapprovedAt: BigInt
+  totalActions: BigInt!
+  approvedBy: String
+  unapprovedBy: String
+  activities: [MemecoinTreasuryActivity!]! @derivedFrom(field: "action_id")
+}
+
+# Imported Token (for tokens not native to Flaunch)
+type ImportedToken {
+  id: String!
+  collectionToken_id: String!
+  verifier: String!
+  sender: String!
+  importedAt: BigInt!
+  txHash: String!
+}
+
+type TokenImporterVerifier {
+  id: String!
+}
+
+# Flaunch Approval entities
+type FlaunchApproval {
+  id: String!
+  owner_id: String!
+  operator_id: String!
+  flaunchAddr: String!
+  globalApproval: Boolean!
+  tokens: [FlaunchApprovalToken!]! @derivedFrom(field: "flaunchApproval_id")
+}
+
+type FlaunchApprovalToken {
+  id: String!
+  flaunchApproval_id: String!
+  tokenId: BigInt!
+  collection_id: String
+  createdAt: BigInt!
+  txHash: String!
+}
+
+# Generic Token entity (for staking tokens, etc.)
+type Token {
+  id: String!
+  name: String!
+  symbol: String!
+  decimals: Int!
+  totalSupply: BigInt!
 }

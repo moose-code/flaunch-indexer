@@ -1,0 +1,93 @@
+/**
+ * Fair Launch Handlers
+ * Handles FairLaunch1 and FairLaunch2 contract events
+ */
+
+import { FairLaunch1, FairLaunch2 } from "generated";
+
+// =============================================================================
+// FAIR LAUNCH 1 HANDLERS
+// =============================================================================
+
+FairLaunch1.FairLaunchCreated.handler(async ({ event, context }) => {
+  const poolId = event.params.poolId;
+  const tokens = event.params.tokens;
+  const startsAt = event.params.startsAt;
+  const endsAt = event.params.endsAt;
+
+  // FairLaunch is already created by PoolCreated, just update with actual params
+  const fairLaunch = await context.FairLaunch.get(poolId);
+  if (fairLaunch) {
+    context.FairLaunch.set({
+      ...fairLaunch,
+      active: true,  // Now active when FairLaunchCreated event fires
+      initialSupply: tokens,
+      starts_at: startsAt,
+      ends_at: endsAt,
+    });
+  }
+});
+
+FairLaunch1.FairLaunchEnded.handler(async ({ event, context }) => {
+  const poolId = event.params.poolId;
+
+  const fairLaunch = await context.FairLaunch.get(poolId);
+  if (fairLaunch) {
+    context.FairLaunch.set({
+      ...fairLaunch,
+      active: false,
+      ends_at: BigInt(event.block.timestamp),
+    });
+  }
+
+  const pool = await context.Pool.get(poolId);
+  if (pool) {
+    context.Pool.set({
+      ...pool,
+      fairLaunchedEnded: true,
+    });
+  }
+});
+
+// =============================================================================
+// FAIR LAUNCH 2 HANDLERS
+// =============================================================================
+
+FairLaunch2.FairLaunchCreated.handler(async ({ event, context }) => {
+  const poolId = event.params.poolId;
+  const tokens = event.params.tokens;
+  const startsAt = event.params.startsAt;
+  const endsAt = event.params.endsAt;
+
+  const fairLaunch = await context.FairLaunch.get(poolId);
+  if (fairLaunch) {
+    context.FairLaunch.set({
+      ...fairLaunch,
+      active: true,  // Now active when FairLaunchCreated event fires
+      initialSupply: tokens,
+      starts_at: startsAt,
+      ends_at: endsAt,
+    });
+  }
+});
+
+FairLaunch2.FairLaunchEnded.handler(async ({ event, context }) => {
+  const poolId = event.params.poolId;
+
+  const fairLaunch = await context.FairLaunch.get(poolId);
+  if (fairLaunch) {
+    context.FairLaunch.set({
+      ...fairLaunch,
+      active: false,
+      ends_at: BigInt(event.block.timestamp),
+    });
+  }
+
+  const pool = await context.Pool.get(poolId);
+  if (pool) {
+    context.Pool.set({
+      ...pool,
+      fairLaunchedEnded: true,
+    });
+  }
+});

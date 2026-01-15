@@ -7,6 +7,7 @@ networks:
       - name: AnyPositionManager
         address:
           - 0x2ad43d0618b1d8a0cc75cf716cf0bf64070725dc
+          - 0x8dc3b85e1dc1c846ebf3971179a751896842e5dc # AnyPositionManager2
         handler: src/EventHandlers.ts
         events:
           - event: FeeCalculatorUpdated(address _feeCalculator)
@@ -20,9 +21,10 @@ networks:
           - event: PoolStateUpdated(bytes32 indexed _poolId, uint160 _sqrtPriceX96, int24 _tick, uint24 _protocolFee, uint24 _swapFee, uint128 _liquidity)
           - event: ReferrerFeePaid(bytes32 indexed _poolId, address _recipient, address _token, uint256 _amount)
           - event: ReferralEscrowUpdated(address _referralEscrow)
+          - event: CreatorFeeAllocationUpdated(bytes32 indexed _poolId, uint24 _allocation)
       - name: PositionManager1
         address:
-          - 0x51Bba15255406Cfe7099a42183302640ba7dAFDC
+          - 0x51bba15255406cfe7099a42183302640ba7dafdc
         handler: src/EventHandlers.ts
         events:
           - event: CreatorFeeAllocationUpdated(bytes32 indexed _poolId, uint24 _allocation)
@@ -65,9 +67,11 @@ networks:
           - event: ReferrerFeePaid(bytes32 indexed _poolId, address _recipient, address _token, uint256 _amount)
           - event: FairLaunchFeeCalculatorUpdated(address _feeCalculator)
           - event: ReferralEscrowUpdated(address _referralEscrow)
+          - event: CreatorFeeAllocationUpdated(bytes32 indexed _poolId, uint24 _allocation)
       - name: PositionManager3
         address:
           - 0xb903b0ab7bcee8f5e4d8c9b10a71aac7135d6fdc
+          - 0x23321f11a6d44fd1ab790044fdfde5758c902fdc # PositionManager4
         handler: src/EventHandlers.ts
         events:
           - event: FeeCalculatorUpdated(address _feeCalculator)
@@ -84,56 +88,59 @@ networks:
           - event: ReferrerFeePaid(bytes32 indexed _poolId, address _recipient, address _token, uint256 _amount)
           - event: FairLaunchFeeCalculatorUpdated(address _feeCalculator)
           - event: ReferralEscrowUpdated(address _referralEscrow)
+          - event: CreatorFeeAllocationUpdated(bytes32 indexed _poolId, uint24 _allocation)
       - name: PoolManager
         address:
-          - 0x498581fF718922c3f8e6A244956aF099B2652b2b
+          - 0x498581ff718922c3f8e6a244956af099b2652b2b
         handler: src/EventHandlers.ts
         events:
           - event: Swap(bytes32 indexed poolId, address indexed sender, int128 amount0, int128 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick, uint24 fee)
       - name: ActionManager1
         address:
-          - 0xeC2a53F572cFD952aAA3a8359Ac54B31d0A186a4
+          - 0xec2a53f572cfd952aaa3a8359ac54b31d0a186a4
         handler: src/EventHandlers.ts
         events:
           - event: ActionApproved(address indexed action)
           - event: ActionUnapproved(address indexed action)
       - name: ActionManager2
         address:
-          - 0xFB5c20c4E60c9c64648DD3692437E3E313Add4A4
+          - 0xfb5c20c4e60c9c64648dd3692437e3e313add4a4
         handler: src/EventHandlers.ts
         events:
           - event: ActionApproved(address indexed action)
           - event: ActionUnapproved(address indexed action)
       - name: BidWall1
         address:
-          - 0x66681f10BA90496241A25e33380004f30Dfd8aa8
+          - 0x66681f10ba90496241a25e33380004f30dfd8aa8
         handler: src/EventHandlers.ts
         events:
           - event: BidWallClosed(bytes32 indexed poolId, address recipient, uint256 amount)
           - event: BidWallRepositioned(bytes32 indexed poolId, uint256 liquidity, int24 tickLower, int24 tickUpper)
           - event: BidWallRewardsTransferred(bytes32 indexed poolId, address recipient, uint256 amount)
-          - event: BidWallDeposit(bytes32 indexed poolId, uint256 amount0, uint256 amount1)
+          - event: BidWallDeposit(bytes32 indexed poolId, uint256 added, uint256 pending)
           - event: BidWallDisabledStateUpdated(bytes32 indexed poolId, bool disabled)
       - name: BidWall2
         address:
-          - 0x7f22353d1634223a802D1c1Ea5308Ddf5DD0ef9c
+          - 0x7f22353d1634223a802d1c1ea5308ddf5dd0ef9c
+          - 0x2154c604df568a5285284d1c4918dc98c39240df # AnyBidWall
         handler: src/EventHandlers.ts
         events:
           - event: BidWallClosed(bytes32 indexed poolId, address recipient, uint256 amount)
           - event: BidWallRepositioned(bytes32 indexed poolId, uint256 liquidity, int24 tickLower, int24 tickUpper)
           - event: BidWallRewardsTransferred(bytes32 indexed poolId, address recipient, uint256 amount)
-          - event: BidWallDeposit(bytes32 indexed poolId, uint256 amount0, uint256 amount1)
+          - event: BidWallDeposit(bytes32 indexed poolId, uint256 added, uint256 pending)
           - event: BidWallDisabledStateUpdated(bytes32 indexed poolId, bool disabled)
+          - event: StaleTimeWindowUpdated(uint256 staleTimeWindow)
       - name: FeeEscrow
         address:
-          - 0x72e6f7948b1B1A343B477F39aAbd2E35E6D27dde
+          - 0x72e6f7948b1b1a343b477f39aabd2e35e6d27dde
         handler: src/EventHandlers.ts
         events:
           - event: Deposit(bytes32 indexed poolId, address sender, address token, uint256 amount)
           - event: Withdrawal(address sender, address recipient, address token, uint256 amount)
       - name: FeeExemptions
         address:
-          - 0xfdCE459071c74b732B2dEC579Afb38Ea552C4e06
+          - 0xfdce459071c74b732b2dec579afb38ea552c4e06
         handler: src/EventHandlers.ts
         events:
           - event: BeneficiaryFeeRemoved(address beneficiary)
@@ -146,61 +153,197 @@ networks:
           - event: FeeExemptionUpdated(address indexed user, bool exempt)
       - name: FairLaunch1
         address:
-          - 0xCc7A4A00072ccbeEEbd999edc812C0ce498Fb63B
+          - 0xcc7a4a00072ccbeeebd999edc812c0ce498fb63b
         handler: src/EventHandlers.ts
         events:
           - event: FairLaunchEnded(bytes32 indexed poolId, uint256 totalRaised, uint256 liquidityAdded, uint256 refundAmount)
-          - event: FairLaunchCreated(bytes32 indexed poolId, uint256 targetAmount, uint256 maxAmount, uint256 deadline)
+          - event: FairLaunchCreated(bytes32 indexed poolId, uint256 tokens, uint256 startsAt, uint256 endsAt)
       - name: FairLaunch2
         address:
           - 0x4dc442403e8c758425b93c59dc737da522f32640
         handler: src/EventHandlers.ts
         events:
           - event: FairLaunchEnded(bytes32 indexed poolId, uint256 totalRaised, uint256 liquidityAdded, uint256 refundAmount)
-          - event: FairLaunchCreated(bytes32 indexed poolId, uint256 targetAmount, uint256 maxAmount, uint256 deadline)
+          - event: FairLaunchCreated(bytes32 indexed poolId, uint256 tokens, uint256 startsAt, uint256 endsAt)
       - name: FlaunchNFT1
         address:
-          - 0x6A53F8b799bE11a2A3264eF0bfF183dCB12d9571
+          - 0x6a53f8b799be11a2a3264ef0bff183dcb12d9571
         handler: src/EventHandlers.ts
         events:
           - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+          - event: Approval(address indexed owner, address indexed account, uint256 indexed id)
+          - event: ApprovalForAll(address indexed owner, address indexed operator, bool isApproved)
       - name: FlaunchNFT2
         address:
           - 0xb4512bf57d50fbcb64a3adf8b17a79b2a204c18c
         handler: src/EventHandlers.ts
         events:
           - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+          - event: Approval(address indexed owner, address indexed account, uint256 indexed id)
+          - event: ApprovalForAll(address indexed owner, address indexed operator, bool isApproved)
       - name: FlaunchNFT3
         address:
           - 0x0cf6bdf0a85a9d6763361037985b76c8893553af
         handler: src/EventHandlers.ts
         events:
           - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+          - event: Approval(address indexed owner, address indexed account, uint256 indexed id)
+          - event: ApprovalForAll(address indexed owner, address indexed operator, bool isApproved)
       - name: AnyFlaunchNFT
         address:
           - 0xf175a370eb26ea26c42caaecd10ee723ed844c50
+          - 0xc5b2e8f197407263f4b62a35c71bfc394ecf95d5 # AnyFlaunchNFT2
         handler: src/EventHandlers.ts
         events:
           - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+          - event: Approval(address indexed owner, address indexed account, uint256 indexed id)
+          - event: ApprovalForAll(address indexed owner, address indexed operator, bool isApproved)
+      - name: FlaunchNFT4
+        address:
+          - 0x516af52d0c629b5e378da4dc64ecb0744ce10109
+        handler: src/EventHandlers.ts
+        events:
+          - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+          - event: Approval(address indexed owner, address indexed account, uint256 indexed id)
+          - event: ApprovalForAll(address indexed owner, address indexed operator, bool isApproved)
       - name: FlayBurner
         address:
-          - 0x94e1Ea82515c79159349bB38919B083E7D888Ce9
+          - 0x94e1ea82515c79159349bb38919b083e7d888ce9
         handler: src/EventHandlers.ts
         events:
           - event: BurnerUpdated(address burner)
       - name: BuyBackAndBurnFlay
         address:
           - 0x558a4d2f46765047596cef406e27fe8cb0725192
+          - 0x2994a2849666c3487aaef9bb0662f853a710413c # BuyBackAndBurnFlay2
         handler: src/EventHandlers.ts
         events:
           - event: BurnBabyBurn(uint256 amount)
           - event: EthBalanceUpdated(uint256 balance)
+      - name: Locker
+        address:
+          - 0x9eb1f3bf4d2e8cd17347d062b164ad6b1ade6a4e
+        handler: src/EventHandlers.ts
+        events:
+          - event: Paused(address account)
+          - event: Unpaused(address account)
+      - name: TokenImporter
+        address:
+          - 0xb47af90ae61bc916ea4b4bacffae4570e7435842
+        handler: src/EventHandlers.ts
+        events:
+          - event: AnyPositionManagerSet(address indexed _anyPositionManager)
+          - event: TokenImported(address indexed _memecoin, address indexed _verifier)
+          - event: VerifierAdded(address indexed _verifier)
+          - event: VerifierRemoved(address indexed _verifier)
       - name: TreasuryManagerFactory
         address:
-          - 0x48af8b28DDC5e5A86c4906212fc35Fa808CA8763
+          - 0x48af8b28ddc5e5a86c4906212fc35fa808ca8763
         handler: src/EventHandlers.ts
         events:
           - event: ManagerImplementationUnapproved(address indexed implementation)
           - event: ManagerDeployed(address indexed manager, address indexed implementation)
           - event: ManagerImplementationApproved(address indexed implementation)
+      # Dynamic contracts (no address - registered via contractRegister)
+      - name: CollectionToken
+        # No address - dynamically registered when pools are created
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: Transfer(address indexed from, address indexed to, uint256 value)
+          - event: MetadataUpdated(string baseURI, string contractURI)
+
+      # ReferralEscrow - registered via ReferralEscrowUpdated
+      - name: ReferralEscrow
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: TokensAssigned(bytes32 indexed poolId, address indexed user, address indexed token, uint256 amount)
+          - event: TokensClaimed(address indexed user, address token, address indexed recipient, uint256 amount)
+          - event: TokensSwapped(address indexed user, address indexed token, uint256 ethOut, uint256 tokensIn)
+
+      # MemecoinTreasury - registered via PoolCreated
+      - name: MemecoinTreasuryContract
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: ActionExecuted(address action, int256 token0, int256 token1)
+
+      # Action contracts - registered via ActionApproved
+      - name: ActionContract
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: ActionExecuted((address,address,uint24,int24,address) poolKey, int256 _token0, int256 _token1)
+
+      # RevenueManager - registered via TreasuryManagerFactory.ManagerDeployed
+      - name: RevenueManager
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: CreatorUpdated(address indexed flaunch, uint256 indexed tokenId, address creator)
+          - event: ManagerInitialized(address owner, (address,uint256) params)
+          - event: ManagerOwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+          - event: ProtocolRecipientUpdated(address protocolRecipient)
+          - event: TreasuryEscrowed(address indexed flaunch, uint256 indexed tokenId, address owner, address sender)
+          - event: TreasuryReclaimed(address indexed flaunch, uint256 indexed tokenId, address recipient, address sender)
+          - event: RevenueClaimed(address indexed flaunch, uint256 indexed tokenId, address recipient, uint256 amount)
+          - event: ProtocolRevenueClaimed(address recipient, uint256 amount)
+          - event: PermissionsUpdated(address permissions)
+
+      # StakingManager - registered via TreasuryManagerFactory.ManagerDeployed
+      - name: StakingManager
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: CreatorUpdated(address indexed flaunch, uint256 indexed tokenId, address creator)
+          - event: ManagerInitialized(address owner, (address,uint256,uint256,uint256,uint256) params)
+          - event: ManagerOwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+          - event: TreasuryEscrowed(address indexed flaunch, uint256 indexed tokenId, address owner, address sender)
+          - event: TreasuryReclaimed(address indexed flaunch, uint256 indexed tokenId, address recipient, address sender)
+          - event: Claim(address sender, uint256 amount)
+          - event: EscrowDurationExtended(address indexed flaunch, uint256 indexed tokenId, uint256 newDuration)
+          - event: Stake(address sender, uint256 amount, (uint256,uint256,uint256,uint256) position)
+          - event: Unstake(address sender, uint256 amount, (uint256,uint256,uint256,uint256) position)
+          - event: PermissionsUpdated(address permissions)
+          - event: ETHReceivedFromUnknownSource(address sender, uint256 amount)
+
+      # AddressFeeSplitManager - registered via TreasuryManagerFactory.ManagerDeployed
+      - name: AddressFeeSplitManager
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: CreatorUpdated(address indexed flaunch, uint256 indexed tokenId, address creator)
+          - event: ManagerInitialized(address owner, (uint256,(address,uint256)[]) params)
+          - event: RecipientAdded(address recipient, uint256 share)
+          - event: ManagerOwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+          - event: RevenueClaimed(address indexed recipient, uint256 amountClaimed)
+          - event: TreasuryEscrowed(address indexed flaunch, uint256 indexed tokenId, address owner, address sender)
+          - event: TreasuryReclaimed(address indexed flaunch, uint256 indexed tokenId, address recipient, address sender)
+          - event: RecipientShareTransferred(address indexed oldRecipient, address indexed newRecipient, uint256 share)
+          - event: PermissionsUpdated(address permissions)
+          - event: ETHReceivedFromUnknownSource(address sender, uint256 amount)
+
+      # BuyBackManager - registered via TreasuryManagerFactory.ManagerDeployed
+      - name: BuyBackManager
+        address:
+        handler: src/EventHandlers.ts
+        events:
+          - event: CreatorUpdated(address indexed flaunch, uint256 indexed tokenId, address creator)
+          - event: ManagerInitialized(address owner, ((address,address,uint24,int24,address),uint256,uint256) params)
+          - event: ManagerOwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+          - event: TreasuryEscrowed(address indexed flaunch, uint256 indexed tokenId, address owner, address sender)
+          - event: TreasuryReclaimed(address indexed flaunch, uint256 indexed tokenId, address recipient, address sender)
+          - event: RevenueClaimed(address indexed recipient, uint256 amountClaimed)
+          - event: BidWallDeposit(uint256 ethAmount)
+          - event: PermissionsUpdated(address permissions)
+          - event: ETHReceivedFromUnknownSource(address sender, uint256 amount)
+
 unordered_multichain_mode: true
+preload_handlers: true
+address_format: lowercase
+
+field_selection:
+  transaction_fields:
+    - hash
+    - from
