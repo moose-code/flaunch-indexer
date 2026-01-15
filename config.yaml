@@ -230,6 +230,7 @@ networks:
       - name: TokenImporter
         address:
           - 0xb47af90ae61bc916ea4b4bacffae4570e7435842
+          - 0x6fb66f4fc262dc86e12136c481ba7c411e668197 # TokenImporter2
         handler: src/EventHandlers.ts
         events:
           - event: AnyPositionManagerSet(address indexed _anyPositionManager)

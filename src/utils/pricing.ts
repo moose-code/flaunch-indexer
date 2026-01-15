@@ -129,6 +129,29 @@ export function calculateMarketCapETH(
 }
 
 /**
+ * Calculate initial token price from starting market cap and total supply.
+ * Matches subgraph's calculateInitialTokenPrice behavior.
+ *
+ * Formula: initialPrice = startingMarketCap * 10^decimals / totalSupply
+ *
+ * @param startingMarketCap - The market cap in USDC (or the base currency)
+ * @param totalSupply - The effective total supply (may be overridden for bridged tokens)
+ * @param decimals - The token decimals (default 18)
+ */
+export function calculateInitialPriceFromMarketCap(
+  startingMarketCap: bigint,
+  totalSupply: bigint,
+  decimals: number = 18
+): bigint {
+  if (totalSupply === 0n) {
+    return ZERO_BI;
+  }
+
+  // initialPrice = startingMarketCap * 10^decimals / totalSupply
+  return (startingMarketCap * 10n ** BigInt(decimals)) / totalSupply;
+}
+
+/**
  * Get or create Bundle with default ETH price
  * NOTE: This is async - must be awaited
  */

@@ -180,6 +180,55 @@ export function getBigIntFromBytes(bytes: string): bigint {
 }
 
 /**
+ * Get BigInt from hex bytes at specific positions
+ * Used for extracting values from struct-encoded bytes at specific offsets.
+ * Matches subgraph's getBigIntFromBytes(bytes, start, end) behavior.
+ *
+ * @param bytes - Hex string of bytes
+ * @param start - Start position in the hex string (inclusive)
+ * @param end - End position in the hex string (exclusive)
+ *
+ * @example
+ * // For AnyMarketCappedPriceV3 struct:
+ * // - usdcMarketCap: positions 2-65 (32 bytes)
+ * // - memecoin: positions 66-129 (32 bytes)
+ * // - tokenSupply: positions 130-193 (32 bytes)
+ * getBigIntFromBytesRange(bytes, 130, 194) // extracts tokenSupply
+ */
+export function getBigIntFromBytesRange(
+  bytes: string,
+  start: number,
+  end: number
+): bigint {
+  // Handle empty or invalid bytes
+  if (!bytes || bytes === "0x" || bytes === "" || bytes.length < end) {
+    return 0n;
+  }
+
+  // Normalize to lowercase
+  const normalized = bytes.toLowerCase();
+
+  // Extract the hex portion at the specified range
+  const hexPortion = normalized.substring(start, end);
+
+  // Handle empty extraction
+  if (!hexPortion || hexPortion.length === 0) {
+    return 0n;
+  }
+
+  // Ensure we have a valid hex string
+  if (!/^[0-9a-f]+$/i.test(hexPortion)) {
+    return 0n;
+  }
+
+  try {
+    return BigInt("0x" + hexPortion);
+  } catch {
+    return 0n;
+  }
+}
+
+/**
  * Hex string to BigInt
  */
 export function hexToBigInt(hex: string): bigint {

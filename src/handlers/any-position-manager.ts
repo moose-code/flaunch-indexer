@@ -10,9 +10,13 @@ import {
   absBigInt,
   generateCollectionId,
   getBigIntFromBytes,
+  getBigIntFromBytesRange,
   concatI32,
 } from "../utils/helpers";
-import { convertETHtoUSDCWithBundle } from "../utils/pricing";
+import {
+  convertETHtoUSDCWithBundle,
+  calculateInitialPriceFromMarketCap,
+} from "../utils/pricing";
 import {
   getBidWallAddressForPositionManager,
   getFlaunchAddressForPositionManager,
@@ -111,6 +115,15 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     ? getBigIntFromBytes(initialPriceParams)
     : ZERO_BI;
 
+  // The `AnyMarketCappedPriceV3` can optionally take a tokenSupply variable into the parameters.
+  // If set, this signifies the total circulating supply of the token across chains (bridged tokens).
+  // Struct layout: usdcMarketCap (32 bytes = pos 2-65), memecoin (32 bytes = pos 66-129), tokenSupply (32 bytes = pos 130-193)
+  // Check hex string length since substring positions are hex string positions
+  let totalSupplyOverride = ZERO_BI;
+  if (initialPriceParams && initialPriceParams.length >= 194) {
+    totalSupplyOverride = getBigIntFromBytesRange(initialPriceParams, 130, 194);
+  }
+
   // Ensure Bundle exists for ETH price
   let bundle = await context.Bundle.get(BUNDLE_ID);
   if (!bundle) {
@@ -173,8 +186,26 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     addressFeeSplitManager_id: undefined,
   });
 
+  // Calculate initial price for bridged tokens using totalSupplyOverride
+  // For bridged tokens, totalSupplyOverride represents cross-chain circulating supply
+  // effectiveTotalSupply = totalSupplyOverride if > 0, otherwise falls back to 0 (price calculated later)
+  const effectiveTotalSupply = totalSupplyOverride > 0n ? totalSupplyOverride : ZERO_BI;
+  
+  // Calculate initial price: startingMarketCap * 10^decimals / effectiveTotalSupply
+  // This matches subgraph's calculateInitialTokenPrice behavior
+  const initialPrice = effectiveTotalSupply > 0n
+    ? calculateInitialPriceFromMarketCap(startingMarketCap, effectiveTotalSupply, 18)
+    : ZERO_BI;
+
+  // Set marketCapETH (will be set properly on first PoolStateUpdated)
+  const startingMarketCapETH = ZERO_BI;
+  
+  // Set marketCapUSDC from startingMarketCap (which is in USDC)
+  const marketCapUSDC = initialPrice > 0n
+    ? BigDecimal(startingMarketCap.toString())
+    : ZERO_BD;
+
   // Create CollectionToken
-  const initialPrice = ZERO_BI;
   context.CollectionToken.set({
     id: memecoin,
     pool_id: poolId,
@@ -184,7 +215,7 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     name: "Unknown",
     symbol: "UNKNOWN",
     decimals: 18,
-    totalSupply: ZERO_BI,
+    totalSupply: effectiveTotalSupply, // Use effective supply for bridged tokens
     volumeETH: ZERO_BI,
     volumeUSDC: ZERO_BD,
     totalFeesETH: ZERO_BI,
@@ -193,8 +224,8 @@ AnyPositionManager.PoolCreated.handler(async ({ event, context }) => {
     totalCreatorFeesETH: ZERO_BD,
     derivedETH: initialPrice,
     tokenPrice: initialPrice,
-    marketCapETH: ZERO_BI,
-    marketCapUSDC: ZERO_BD,
+    marketCapETH: startingMarketCapETH,
+    marketCapUSDC: marketCapUSDC,
     totalHolders: 1n, // Creator gets initial supply
     isNative: flipped,
     createdAt: timestamp,
